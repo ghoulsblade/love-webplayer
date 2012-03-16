@@ -1,0 +1,7 @@
+canvas {
+  border: 1px solid black;
+  //-moz-box-shadow: black 2px 2px 2px;
+  width: 640px;
+  height: 480px;
+  background-color: #6cbee4;
+}
