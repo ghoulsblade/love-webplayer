@@ -1,5 +1,7 @@
 kMainLuaURL = "main.lua";
-kMainLuaURL = "main-test01.lua";
+//~ kMainLuaURL = "main-test01.lua";
+var G; // the big lua _G containing lua global vars
+
 
 function MyTest () {
 		//~ alert("spot01");
@@ -12,34 +14,72 @@ function MyTest () {
 		//~ document.getElementById("testfield01").innerHTML = "blubb!";
 		//~ alert("spot02");
 		
-		doRun();
+		doRun2();
+		//~ doRun();
 }
 
-// see http://www.w3.org/TR/XMLHttpRequest			sQuery = "bla.php?x="+escape(x)
-function MyAjaxGet (sQuery,sTargetID) { 
-	MyAjaxGetAux (sQuery,function (result) {
-		if (document.getElementById(sTargetID)) 
-			document.getElementById(sTargetID).innerHTML = result;
-		else alert("MyAjaxGet target element not found : "+sTargetID);
+function MyPrint (txt) {
+  var element = document.getElementById('output');
+  if (!element) return; // perhaps during startup
+  element.innerHTML += "<br>\n" + txt;
+}
+
+// when calling the result from lua_load, RobBootLoad is exectuted between lua environment setup and the parsed code
+function RobBootLoad (G) {
+	MyPrint("bootloader called");
+	G.str['love'] = lua_newtable();
+	G.str['love'].str['audio'] = lua_newtable();
+	G.str['love'].str['graphics'] = lua_newtable();
+	
+	// love.audio.newSource(path)
+	G.str['love'].str['audio'].str['newSource']		= function (path) { MyPrint("audio.newSource called"); return lua_newtable(); }
+	
+	// love.audio.play(sourceobj, number)
+	G.str['love'].str['audio'].str['play']			= function (src,num) { MyPrint("audio.play called"); }
+	
+	// love.graphics.newImage(path)
+	G.str['love'].str['graphics'].str['newImage']	= function (path) { MyPrint("graphics.newImage called"); return lua_newtable(); }
+	
+	// love.graphics.setBackgroundColor(r,g,b)
+	G.str['love'].str['graphics'].str['setBackgroundColor']	= function (r,g,b) { MyPrint("graphics.setBackgroundColor called"); }
+	
+	// love.graphics.setColor(r,g,b,a)
+	G.str['love'].str['graphics'].str['setColor']	= function (r,g,b,a) { MyPrint("graphics.setColor called"); }
+	
+}
+
+function doRun2 () {
+	
+	MyAjaxGetAux(kMainLuaURL,function (luacode) {
+		//~ execute(result);
+		MyPrint("just a test");
+		
+		
+		var myfun = lua_load(luacode,"maincode");
+		G = myfun();
+		lua_call(G.str['love'].str["load"], []); 
+		
+		/*
+		//~ MyPrint("lua_load -> type="+(typeof myfun)+" val="+String(myfun));
+		lua_load -> type=function val=function maincode() { var tmp; var G = lua_newtable2(lua_core); 
+			for (var i in lua_libs) { G.str[i] = lua_newtable2(lua_libs[i]); } 
+			G.str.arg = lua_newtable(); 
+			G.str._G = G; 
+			G.str.module = function (name) {lua_createmodule(G, name, slice(arguments, 1));}; 
+			G.str.require = function (name) {lua_require(G, name);}; 
+			G.str.package.str.seeall = function (module) {if (!module.metatable) {module.metatable = lua_newtable();}module.metatable.str.__index = G;}; 
+			RobBootLoad(G); 
+			G.str.bla = 5; 
+			lua_call(G.str.print, [lua_concat("Hello world! This is: ", G.str._VERSION)]); 
+			lua_call(G.str.print, ["hello world !!!", lua_add(lua_multiply(G.str.bla, 2), 3)]); 
+			return G;
+		}
+		bootloader called
+		*/
+		
 	});
 }
-function MyAjaxGetAux (sQuery,callback) {
-	var client;
-	if (window.XMLHttpRequest) 
-			client = new XMLHttpRequest(); // code for IE7+, Firefox, Chrome, Opera, Safari
-	else	client = new ActiveXObject("Microsoft.XMLHTTP");	// code for IE6, IE5
-	client.onreadystatechange = function() {
-		if (this.readyState == this.DONE) {
-			//~ document.getElementById("output").innerHTML += "<br>"+"MyAjaxGet status="+String(this.status)+" statusText="+escape(String(this.statusText));
-			if (this.status==200) {
-				callback(this.responseText);
-			}
-		}
-	}
-	client.open("GET",sQuery);
-	//~ client.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
-	client.send();
-}
+/*
 
 // print function which the Lua engine will call
 var lines = [], printed = false;
@@ -66,8 +106,6 @@ function execute(text) {
   element.innerHTML = lines.join('<br>') + '<hr>' + element.innerHTML;
 }
 
-var editor;
-
 function doRun() {
   args = ['-e', ''];
   run(args);
@@ -77,4 +115,4 @@ function doRun() {
 	});
   //~ execute("print \"1234\"");
 }
-
+*/

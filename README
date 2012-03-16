@@ -2,8 +2,7 @@ Love2D WebPlayer
 started 2012-03 ghoulsblade@schattenkind.net
 
 goal : play games made for love2d inside the browser without plugins (webgl required)
-tech : webgl for display, emscripten to run lua code in javascript
+tech : webgl for display, github.com/mherkender/lua.js to run lua code in javascript
 
 http://love2d.org/	love2d 
-http://emscripten.org	emscripten
-2012-03 first lua.js from http://syntensity.com/static/lua.html
+2012-03 lua.js from https://github.com/mherkender/lua.js

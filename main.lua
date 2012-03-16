@@ -57,7 +57,7 @@ end
 
 function love.keypressed(k)
 	if k == "r" then
-		love.filesystem.load("main.lua")()
+		(love.filesystem.load("main.lua"))() -- webplayer parsing needs braces!
 	end
 end
 
