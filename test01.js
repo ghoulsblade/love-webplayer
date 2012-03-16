@@ -1,3 +1,6 @@
+kMainLuaURL = "main.lua";
+kMainLuaURL = "main-test01.lua";
+
 function MyTest () {
 		//~ alert("spot01");
 		var base = "";
@@ -69,18 +72,9 @@ function doRun() {
   args = ['-e', ''];
   run(args);
   
-	MyAjaxGetAux("main.lua",function (result) {
+	MyAjaxGetAux(kMainLuaURL,function (result) {
 		execute(result);
 	});
   //~ execute("print \"1234\"");
-  
-  /*
-  setTimeout(function() { 
-	if (!bespin.useBespin) setTimeout(arguments.callee, 10);
-	bespin.useBespin(document.getElementById('the_input'), { "stealFocus":true, "syntax": "lua" }).then(function(env) {
-	  editor = env.editor;
-	});
-  }, 10);
-  */
 }
 
