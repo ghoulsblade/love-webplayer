@@ -1,13 +1,6 @@
 
 // see http://www.w3.org/TR/XMLHttpRequest			sQuery = "bla.php?x="+escape(x)
-function MyAjaxGet (sQuery,sTargetID) { 
-	MyAjaxGetAux (sQuery,function (result) {
-		if (document.getElementById(sTargetID)) 
-			document.getElementById(sTargetID).innerHTML = result;
-		else alert("MyAjaxGet target element not found : "+sTargetID);
-	});
-}
-function MyAjaxGetAux (sQuery,callback) {
+function UtilAjaxGet (sQuery,callback) {
 	var client;
 	if (window.XMLHttpRequest) 
 			client = new XMLHttpRequest(); // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -23,4 +16,12 @@ function MyAjaxGetAux (sQuery,callback) {
 	client.open("GET",sQuery);
 	//~ client.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
 	client.send();
+}
+
+function UtilAjaxGetToElementByID (sQuery,sTargetID) { 
+	UtilAjaxGet (sQuery,function (result) {
+		if (document.getElementById(sTargetID)) 
+			document.getElementById(sTargetID).innerHTML = result;
+		else alert("MyAjaxGet target element not found : "+sTargetID);
+	});
 }

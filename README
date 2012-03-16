@@ -1,8 +1,11 @@
 Love2D WebPlayer
 started 2012-03 ghoulsblade@schattenkind.net
 
-goal : play games made for love2d inside the browser without plugins (webgl required)
+goal : play games made for love2d inside the browser without plugins (webgl+javascript capable browser required)
 tech : webgl for display, github.com/mherkender/lua.js to run lua code in javascript
 
-http://love2d.org/	love2d 
-2012-03 lua.js from https://github.com/mherkender/lua.js
+love2d is a lua based 2d game engine : http://love2d.org/ 
+lua-parser.js is a lua interpreter/converter in javascript from https://github.com/mherkender/lua.js (added LuaBootStrap call)
+
+known issues : 
+clouds demo : parser bug : parse error in keypressed :  >> love.filesystem.load("main.lua")() <<   workaround : >> (love.filesystem.load("main.lua"))() <<

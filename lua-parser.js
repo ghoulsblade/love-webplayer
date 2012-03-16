@@ -137,7 +137,7 @@ case 1:
       "  }\n" +
       "  module.metatable.str['__index'] = G;\n" +
       "};\n" +
-	  "RobBootLoad(G);\n"+
+	  "LuaBootStrap(G);\n"+ // added 2012-03-16 by ghoulsblade
       "{\n" +
       $$[$0-2].simple_form + "\n" +
       "}\n";
