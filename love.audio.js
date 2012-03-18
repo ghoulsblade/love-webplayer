@@ -5,8 +5,8 @@ function Love_Audio_CreateTable (G) {
 	G.str['love'].str['audio'] = t;
 	
 	// love.audio.newSource(path)
-	t.str['newSource']		= function (path) { MainPrint("audio.newSource called "+path); return lua_newtable(); }
+	t.str['newSource']		= function (path) { return []; } //  MainPrint("audio.newSource called "+path);
 	
 	// love.audio.play(sourceobj, number)
-	t.str['play']			= function (src,num) { MainPrint("audio.play called"); }
+	t.str['play']			= function (src,num) { } // MainPrint("audio.play called");
 }

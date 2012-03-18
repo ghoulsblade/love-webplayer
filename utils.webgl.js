@@ -1,3 +1,4 @@
+var kFloatSize = 4; // 4; // sizeof(GLfloat) doesn't seem to work...
 
 // ***** ***** ***** ***** ***** gl init
 
@@ -75,13 +76,13 @@ function CheckAllTexturesLoaded () {
 
 
 // Load the image at the passed url, place it in a new WebGLTexture object and return the WebGLTexture.
-function loadImageTexture(ctx, url, bPixelArt)
+function loadImageTexture(gl, url, bPixelArt)
 {
-    var texture = ctx.createTexture();
+    var texture = gl.createTexture();
     texture.image = new Image();
     texture.image.bMyLoadSuccess = false;
 	gTexturesToLoad.push(texture.image);
-    texture.image.onload = function() { doLoadImageTexture(ctx, texture.image, texture, bPixelArt) }
+    texture.image.onload = function() { doLoadImageTexture(gl, texture.image, texture, bPixelArt) }
 	
     texture.image.src = url;
     return texture;
@@ -204,11 +205,10 @@ function cRenderable (gl,texture,arr_vertex,arr_index) {
 		// old : shaderProgram.vertexPositionAttribute = 0
 		// old : shaderProgram.vertexNormalAttribute = 1
 		// old : shaderProgram.textureCoordAttribute = 2
-		var kFloatSize = 4; // 4; // sizeof(GLfloat) doesn't seem to work...
 		
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.buf_vertex);
 		gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 8*kFloatSize, 0*kFloatSize);
-		gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute  , 3, gl.FLOAT, false, 8*kFloatSize, 3*kFloatSize);
+		//~ gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute  , 3, gl.FLOAT, false, 8*kFloatSize, 3*kFloatSize);
 		gl.vertexAttribPointer(shaderProgram.textureCoordAttribute  , 2, gl.FLOAT, false, 8*kFloatSize, 6*kFloatSize);
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buf_index);  
 		gl.drawElements(gl.TRIANGLES, this.num_index, gl.UNSIGNED_SHORT, 0);
