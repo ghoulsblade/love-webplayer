@@ -1,11 +1,6 @@
-//~ var p0 = -100.0;
-//~ var p1 = 100.0;
-var p0 =  0.0;
-var p1 =  1.0;
 var spriteTexFloats = [ 0.0,0.0, 1.0,0.0, 0.0,1.0, 1.0,1.0 ];
-var spritePosFloats = [  p0, p0,  p1, p0,  p0, p1,  p1, p1 ];
-//~ var spriteIdxFloats = [  0,1,2, 2,1,3 ];
-var spriteIdxFloats = [  0,1,2,3 ];
+var spritePosFloats = [ 0.0,0.0, 1.0,0.0, 0.0,1.0, 1.0,1.0 ];
+var spriteIdxFloats = [ 0,1,2,3 ];
 var spriteVB_Pos;
 var spriteVB_Tex;
 var spriteIB;
@@ -73,7 +68,7 @@ function DrawSpriteAux	(iTextureID,vb_texcoords,w,h,x,y,r,sx,sy,ox,oy) {
 	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0*kFloatSize, 0*kFloatSize);
 	gl.bindBuffer(gl.ARRAY_BUFFER, spriteVB_Tex);
 	gl.vertexAttribPointer(shaderProgram.textureCoordAttribute  , 2, gl.FLOAT, false, 0*kFloatSize, 0*kFloatSize);
-	gl.drawArrays(gl.GL_TRIANGLE_STRIP, 0, 4);
+	//~ gl.drawArrays(gl.GL_TRIANGLE_STRIP, 0, 4); DOESN'T WORK?
 	
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, spriteIB);  
 	gl.drawElements(gl.TRIANGLE_STRIP, 4, gl.UNSIGNED_SHORT, 0);

@@ -1,9 +1,11 @@
 Love2D WebPlayer
 started 2012-03 ghoulsblade@schattenkind.net
-http://ghoulsblade.schattenkind.net/wiki/index.php/Love-WebPlayer
-https://github.com/ghoulsblade/love-webplayer
+demo: http://ghoulsblade.schattenkind.net/love-webplayer/
+github: https://github.com/ghoulsblade/love-webplayer
+infos: http://ghoulsblade.schattenkind.net/wiki/index.php/Love-WebPlayer
 
 goal : play games made for love2d inside the browser without plugins (webgl+javascript capable browser required)
+usage: unpack .love file (rename to .zip), add the .js files and the index.html from love-webplayer, upload the whole folder to webserver, open in browser, play
 tech : webgl for display, github.com/mherkender/lua.js to run lua code in javascript
 
 love2d is a lua based 2d game engine : http://love2d.org/ 
