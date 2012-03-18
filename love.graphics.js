@@ -112,38 +112,14 @@ function MainInitScene () {
 	gl.disable(gl.CULL_FACE); 
 	gl.disable(gl.DEPTH_TEST);
 	gl.enable(gl.BLEND);
-	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-	//~ gl.blendFuncSeparate(gl.SRC_COLOR, gl.DST_COLOR ,gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-	//~ gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ZERO ,gl.ONE, gl.ZERO);
-	//~ gl.blendEquation(gl.FUNC_ADD);
-	gl.blendEquationSeparate(gl.FUNC_ADD,gl.FUNC_ADD);
-	//~ gl.blendEquationSeparate(gl.BLEND_SRC_RGB,gl.BLEND_SRC_ALPHA );
-	//~ const GLenum FUNC_ADD                       = 0x8006;
-    //~ const GLenum BLEND_EQUATION                 = 0x8009;
-    //~ const GLenum BLEND_EQUATION_RGB             = 0x8009;   /* same as BLEND_EQUATION */
-    //~ const GLenum BLEND_EQUATION_ALPHA           = 0x883D;
+	gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA,  gl.ZERO,  gl.ONE); // rgb=blended alpha=keep-destination
+	// alpha,1-alpha,0,1 = replace ?   not available in webgl: gl.texEnvf(gl.TEXTURE_ENV, gl.TEXTURE_ENV_MODE, gl.REPLACE);
+	gl.blendEquation(gl.FUNC_ADD); // = blendEquationSeparate(add,add)
 	
-	//~ gl.texEnvf(gl.TEXTURE_ENV, gl.TEXTURE_ENV_MODE, gl.REPLACE);
-	    //~ const GLenum SRC_COLOR                      = 0x0300;
-    //~ const GLenum ONE_MINUS_SRC_COLOR            = 0x0301;
-	    //~ const GLenum DST_COLOR                      = 0x0306;
-    //~ const GLenum ONE_MINUS_DST_COLOR            = 0x0307;
-	    //~ const GLenum BLEND_SRC_ALPHA                = 0x80CB;
-    //~ const GLenum CONSTANT_COLOR                 = 0x8001;
-    //~ const GLenum ONE_MINUS_CONSTANT_COLOR       = 0x8002;
-    //~ const GLenum BLEND_COLOR                    = 0x8005;
-	    //~ void blendColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
-		    //~ void blendEquation(GLenum mode);
-    //~ void blendEquationSeparate(GLenum modeRGB, GLenum modeAlpha);
-	    //~ void blendFunc(GLenum sfactor, GLenum dfactor);
-    //~ void blendFuncSeparate(GLenum srcRGB, GLenum dstRGB, 
-                           //~ GLenum srcAlpha, GLenum dstAlpha);
-	
-	
-		//~ t.set("setBlendMode",		new VarArgFunction() { @Override public Varargs invoke(Varargs args) { setBlendMode(Str2BlendMode(args.checkjstring(1))); return LuaValue.NONE; } });
-		//~ t.set("setColorMode",		new VarArgFunction() { @Override public Varargs invoke(Varargs args) { setColorMode(Str2ColorMode(args.checkjstring(1))); return LuaValue.NONE; } });
+	// todo : love.setBlendMode/setColorMode see love-android-java
+	//~ t.set("setBlendMode",		new VarArgFunction() { @Override public Varargs invoke(Varargs args) { setBlendMode(Str2BlendMode(args.checkjstring(1))); return LuaValue.NONE; } });
+	//~ t.set("setColorMode",		new VarArgFunction() { @Override public Varargs invoke(Varargs args) { setColorMode(Str2ColorMode(args.checkjstring(1))); return LuaValue.NONE; } });
 		
-	//~ gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 	//~ gl.activeTexture(gl.TEXTURE0);
 	//~ gl.projGuiMatrix = new J3DIMatrix4(); // needed for gui
 
