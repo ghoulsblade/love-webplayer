@@ -7,10 +7,12 @@ function Love_Audio_CreateTable (G) {
 	G.str['love'].str['audio'] = t;
 	
 	// love.audio.newSource(path)
-	t.str['newSource']		= function (path) { return []; } //  MainPrint("audio.newSource called "+path);
+	t.str['newSource']		= function (path) { return []; }
+	//~ t.str['newSource']				= function () { return NotImplemented(pre+'newSource'); }
 	
 	// love.audio.play(sourceobj, number)
 	t.str['play']			= function (src,num) { } // MainPrint("audio.play called");
+	//~ t.str['play']					= function () { return NotImplemented(pre+'play'); }
 	
 	// TODO: "play" overloads
 	// TODO: "newSource" overloads
@@ -20,7 +22,6 @@ function Love_Audio_CreateTable (G) {
 	t.str['getPosition']			= function () { return NotImplemented(pre+'getPosition'); }
 	t.str['getVelocity']			= function () { return NotImplemented(pre+'getVelocity'); }
 	t.str['getVolume']				= function () { return NotImplemented(pre+'getVolume'); }
-	t.str['newSource']				= function () { return NotImplemented(pre+'newSource'); }
 	t.str['pause']					= function () { return NotImplemented(pre+'pause'); }
 	t.str['resume']					= function () { return NotImplemented(pre+'resume'); }
 	t.str['rewind']					= function () { return NotImplemented(pre+'rewind'); }
