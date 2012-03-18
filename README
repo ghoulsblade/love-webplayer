@@ -3,6 +3,7 @@ started 2012-03 ghoulsblade@schattenkind.net
 demo: http://ghoulsblade.schattenkind.net/love-webplayer/
 github: https://github.com/ghoulsblade/love-webplayer
 infos: http://ghoulsblade.schattenkind.net/wiki/index.php/Love-WebPlayer
+love-forum: https://love2d.org/forums/viewtopic.php?f=5&t=8487
 
 goal : play games made for love2d inside the browser without plugins (webgl+javascript capable browser required)
 usage: unpack .love file (rename to .zip), add the .js files and the index.html from love-webplayer, upload the whole folder to webserver, open in browser, play

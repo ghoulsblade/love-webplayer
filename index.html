@@ -32,7 +32,8 @@
 	 //~ if (textureColor.a < .5) discard;
 	 if (textureColor.a <= .0) discard;
      //~ gl_FragColor = vec4(textureColor.rgb * vLightWeighting, textureColor.a);
-     gl_FragColor = textureColor;
+     gl_FragColor = vec4(textureColor.rgb, textureColor.a);
+     //~ gl_FragColor = vec4(textureColor.rgb, 0.5);
      //~ gl_FragColor = vec4(0,1,0,0.5);
 	//~ old: vec4 color = texture2D(sampler2d, v_texCoord);
 	//~ old: if (color.a < .5) discard;

@@ -1831,8 +1831,8 @@ _io["close"] = _io["input"] = _io["lines"] = _io["output"] = _io["popen"] = _io[
 };
 
 // math
-var max = 0x100000000;
-var seed = (Math.random() * max) & (max - 1);
+var max_num = 0x100000000;
+var seed = (Math.random() * max_num) & (max_num - 1);
 lua_libs["math"] = {
   "abs": function (x) {
     return [Math.abs(x)];
@@ -1929,9 +1929,9 @@ lua_libs["math"] = {
 
     var val;
     if (seed < 0) {
-      val = ((seed + max) / max) % 1;
+      val = ((seed + max_num) / max_num) % 1;
     } else {
-      val = (seed / max) % 1;
+      val = (seed / max_num) % 1;
     }
 
     if (arguments.length >= 2) {
@@ -1946,7 +1946,7 @@ lua_libs["math"] = {
     }
   },
   "randomseed": function (x) {
-    seed = x & (max - 1);
+    seed = x & (max_num - 1);
   }
 };
 

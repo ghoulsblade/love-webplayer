@@ -99,6 +99,8 @@ function MainInitScene () {
 	//~ gl.depthFunc(gl.LEQUAL);            // Near things obscure far things  
 	gl.disable(gl.CULL_FACE); 
 	gl.disable(gl.DEPTH_TEST);
+	gl.enable(gl.BLEND);
+	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	//~ gl.activeTexture(gl.TEXTURE0);
 	//~ gl.projGuiMatrix = new J3DIMatrix4(); // needed for gui
 
