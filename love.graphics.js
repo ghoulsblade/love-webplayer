@@ -1,3 +1,4 @@
+// see also love.render.js
 var gl;
 var gWebGLCanvasId;
 var shaderProgram;
@@ -17,6 +18,7 @@ function Love_Graphics_Init (id_canvas) {
 /// init lua api
 function Love_Graphics_CreateTable (G) {
 	var t = lua_newtable();
+	var pre = "love.graphics.";
 
 	G.str['love'].str['graphics'] = t;
 	
@@ -38,11 +40,11 @@ function Love_Graphics_CreateTable (G) {
 				DrawSprite(drawable.GetTextureID(),drawable.GetWidth(),drawable.GetHeight(),x,y,r || 0.0,sx || 1.0,sy || 1.0,ox || 0.0,oy || 0.0);
 		else	drawable.RenderSelf(x,y,r || 0.0,sx || 1.0,sy || 1.0,ox || 0.0,oy || 0.0);
 	}
+	
+	t.str['SOMEFUN']	= function () { return NotImplemented(pre+"SOMEFUN"); }
 }
 
 function setColor (r,g,b,a) {
-	MainPrint("graphics.setColor called "+r+","+g+","+b+","+a);
-	//~ a = 200;
 	gl.uniform4f(shaderProgram.materialColorUniform,(r || 255.0)/255.0, (g || 255.0)/255.0, (b || 255.0)/255.0, (a || 255.0)/255.0);
 }
 

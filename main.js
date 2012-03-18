@@ -20,12 +20,25 @@ function MainPrint () {
 	}
 }
 
+function NotImplemented (name) { MainPrint("NotImplemented:"+String(name)); return []; }
+
 /// when calling the result from lua_load, RobBootLoad is exectuted between lua environment setup and the parsed code
 function LuaBootStrap (G) {
 	//~ MyPrint("bootloader called");
 	G.str['love'] = lua_newtable();
 	Love_Audio_CreateTable(G);
+	Love_Event_CreateTable(G);
+	Love_Filesystem_CreateTable(G);
+	Love_Font_CreateTable(G);
 	Love_Graphics_CreateTable(G);
+	Love_Image_CreateTable(G);
+	Love_Joystick_CreateTable(G);
+	Love_Keyboard_CreateTable(G);
+	Love_Mouse_CreateTable(G);
+	Love_Physics_CreateTable(G);
+	Love_Sound_CreateTable(G);
+	Love_Thread_CreateTable(G);
+	Love_Timer_CreateTable(G);
 }
 
 /// called every frame
