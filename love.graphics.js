@@ -9,7 +9,9 @@ function Love_Graphics_Init (id_canvas) {
 	initWebGL(canvas);      // Initialize the GL context  
 	if (!gl) return; // WebGL available and working  
 	LoveRender_Init();
+	MyCheckGLError();
 	MainInitScene();
+	MyCheckGLError();
 }
 
 /// init lua api
@@ -46,6 +48,7 @@ function setColor (r,g,b,a) {
 
 /// called every frame (before love.update and love.draw)
 function Love_Graphics_Step_Start() {
+	if (shaderProgram == null) return;
 	UtilReshapeCanvas(gl,gWebGLCanvasId); // resize+viewport+cam perspective
 	
 	if (shaderProgram != null) {
@@ -58,11 +61,13 @@ function Love_Graphics_Step_Start() {
 	resetTransformMatrix();
 	//~ perspective(45, gMyCanvasWidth / gMyCanvasHeight, 0.1, 100.0);
 	//~ loadIdentity();
+	MyCheckGLError();
 }
 
 /// called every frame (after love.update and love.draw)
 function Love_Graphics_Step_End() {
 	if (shaderProgram == null) return;
+	MyCheckGLError();
 	gl.flush(); // finish/swapbuffer (optional?)
 }
 
@@ -99,7 +104,7 @@ function cLoveImage (path) {
 
 
 function MainInitScene () {
-	gl.clearColor(0.8, 0.8, 1.0, 1.0);  // Set clear color to black, fully opaque  
+	gl.clearColor(1,1,1,1);  // Set clear color to black, fully opaque  
 	gl.clearDepth(1.0);                 // Clear everything  
 	//~ gl.enable(gl.TEXTURE_2D); // needed for chrome@archlinux(fkrauthan,26.12.2010)
 	//~ gl.enable(gl.DEPTH_TEST);           // Enable depth testing  
@@ -108,10 +113,42 @@ function MainInitScene () {
 	gl.disable(gl.DEPTH_TEST);
 	gl.enable(gl.BLEND);
 	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+	//~ gl.blendFuncSeparate(gl.SRC_COLOR, gl.DST_COLOR ,gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+	//~ gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ZERO ,gl.ONE, gl.ZERO);
+	//~ gl.blendEquation(gl.FUNC_ADD);
+	gl.blendEquationSeparate(gl.FUNC_ADD,gl.FUNC_ADD);
+	//~ gl.blendEquationSeparate(gl.BLEND_SRC_RGB,gl.BLEND_SRC_ALPHA );
+	//~ const GLenum FUNC_ADD                       = 0x8006;
+    //~ const GLenum BLEND_EQUATION                 = 0x8009;
+    //~ const GLenum BLEND_EQUATION_RGB             = 0x8009;   /* same as BLEND_EQUATION */
+    //~ const GLenum BLEND_EQUATION_ALPHA           = 0x883D;
+	
+	//~ gl.texEnvf(gl.TEXTURE_ENV, gl.TEXTURE_ENV_MODE, gl.REPLACE);
+	    //~ const GLenum SRC_COLOR                      = 0x0300;
+    //~ const GLenum ONE_MINUS_SRC_COLOR            = 0x0301;
+	    //~ const GLenum DST_COLOR                      = 0x0306;
+    //~ const GLenum ONE_MINUS_DST_COLOR            = 0x0307;
+	    //~ const GLenum BLEND_SRC_ALPHA                = 0x80CB;
+    //~ const GLenum CONSTANT_COLOR                 = 0x8001;
+    //~ const GLenum ONE_MINUS_CONSTANT_COLOR       = 0x8002;
+    //~ const GLenum BLEND_COLOR                    = 0x8005;
+	    //~ void blendColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
+		    //~ void blendEquation(GLenum mode);
+    //~ void blendEquationSeparate(GLenum modeRGB, GLenum modeAlpha);
+	    //~ void blendFunc(GLenum sfactor, GLenum dfactor);
+    //~ void blendFuncSeparate(GLenum srcRGB, GLenum dstRGB, 
+                           //~ GLenum srcAlpha, GLenum dstAlpha);
+	
+	
+		//~ t.set("setBlendMode",		new VarArgFunction() { @Override public Varargs invoke(Varargs args) { setBlendMode(Str2BlendMode(args.checkjstring(1))); return LuaValue.NONE; } });
+		//~ t.set("setColorMode",		new VarArgFunction() { @Override public Varargs invoke(Varargs args) { setColorMode(Str2ColorMode(args.checkjstring(1))); return LuaValue.NONE; } });
+		
 	//~ gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 	//~ gl.activeTexture(gl.TEXTURE0);
 	//~ gl.projGuiMatrix = new J3DIMatrix4(); // needed for gui
 
+	MyCheckGLError();
+	
 	// shaders
 	if (1) {
 		var fragmentShader = getShader(gl, "shader-fs");
@@ -159,9 +196,11 @@ function MainInitScene () {
 		shaderProgram.lightingDirectionUniform	= gl.getUniformLocation(shaderProgram, "uLightingDirection");
 		shaderProgram.directionalColorUniform	= gl.getUniformLocation(shaderProgram, "uDirectionalColor");
 		if (shaderProgram.my_uTranslate == null || shaderProgram.my_uTranslate == -1) alert("shader error : couldn't find uTranslate");
+	
+		gl.uniform4f(shaderProgram.materialColorUniform,1,1,1,1);
 		
-		gl.uniform3f(shaderProgram.materialColorUniform,1,1,1);
-		
+		MyCheckGLError();
+	
 		/* old shader init pre chrome archlinux fix
 
 		// Set some uniform variables for the shaders

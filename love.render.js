@@ -4,6 +4,7 @@ var spriteIdxFloats = [ 0,1,2,3 ];
 var spriteVB_Pos;
 var spriteVB_Tex;
 var spriteIB;
+var bLoveRenderInitDone = false;
 //~ NOTE: glTexCoordPointer not in wbgl, see vertexAttribPointer(shaderProgram.textureCoordAttribute  , 2, gl.FLOAT, false, 0*kFloatSize, 0*kFloatSize);
 
 //~ function DrawSprite	(int iTextureID,LuanObjQuad quad,float w,float h,float x,float y,float r,float sx,float sy,float ox,float oy) {
@@ -14,6 +15,7 @@ function LoveRender_Init () {
 	spriteVB_Tex = MakeGlFloatBuffer(gl,spriteTexFloats,gl.STATIC_DRAW);
 	spriteVB_Pos = MakeGlFloatBuffer(gl,spritePosFloats,gl.STATIC_DRAW);
 	spriteIB	 = MakeGlIndexBuffer(gl,spriteIdxFloats,gl.STATIC_DRAW); // gBox_Indices
+	bLoveRenderInitDone = true;
 }
 	
 function DrawSprite	(iTextureID,w,h,x,y,r,sx,sy,ox,oy) {
@@ -21,6 +23,7 @@ function DrawSprite	(iTextureID,w,h,x,y,r,sx,sy,ox,oy) {
 }
 
 function DrawSpriteAux	(iTextureID,vb_texcoords,w,h,x,y,r,sx,sy,ox,oy) {
+	if (!bLoveRenderInitDone) return;
 	var mycos = cos(r);
 	var mysin = sin(r);
 	

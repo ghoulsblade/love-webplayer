@@ -31,7 +31,7 @@
   void main(void) {
      vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
 	 //~ if (textureColor.a < .5) discard;
-	 //~ if (textureColor.a <= .0) discard;
+	 if (textureColor.a <= .0) discard;
      //~ gl_FragColor = vec4(textureColor.rgb * vLightWeighting, textureColor.a);
      gl_FragColor = vec4(textureColor.rgb * uMaterialColor.rgb, textureColor.a * uMaterialColor.a);
      //~ gl_FragColor = vec4(textureColor.rgb * uMaterialColor.rgb,textureColor.a * 200.0/255.0);
