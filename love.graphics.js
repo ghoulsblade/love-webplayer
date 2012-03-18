@@ -26,10 +26,7 @@ function Love_Graphics_CreateTable (G) {
 	t.str['newImage']	= function (path) { return [new cLoveImage(path)]; }
 	
 	// love.graphics.setBackgroundColor(r,g,b)
-	t.str['setBackgroundColor']	= function (r,g,b) {
-		//~ MainPrint("graphics.setBackgroundColor called",r,g,b);
-		gl.clearColor(r/255.0, g/255.0, b/255.0, 1.0);
-	}
+	t.str['setBackgroundColor']	= function (r,g,b) { gl.clearColor(r/255.0, g/255.0, b/255.0, 1.0); }
 	
 	// love.graphics.setColor(r,g,b,a)
 	t.str['setColor']	= function (r,g,b,a) { setColor(r,g,b,a); } //  MainPrint("graphics.setColor called");
@@ -41,7 +38,69 @@ function Love_Graphics_CreateTable (G) {
 		else	drawable.RenderSelf(x,y,r || 0.0,sx || 1.0,sy || 1.0,ox || 0.0,oy || 0.0);
 	}
 	
-	t.str['SOMEFUN']	= function () { return NotImplemented(pre+"SOMEFUN"); }
+	// TODO : "newImage" overloads
+	// TODO : "draw" overloads
+	
+	t.str['checkMode']			= function () { return NotImplemented(pre+'checkMode'); }
+	t.str['circle']				= function () { return NotImplemented(pre+'circle'); }
+	t.str['clear']				= function () { return NotImplemented(pre+'clear'); }
+	t.str['drawq']				= function () { return NotImplemented(pre+'drawq'); }
+	t.str['getBackgroundColor']	= function () { return NotImplemented(pre+'getBackgroundColor'); }
+	t.str['getBlendMode']		= function () { return NotImplemented(pre+'getBlendMode'); }
+	t.str['getCaption']			= function () { return NotImplemented(pre+'getCaption'); }
+	t.str['getColor']			= function () { return NotImplemented(pre+'getColor'); }
+	t.str['getColorMode']		= function () { return NotImplemented(pre+'getColorMode'); }
+	t.str['getFont']			= function () { return NotImplemented(pre+'getFont'); }
+	t.str['getHeight']			= function () { return NotImplemented(pre+'getHeight'); }
+	t.str['getLineStipple']		= function () { return NotImplemented(pre+'getLineStipple'); }
+	t.str['getLineStyle']		= function () { return NotImplemented(pre+'getLineStyle'); }
+	t.str['getLineWidth']		= function () { return NotImplemented(pre+'getLineWidth'); }
+	t.str['getMaxPointSize']	= function () { return NotImplemented(pre+'getMaxPointSize'); }
+	t.str['getModes']			= function () { return NotImplemented(pre+'getModes'); }
+	t.str['getPointSize']		= function () { return NotImplemented(pre+'getPointSize'); }
+	t.str['getPointStyle']		= function () { return NotImplemented(pre+'getPointStyle'); }
+	t.str['getScissor']			= function () { return NotImplemented(pre+'getScissor'); }
+	t.str['getWidth']			= function () { return NotImplemented(pre+'getWidth'); }
+	t.str['isCreated']			= function () { return NotImplemented(pre+'isCreated'); }
+	t.str['line']				= function () { return NotImplemented(pre+'line'); }
+	t.str['newFont']			= function () { return NotImplemented(pre+'newFont'); }
+	t.str['newFramebuffer']		= function () { return NotImplemented(pre+'newFramebuffer'); }
+	t.str['newImageFont']		= function () { return NotImplemented(pre+'newImageFont'); }
+	t.str['newParticleSystem']	= function () { return NotImplemented(pre+'newParticleSystem'); }
+	t.str['newQuad']			= function () { return NotImplemented(pre+'newQuad'); }
+	t.str['newScreenshot']		= function () { return NotImplemented(pre+'newScreenshot'); }
+	t.str['newSpriteBatch']		= function () { return NotImplemented(pre+'newSpriteBatch'); }
+	t.str['point']				= function () { return NotImplemented(pre+'point'); }
+	t.str['polygon']			= function () { return NotImplemented(pre+'polygon'); }
+	t.str['pop']				= function () { return NotImplemented(pre+'pop'); }
+	t.str['present']			= function () { return NotImplemented(pre+'present'); }
+	t.str['print']				= function () { return NotImplemented(pre+'print'); }
+	t.str['printf']				= function () { return NotImplemented(pre+'printf'); }
+	t.str['push']				= function () { return NotImplemented(pre+'push'); }
+	t.str['quad']				= function () { return NotImplemented(pre+'quad'); }
+	t.str['rectangle']			= function () { return NotImplemented(pre+'rectangle'); }
+	t.str['reset']				= function () { return NotImplemented(pre+'reset'); }
+	t.str['rotate']				= function () { return NotImplemented(pre+'rotate'); }
+	t.str['scale']				= function () { return NotImplemented(pre+'scale'); }
+	t.str['setBlendMode']		= function () { return NotImplemented(pre+'setBlendMode'); }
+	t.str['setCaption']			= function () { return NotImplemented(pre+'setCaption'); }
+	t.str['setColorMode']		= function () { return NotImplemented(pre+'setColorMode'); }
+	t.str['setFont']			= function () { return NotImplemented(pre+'setFont'); }
+	t.str['setIcon']			= function () { return NotImplemented(pre+'setIcon'); }
+	t.str['setLine']			= function () { return NotImplemented(pre+'setLine'); }
+	t.str['setLineStipple']		= function () { return NotImplemented(pre+'setLineStipple'); }
+	t.str['setLineStyle']		= function () { return NotImplemented(pre+'setLineStyle'); }
+	t.str['setLineWidth']		= function () { return NotImplemented(pre+'setLineWidth'); }
+	t.str['setMode']			= function () { return NotImplemented(pre+'setMode'); }
+	t.str['setPoint']			= function () { return NotImplemented(pre+'setPoint'); }
+	t.str['setPointSize']		= function () { return NotImplemented(pre+'setPointSize'); }
+	t.str['setPointStyle']		= function () { return NotImplemented(pre+'setPointStyle'); }
+	t.str['setRenderTarget']	= function () { return NotImplemented(pre+'setRenderTarget'); }
+	t.str['setScissor']			= function () { return NotImplemented(pre+'setScissor'); }
+	t.str['toggleFullscreen']	= function () { return NotImplemented(pre+'toggleFullscreen'); }
+	t.str['translate']			= function () { return NotImplemented(pre+'translate'); }
+	t.str['triangle']			= function () { return NotImplemented(pre+'triangle'); }
+
 }
 
 function setColor (r,g,b,a) {

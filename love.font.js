@@ -6,5 +6,7 @@ function Love_Font_CreateTable (G) {
 
 	G.str['love'].str['font'] = t;
 	
-	t.str['SOMEFUN']	= function () { return NotImplemented(pre+"SOMEFUN"); }
+	t.str['newFontData']	= function () { return NotImplemented(pre+'newFontData'); }
+	t.str['newGlyphData']	= function () { return NotImplemented(pre+'newGlyphData'); }
+	t.str['newRasterizer']	= function () { return NotImplemented(pre+'newRasterizer'); }
 }

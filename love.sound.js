@@ -6,5 +6,6 @@ function Love_Sound_CreateTable (G) {
 
 	G.str['love'].str['sound'] = t;
 	
-	t.str['SOMEFUN']	= function () { return NotImplemented(pre+"SOMEFUN"); }
+	t.str['newDecoder']			= function () { return NotImplemented(pre+'newDecoder'); }
+	t.str['newSoundData']		= function () { return NotImplemented(pre+'newSoundData'); }
 }

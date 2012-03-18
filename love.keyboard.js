@@ -6,5 +6,7 @@ function Love_Keyboard_CreateTable (G) {
 
 	G.str['love'].str['keyboard'] = t;
 	
-	t.str['SOMEFUN']	= function () { return NotImplemented(pre+"enumerate"); }
+	t.str['getKeyRepeat']		= function () { return NotImplemented(pre+'getKeyRepeat'); }
+	t.str['isDown']				= function () { return NotImplemented(pre+'isDown'); }
+	t.str['setKeyRepeat']		= function () { return NotImplemented(pre+'setKeyRepeat'); }
 }

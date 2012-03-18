@@ -6,5 +6,7 @@ function Love_Thread_CreateTable (G) {
 
 	G.str['love'].str['thread'] = t;
 	
-	t.str['SOMEFUN']	= function () { return NotImplemented(pre+"SOMEFUN"); }
+	t.str['getThread']			= function () { return NotImplemented(pre+'getThread'); }
+	t.str['getThreads']			= function () { return NotImplemented(pre+'getThreads'); }
+	t.str['newThread']			= function () { return NotImplemented(pre+'newThread'); }
 }

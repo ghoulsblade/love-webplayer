@@ -6,5 +6,10 @@ function Love_Timer_CreateTable (G) {
 
 	G.str['love'].str['timer'] = t;
 	
-	t.str['SOMEFUN']	= function () { return NotImplemented(pre+"SOMEFUN"); }
+	t.str['getDelta']		= function () { return NotImplemented(pre+'getDelta'); }
+	t.str['getFPS']			= function () { return NotImplemented(pre+'getFPS'); }
+	t.str['getMicroTime']	= function () { return NotImplemented(pre+'getMicroTime'); }
+	t.str['getTime']		= function () { return NotImplemented(pre+'getTime'); }
+	t.str['sleep']			= function () { return NotImplemented(pre+'sleep'); }
+	t.str['step']			= function () { return NotImplemented(pre+'step'); }
 }

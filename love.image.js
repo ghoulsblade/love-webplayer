@@ -6,5 +6,6 @@ function Love_Image_CreateTable (G) {
 
 	G.str['love'].str['image'] = t;
 	
-	t.str['SOMEFUN']	= function () { return NotImplemented(pre+"SOMEFUN"); }
+	t.str['newEncodedImageData']	= function () { return NotImplemented(pre+'newEncodedImageData'); }
+	t.str['newImageData']			= function () { return NotImplemented(pre+'newImageData'); }
 }
