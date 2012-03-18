@@ -82,7 +82,7 @@ function loadImageTexture(gl, url, bPixelArt)
     texture.image = new Image();
     texture.image.bMyLoadSuccess = false;
 	gTexturesToLoad.push(texture.image);
-    texture.image.onload = function() { doLoadImageTexture(gl, texture.image, texture, bPixelArt) }
+    texture.image.onload = function() { doLoadImageTexture(gl, texture.image, texture, bPixelArt); }
 	
     texture.image.src = url;
     return texture;
@@ -149,10 +149,21 @@ function MakeGlFloatBuffer (gl,arr,mode) { // arr= [1,2,3,...] mode= gl.STATIC_D
 	return res;
 }
 
+function OpenGLError2Txt (ecode) {
+	switch (ecode) {
+		case gl.NO_ERROR:			return "NO_ERROR";
+		case gl.INVALID_ENUM:		return "INVALID_ENUM";
+		case gl.INVALID_VALUE:		return "INVALID_VALUE";
+		case gl.INVALID_OPERATION:	return "INVALID_OPERATION";
+		case gl.OUT_OF_MEMORY:		return "OUT_OF_MEMORY";
+		default: return "unknown["+String(ecode)+"]";
+	}
+}
+
 function UpdateGlFloatBuffer (gl,buffer,arr,mode) { // arr= [1,2,3,...] mode= gl.STATIC_DRAW
 	gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(arr),mode); // WebGLFloatArray->Float32Array
-	var e = gl.getError(); if (e != gl.NO_ERROR) alert("UpdateGlFloatBuffer : gl.getError() : "+e);
+	var e = gl.getError(); if (e != gl.NO_ERROR) alert("UpdateGlFloatBuffer : gl.getError() : "+e+" : "+OpenGLError2Txt(e));
 	// TODO : using new Float32Array all the time will drain memory?
 	// usage example:
 	// gl.bindBuffer(gl.ARRAY_BUFFER, buffer);

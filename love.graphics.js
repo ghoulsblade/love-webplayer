@@ -28,7 +28,7 @@ function Love_Graphics_CreateTable (G) {
 	}
 	
 	// love.graphics.setColor(r,g,b,a)
-	t.str['setColor']	= function (r,g,b,a) { } //  MainPrint("graphics.setColor called");
+	t.str['setColor']	= function (r,g,b,a) { setColor(r,g,b,a); } //  MainPrint("graphics.setColor called");
 	
 	//~ love.graphics.draw(drawable, x, y, r, sx, sy, ox, oy )
 	t.str['draw']		= function (drawable, x, y, r, sx, sy, ox, oy ) {
@@ -36,6 +36,12 @@ function Love_Graphics_CreateTable (G) {
 				DrawSprite(drawable.GetTextureID(),drawable.GetWidth(),drawable.GetHeight(),x,y,r || 0.0,sx || 1.0,sy || 1.0,ox || 0.0,oy || 0.0);
 		else	drawable.RenderSelf(x,y,r || 0.0,sx || 1.0,sy || 1.0,ox || 0.0,oy || 0.0);
 	}
+}
+
+function setColor (r,g,b,a) {
+	MainPrint("graphics.setColor called "+r+","+g+","+b+","+a);
+	//~ a = 200;
+	gl.uniform4f(shaderProgram.materialColorUniform,(r || 255.0)/255.0, (g || 255.0)/255.0, (b || 255.0)/255.0, (a || 255.0)/255.0);
 }
 
 /// called every frame (before love.update and love.draw)
@@ -78,7 +84,8 @@ function DrawLoveSprite(tex, x, y, r, sx, sy, ox, oy) {
 // ***** ***** ***** ***** ***** cImage
 
 function cLoveImage (path) {
-	var bPixelArt = true;
+	var bPixelArt = false;
+	//~ var bPixelArt = true;
 	this.path = path;
 	this.tex = loadImageTexture(gl, path, bPixelArt);
 	
@@ -101,6 +108,7 @@ function MainInitScene () {
 	gl.disable(gl.DEPTH_TEST);
 	gl.enable(gl.BLEND);
 	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+	//~ gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 	//~ gl.activeTexture(gl.TEXTURE0);
 	//~ gl.projGuiMatrix = new J3DIMatrix4(); // needed for gui
 
@@ -147,9 +155,12 @@ function MainInitScene () {
 		shaderProgram.my_uTranslate				= gl.getUniformLocation(shaderProgram, "uTranslate");
 		shaderProgram.useLightingUniform		= gl.getUniformLocation(shaderProgram, "uUseLighting");
 		shaderProgram.ambientColorUniform		= gl.getUniformLocation(shaderProgram, "uAmbientColor");
+		shaderProgram.materialColorUniform		= gl.getUniformLocation(shaderProgram, "uMaterialColor");
 		shaderProgram.lightingDirectionUniform	= gl.getUniformLocation(shaderProgram, "uLightingDirection");
 		shaderProgram.directionalColorUniform	= gl.getUniformLocation(shaderProgram, "uDirectionalColor");
 		if (shaderProgram.my_uTranslate == null || shaderProgram.my_uTranslate == -1) alert("shader error : couldn't find uTranslate");
+		
+		gl.uniform3f(shaderProgram.materialColorUniform,1,1,1);
 		
 		/* old shader init pre chrome archlinux fix
 
