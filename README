@@ -15,4 +15,5 @@ lua-parser.js is a lua interpreter/converter in javascript from https://github.c
 known issues : 
 parser bug : clouds demo : parse error in keypressed :  >> love.filesystem.load("main.lua")() <<   workaround : >> (love.filesystem.load("main.lua"))() <<
 parser bug : >> myvar = .5 <<   workaround >> myvar = 0.5 <<
+parser bug : iyfct block comment in main.lua >> --[[ bla... ]]-- <<   workaround : remove comment (js regexp pre load?)
 

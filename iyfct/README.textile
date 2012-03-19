@@ -1,0 +1,13 @@
+h1. In Your Face City Trains
+
+h2. Instructions
+
+The goal of the game is to survive as long as you can.
+Jump over trains with closed doors and try (as much as possible) to run through trains with open doors to avoid birds and tunnels. Some open trains will give you coffee. When your coffee-meter is full, you have one extra life.
+
+h2. Controls
+
+* Space: Jump
+* R: Restart
+* 1-4: Set zoom
+* P: Pause game
