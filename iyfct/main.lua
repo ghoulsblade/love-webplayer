@@ -360,8 +360,4 @@ function love.focus(f)
 	end
 end
 
---[[
-  Gamestates:
-  0 ingame
-  1 menu
---]]
+
