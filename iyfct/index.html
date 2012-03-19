@@ -78,7 +78,7 @@
 
   varying vec2 vTextureCoord;
   //~ varying vec3 vLightWeighting;
-
+  
   void main(void) {
     gl_Position = uPMatrix * uMVMatrix * vec4(uTranslate + aVertexPosition, 1.0);
     //~ gl_Position = vec4(uTranslate + aVertexPosition, 1.0);
@@ -102,5 +102,6 @@
 <canvas id="glcanvas" width="900" height="300">  
 Your browser doesn't appear to support the HTML5 <code>&lt;canvas&gt;</code> element.  
 </canvas>
+<br><a href="https://love2d.org/wiki/In_Your_Face_City_Trains">In_Your_Face_City_Trains original</a><br>
 <div id="output" style="font-family: Courier New,Courier,monospace;"></div>
 </body></html>
