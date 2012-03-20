@@ -1,3 +1,5 @@
+// NOTE: http://www.w3schools.com/html5/html5_audio.asp
+
 function Love_Audio_Init () {}
 
 function Love_Audio_CreateTable (G) {

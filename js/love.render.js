@@ -73,7 +73,7 @@ function DrawSpriteAux	(iTextureID,vb_texcoords,w,h,x,y,r,sx,sy,ox,oy) {
 	gl.bindTexture(gl.TEXTURE_2D, iTextureID);
 	gl.bindBuffer(gl.ARRAY_BUFFER, spriteVB_Pos);
 	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0*kFloatSize, 0*kFloatSize);
-	gl.bindBuffer(gl.ARRAY_BUFFER, spriteVB_Tex);
+	gl.bindBuffer(gl.ARRAY_BUFFER, vb_texcoords);
 	gl.vertexAttribPointer(shaderProgram.textureCoordAttribute  , 2, gl.FLOAT, false, 0*kFloatSize, 0*kFloatSize);
 	//~ gl.drawArrays(gl.GL_TRIANGLE_STRIP, 0, 4); DOESN'T WORK?
 	

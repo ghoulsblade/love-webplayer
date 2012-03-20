@@ -36,7 +36,16 @@ function Love_Graphics_CreateTable (G) {
 	}
 	
 	// love.graphics.setBackgroundColor(r,g,b)
-	t.str['setBackgroundColor']	= function (r,g,b) { gl.clearColor(r/255.0, g/255.0, b/255.0, 1.0); }
+	t.str['setBackgroundColor']	= function (r,g,b,a) { 
+		if ((typeof r) != "number") {
+			var rgb = r;
+			r = rgb.uints[0];
+			g = rgb.uints[1];
+			b = rgb.uints[2];
+			a = rgb.uints[3] || 255;
+		}
+		gl.clearColor(r/255.0, g/255.0, b/255.0, (a||255)/255.0); 
+	}
 	
 	// love.graphics.setColor(r,g,b,a)
 	t.str['setColor']	= function (r,g,b,a) { setColor(r,g,b,a); } //  MainPrint("graphics.setColor called");
@@ -181,8 +190,10 @@ function cLoveImage (path) {
 	
 	this.GetTextureID	= function () { return this.tex; }
 	this.IsImage		= function () { return true; }
-	this.getWidth		= function () { return this.tex.image.width; }
-	this.getHeight		= function () { return this.tex.image.height; }
+	this.ensureLoaded	= function () { 
+		if (!this.tex.image.bMyLoadSuccess && this.tex.image.width == 0) { MainPrint("img:ensureLoaded() w,h=",this.tex.image.width,this.tex.image.height); LoveFatalError("image:ensureLoaded() todo:wait"); } }
+	this.getWidth		= function () { this.ensureLoaded(); return this.tex.image.width; }
+	this.getHeight		= function () { this.ensureLoaded(); return this.tex.image.height; }
 }
 
 // ***** ***** ***** ***** ***** cLoveImageFont
