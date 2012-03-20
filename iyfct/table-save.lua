@@ -46,7 +46,7 @@ do
 		-- to replace
 		s = string.gsub( s,"\\\n","\\n" )
 		s = string.gsub( s,"\r","\\r" )
-		s = string.gsub( s,string.char(26),"\"..string.char(26)..\"" )
+		s = string.gsub( s,string.char(26),'"'.."..string.char(26).."..'"' )
 		return s
 	end
 --// The Save Function

@@ -210,11 +210,11 @@ function Player:collideWithPoint(x,y)
 	end
 end
 
---[[ Status values:
-	0 = alive
-	1 = hit by train
-	2 = hit by bird
-	3 = inside train
-	4 = falling through ground?
-	5 = hit by mountain
---]]
+ --~ Status values:
+	--~ 0 = alive
+	--~ 1 = hit by train
+	--~ 2 = hit by bird
+	--~ 3 = inside train
+	--~ 4 = falling through ground?
+	--~ 5 = hit by mountain
+
