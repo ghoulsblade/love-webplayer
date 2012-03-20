@@ -6,6 +6,7 @@ var gMyTicks = MyGetTicks();
 var gSecondsSinceLastFrame = 0;
 var gMaxHTMLConsoleLines = 10;
 var gLoveExecutionHalted = false; // stop at first fatal error
+var gLastLoadedLuaCode;
 
 /// output in html, for fatal error messages etc, also users that don't have webdev console open can see them
 function MainPrintToHTMLConsole () {
@@ -59,11 +60,41 @@ function LuaBootStrap (G) {
 	Love_Timer_CreateTable(G);
 	
 	// replace default lua.js require
-	G.str['require'] = function (name) {
-		throw ("'require' not yet implemented ("+name+")");
-		//~ MainPrint("require "+name);
-		//~ lua_require(G, name);
+	G.str['require'] = function (path) {
+		path = path += ".lua";
+		//~ MainPrint("require "+path);
+		RunLuaFromPath(path);
+		//~ MainPrint("require done.");
+		//~ throw ("'require' not yet implemented ("+path+")");
+		//~ lua_require(G, path);
 	};
+}
+
+/// synchronous ajax to get file, so code executed before function returns
+function RunLuaFromPath (path) {
+	if (gLoveExecutionHalted) return;
+	if (!lua_parser) {
+		throw new Error("Lua parser not available, perhaps you're not using the lua+parser.js version of the library?");
+	}
+
+	MainPrint("RunLuaFromPath "+path);
+	try {
+		// download code via synchronous ajax... sjax? ;)
+		gLastLoadedLuaCode = false;
+		UtilAjaxGet(path,function (luacode) { gLastLoadedLuaCode = luacode; },true);
+		var luacode = gLastLoadedLuaCode;
+		
+		// check if download worked
+		if ((typeof luacode) != "string") { throw String("RunLuaFromPath failed '"+path+"' : tyep="+(typeof luacode)+" val="+String(luacode)); }
+	
+		// construct temporary function name containing filepath for more useful error messages
+		var temp_function_name = "luatmp_"+path.replace(/[^a-zA-Z0-9]/g,"_");
+		
+		var myfun = lua_load(luacode,temp_function_name); // parse code
+		return myfun(); // run code, returns _G
+	} catch (e) {
+		LoveFatalError("error during "+path+" : "+String(e)+" : "+PrepareExceptionStacktraceForOutput(e)); 
+	}
 }
 
 /// format the exception stacktrace to be a bit readable in html output
@@ -131,15 +162,6 @@ function MainOnLoad () {
 	// call MainStep() every frame
 	window.setInterval("MainStep()", gFrameWait);
 
-	UtilAjaxGet(kMainLuaURL,function (luacode) {
-		// code inside this callback is called when ajax asynchronous download of the lua code text has been finished
-		var myfun = lua_load(luacode,"maincode"); // parse code
-		try {
-			G = myfun(); // run code
-		} catch (e) {
-			LoveFatalError("error during main.lua : "+String(e)+" : "+PrepareExceptionStacktraceForOutput(e)); 
-			return;
-		}
-		call_love_load(); // call love.load()
-	});
+	G = RunLuaFromPath(kMainLuaURL); // run main.lua
+	call_love_load(); // call love.load()
 }

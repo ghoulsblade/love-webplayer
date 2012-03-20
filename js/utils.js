@@ -24,7 +24,9 @@ function clamplen (a,maxlen) { return clamp(a,-maxlen,maxlen); }
 // ***** ***** ***** ***** ***** ajax
 
 // see http://www.w3.org/TR/XMLHttpRequest			sQuery = "bla.php?x="+escape(x)
-function UtilAjaxGet (sQuery,callback) {
+function UtilAjaxGet (sQuery,callback,bSynchronous) {
+	var bAsync = true;
+	if (bSynchronous) bAsync = false;
 	var client;
 	if (window.XMLHttpRequest) 
 			client = new XMLHttpRequest(); // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -37,7 +39,7 @@ function UtilAjaxGet (sQuery,callback) {
 			}
 		}
 	}
-	client.open("GET",sQuery);
+	client.open("GET",sQuery,bAsync);
 	//~ client.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
 	client.send();
 }
