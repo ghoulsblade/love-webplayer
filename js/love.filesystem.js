@@ -17,7 +17,7 @@ function Love_Filesystem_CreateTable (G) {
 	t.str['isDirectory']			= function () { return NotImplemented(pre+'isDirectory'); }
 	t.str['isFile']					= function () { return NotImplemented(pre+'isFile'); }
 	t.str['lines']					= function () { return NotImplemented(pre+'lines'); }
-	t.str['load']					= function () { return NotImplemented(pre+'load'); }
+	t.str['load']					= function (path) { return [function () { return RunLuaFromPath(path); }]; } // quick&dirty
 	t.str['mkdir']					= function () { return NotImplemented(pre+'mkdir'); }
 	t.str['newFile']				= function () { return NotImplemented(pre+'newFile'); }
 	t.str['newFileData']			= function () { return NotImplemented(pre+'newFileData'); }
