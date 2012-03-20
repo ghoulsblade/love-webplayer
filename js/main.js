@@ -63,7 +63,7 @@ function LuaBootStrap (G) {
 	
 	// replace default lua.js require
 	G.str['require'] = function (path) {
-		if (path.substr(-4) != ".lua") path += ".lua";
+		if (path.substr(-4) != ".lua") path += ".lua"; // require automatically appends .lua to the filepath
 		//~ MainPrint("require "+path);
 		RunLuaFromPath(path);
 		//~ MainPrint("require done.");

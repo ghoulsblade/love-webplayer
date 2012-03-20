@@ -27,6 +27,13 @@ function Love_Graphics_CreateTable (G) {
 	// love.graphics.newImage(path)
 	t.str['newImage']			= function (path) { return [Love_Graphics_MakeImageHandle(new cLoveImage(path))]; }
 	t.str['newImageFont']		= function (image, glyphs) { return [Love_Graphics_MakeImageFontHandle(new cLoveImageFont(image, glyphs))]; }
+	t.str['newQuad']			= function (x, y, width, height, sw, sh) { return [Love_Graphics_MakeQuadHandle(new cLoveQuad(x, y, width, height, sw, sh))]; }
+	t.str['drawq']				= function (image, quad, x, y, r, sx, sy, ox, oy) {
+		var o = image._data;
+		var q = quad._data;
+		DrawSpriteQ(o.GetTextureID(),q,q.w,q.h,x,y,r||0,sx||1,(sy||sx)||1,ox||0,oy||0); 
+		return []; 
+	}
 	
 	// love.graphics.setBackgroundColor(r,g,b)
 	t.str['setBackgroundColor']	= function (r,g,b) { gl.clearColor(r/255.0, g/255.0, b/255.0, 1.0); }
@@ -42,6 +49,8 @@ function Love_Graphics_CreateTable (G) {
 		else	o.RenderSelf(x,y,r || 0.0,sx || 1.0,sy || 1.0,ox || 0.0,oy || 0.0);
 	}
 	
+	t.str['setMode']			= function (width, height, fullscreen, vsync, fsaa) { MainPrint("setMode",width, height, fullscreen||false, vsync||true, fsaa||0); return NotImplemented(pre+'setMode'); }
+	
 	// TODO : "newImage" overloads
 	// TODO : "draw" overloads
 	
@@ -50,7 +59,6 @@ function Love_Graphics_CreateTable (G) {
 	t.str['checkMode']			= function () { return NotImplemented(pre+'checkMode'); }
 	t.str['circle']				= function () { return NotImplemented(pre+'circle'); }
 	t.str['clear']				= function () { return NotImplemented(pre+'clear'); }
-	t.str['drawq']				= function () { return NotImplemented(pre+'drawq'); }
 	t.str['getBackgroundColor']	= function () { return NotImplemented(pre+'getBackgroundColor'); }
 	t.str['getBlendMode']		= function () { return NotImplemented(pre+'getBlendMode'); }
 	t.str['getCaption']			= function () { return NotImplemented(pre+'getCaption'); }
@@ -72,7 +80,6 @@ function Love_Graphics_CreateTable (G) {
 	t.str['newFont']			= function () { return NotImplemented(pre+'newFont'); }
 	t.str['newFramebuffer']		= function () { return NotImplemented(pre+'newFramebuffer'); }
 	t.str['newParticleSystem']	= function () { return NotImplemented(pre+'newParticleSystem'); }
-	t.str['newQuad']			= function () { return NotImplemented(pre+'newQuad'); }
 	t.str['newScreenshot']		= function () { return NotImplemented(pre+'newScreenshot'); }
 	t.str['newSpriteBatch']		= function () { return NotImplemented(pre+'newSpriteBatch'); }
 	t.str['point']				= function () { return NotImplemented(pre+'point'); }
@@ -95,7 +102,6 @@ function Love_Graphics_CreateTable (G) {
 	t.str['setLineStipple']		= function () { return NotImplemented(pre+'setLineStipple'); }
 	t.str['setLineStyle']		= function () { return NotImplemented(pre+'setLineStyle'); }
 	t.str['setLineWidth']		= function () { return NotImplemented(pre+'setLineWidth'); }
-	t.str['setMode']			= function () { return NotImplemented(pre+'setMode'); }
 	t.str['setPoint']			= function () { return NotImplemented(pre+'setPoint'); }
 	t.str['setPointSize']		= function () { return NotImplemented(pre+'setPointSize'); }
 	t.str['setPointStyle']		= function () { return NotImplemented(pre+'setPointStyle'); }
@@ -204,6 +210,52 @@ function cLoveImageFont (image, glyphs) {
 	// TODO
 }
 
+
+// ***** ***** ***** ***** ***** cLoveQuad
+
+function Love_Graphics_MakeQuadHandle (o) {
+	var t = lua_newtable();
+	var pre = "love.graphics.quad.";
+	t._data = o;
+	
+	t.str['flip']				= function (t) { return NotImplemented(pre+'flip'); }	// Flips this quad horizontally, vertically, or both.
+	t.str['getViewport']		= function (t) { return NotImplemented(pre+'getViewport'); }	// Gets the current viewport of this Quad.
+	t.str['setViewport']		= function (t) { return NotImplemented(pre+'setViewport'); }	// Sets the texture coordinates according to a viewport.
+
+	t.str['type']				= function (t) { return NotImplemented(pre+'type'); }	// Gets the type of the object as a string.
+	t.str['typeOf']				= function (t) { return NotImplemented(pre+'typeOf'); }	// Checks whether an object is of a certain type.
+	
+	return t;
+}
+
+function cLoveQuad (x, y, width, height, sw, sh) {
+
+	this.UpdateTexCoordBuffer = function () {
+		var		u0 = this.x/this.sw;
+		var		v0 = this.y/this.sh;
+		var		u1 = (this.x+this.w)/this.sw;
+		var		v1 = (this.y+this.h)/this.sh;
+		var		a;
+		if (this.bFlippedX) { a = u0; u0 = u1; u1 = a; }
+		if (this.bFlippedY) { a = v0; v0 = v1; v1 = a; }
+		UpdateGlFloatBuffer(gl,this.vb_Tex,[u0,v0, u1,v0, u0,v1, u1,v1],gl.STATIC_DRAW);
+	}
+	
+	this.setViewport = function (x,y,w,h) {
+		this.x = x;
+		this.y = y;
+		this.w = w;
+		this.h = h;
+		this.UpdateTexCoordBuffer();
+	}
+	
+	this.sw = sw;
+	this.sh = sh;
+	this.vb_Tex = MakeGlFloatBuffer(gl,[0,0, 10,0, 0,10, 10,10],gl.STATIC_DRAW);
+	this.setViewport(x,y,width,height);
+	
+	// TODO
+}
 
 // ***** ***** ***** ***** ***** webgl stuff 
 

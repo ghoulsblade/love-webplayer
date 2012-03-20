@@ -172,12 +172,12 @@ function MyGetStackTrace () {
 	return mye ? mye.stack : "??";
 }
 
-function MyCheckGLError () {
+function MyCheckGLError (where) {
 	if (gGLErrorAlertsStopped) return;
 	var e = gl.getError(); 
 	if (e != gl.NO_ERROR) {
 		gGLErrorAlertsStopped = true;
-		alert("MyCheckGLError : gl.getError() : "+e+" : "+OpenGLError2Txt(e)+" stack="+MyGetStackTrace());
+		alert("MyCheckGLError("+(where?where:"")+") : gl.getError() : "+e+" : "+OpenGLError2Txt(e)+" stack="+MyGetStackTrace());
 	}
 }
 
@@ -190,7 +190,7 @@ function UpdateGlFloatBuffer (gl,buffer,arr,mode) { // arr= [1,2,3,...] mode= gl
 	
 	gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(arr),mode); // WebGLFloatArray->Float32Array
-	var e = gl.getError(); if (e != gl.NO_ERROR) alert("UpdateGlFloatBuffer : gl.getError() : "+e+" : "+OpenGLError2Txt(e)+" stack="+MyGetStackTrace());
+	MyCheckGLError("UpdateGlFloatBuffer");
 	// TODO : using new Float32Array all the time will drain memory?
 	// usage example:
 	// gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
@@ -207,7 +207,7 @@ function MakeGlIndexBuffer (gl,arr,mode) { // arr= [1,2,3,...] mode= gl.STATIC_D
 function UpdateGlIndexBuffer (gl,buffer,arr,mode) { // arr= [1,2,3,...] mode= gl.STATIC_DRAW
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(arr),mode); // WebGLUnsignedShortArray->Uint16Array
-	var e = gl.getError(); if (e != gl.NO_ERROR) alert("UpdateGlIndexBuffer : gl.getError() : "+e+" : "+OpenGLError2Txt(e)+" stack="+MyGetStackTrace());
+	MyCheckGLError("UpdateGlIndexBuffer");
 	// TODO : using new Uint16Array all the time will drain memory?
 	// usage example:
 	// gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);  

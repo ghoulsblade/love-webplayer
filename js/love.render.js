@@ -17,7 +17,11 @@ function LoveRender_Init () {
 	spriteIB	 = MakeGlIndexBuffer(gl,spriteIdxFloats,gl.STATIC_DRAW); // gBox_Indices
 	bLoveRenderInitDone = true;
 }
-	
+
+function DrawSpriteQ	(iTextureID,quad,w,h,x,y,r,sx,sy,ox,oy) {
+	DrawSpriteAux	(iTextureID,quad.vb_Tex,w,h,x,y,r,sx,sy,ox,oy);
+}
+
 function DrawSprite	(iTextureID,w,h,x,y,r,sx,sy,ox,oy) {
 	DrawSpriteAux	(iTextureID,spriteVB_Tex,w,h,x,y,r,sx,sy,ox,oy);
 }
