@@ -137,6 +137,13 @@ function call_love_mousereleased	(x, y, button)		{ return call_love_callback_gua
 function call_love_quit				()					{ return call_love_callback_guarded('quit',[]); }	// Callback function triggered when the game is closed.
 function call_love_run				()					{ return call_love_callback_guarded('run',[]); }	// The main function, containing the main loop. A sensible default is used when left out.
 
+/// just for debug until keyboard works, index.html: <br><a href="javascript:MainButton()">MainButton()</a>
+function MainButton () {
+	call_love_keypressed(" ");
+	call_love_keypressed("return");
+	MainPrint("MainButton");
+}
+
 /// called every frame
 function MainStep () {
 	var t = MyGetTicks();
