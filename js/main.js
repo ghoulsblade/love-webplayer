@@ -162,7 +162,7 @@ function MainOnLoad () {
 	// additional init functions should be called here
 	
 	// call MainStep() every frame
-	window.setInterval("MainStep()", gFrameWait);
+	window.setInterval("MainStep()", gFrameWait); // TODO: http://www.khronos.org/webgl/wiki/FAQ#What_is_the_recommended_way_to_implement_a_rendering_loop.3F
 
 	G = RunLuaFromPath(kMainLuaURL); // run main.lua
 	call_love_load(); // call love.load()

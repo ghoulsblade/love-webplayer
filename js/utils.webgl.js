@@ -123,6 +123,7 @@ function UtilReshapeCanvas(gl,id)
 
 	gMyCanvasWidth = canvas.width;
 	gMyCanvasHeight = canvas.height;
+	//~ MainPrint("UtilReshapeCanvas",gMyCanvasWidth,gMyCanvasHeight);
 	MyOnReshapeCanvas(gMyCanvasWidth,gMyCanvasHeight);
 }
 
