@@ -167,9 +167,12 @@ function push_event(eventname, a, b, c, d)
 }
 
 /// just for debug until keyboard works, index.html: <br><a href="javascript:MainButton()">MainButton()</a>
+var gTestKeyDown = false;
 function MainButton () {
 	push_event("keypressed", " ");
 	push_event("keypressed", "return");
+	gTestKeyDown = true;
+	window.setTimeout(function () { gTestKeyDown = false; }, 500);
 	MainPrint("MainButton");
 }
 
