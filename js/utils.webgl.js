@@ -1,4 +1,5 @@
 var kFloatSize = 4; // 4; // sizeof(GLfloat) doesn't seem to work...
+var gGLErrorAlertsStopped = false;
 
 // ***** ***** ***** ***** ***** gl init
 
@@ -172,7 +173,12 @@ function MyGetStackTrace () {
 }
 
 function MyCheckGLError () {
-	var e = gl.getError(); if (e != gl.NO_ERROR) alert("MyCheckGLError : gl.getError() : "+e+" : "+OpenGLError2Txt(e)+" stack="+MyGetStackTrace());
+	if (gGLErrorAlertsStopped) return;
+	var e = gl.getError(); 
+	if (e != gl.NO_ERROR) {
+		gGLErrorAlertsStopped = true;
+		alert("MyCheckGLError : gl.getError() : "+e+" : "+OpenGLError2Txt(e)+" stack="+MyGetStackTrace());
+	}
 }
 
 function UpdateGlFloatBuffer (gl,buffer,arr,mode) { // arr= [1,2,3,...] mode= gl.STATIC_DRAW

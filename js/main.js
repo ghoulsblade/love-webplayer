@@ -5,12 +5,20 @@ var gFrameWait = 1000/40; // TODO: adjust for performance ?
 var gMyTicks = MyGetTicks();
 var gSecondsSinceLastFrame = 0;
 
+function MainPrintToHTMLConsole () {
+	var element = document.getElementById('output');
+	if (!element) return; // perhaps during startup
+	element.innerHTML += "<br>\n";
+	for (var i = 0; i < arguments.length; ++i) element.innerHTML += String(arguments[i]) + " ";
+}
+
 /// debug output
 function MainPrint () {
 	if (kUseHTMLConsole) {
 		var element = document.getElementById('output');
 		if (!element) return; // perhaps during startup
-		element.innerHTML += "<br>\n" + String(arguments);
+		element.innerHTML += "<br>\n";
+		for (var i = 0; i < arguments.length; ++i) element.innerHTML += String(arguments[i]) + " ";
 	} else {
 		try {
 			console.log.apply(console, arguments); // javascript console, e.g. firefox
@@ -42,19 +50,28 @@ function LuaBootStrap (G) {
 	Love_Timer_CreateTable(G);
 }
 
-function call_love_load				(cmdline_args)		{ lua_call(G.str['love'].str['load'],[cmdline_args]); }	// This function is called exactly once at the beginning of the game.
-function call_love_draw				()					{ if (G) lua_call(G.str['love'].str['draw'],[]); }	// Callback function used to draw on the screen every frame.
-function call_love_update			(dt)				{ if (G) lua_call(G.str['love'].str['update'],[dt]); }	// Callback function used to update the state of the game every frame.
+/// execute love callback function, catch any error message and display in html so people can see without webdev console  (blue love error screen)
+function call_love_callback_guarded (callbackname,fargs) {
+	if (!G) return;
+	try {
+		return lua_call(G.str['love'].str[callbackname],fargs);
+	} catch (e) {
+		MainPrintToHTMLConsole("error during love."+callbackname+"("+String(fargs)+") : "+String(e)); 
+	}
+}
 
-function call_love_focus			(bHasFocus)			{ if (G) lua_call(G.str['love'].str['focus'],[bHasFocus]); }	// Callback function triggered when window receives or loses focus.
-function call_love_joystickpressed	(joystick, button)	{ if (G) lua_call(G.str['love'].str['joystickpressed'],[joystick, button]); }	// Called when a joystick button is pressed.
-function call_love_joystickreleased	(joystick, button)	{ if (G) lua_call(G.str['love'].str['joystickreleased'],[joystick, button]); }	// Called when a joystick button is released.
-function call_love_keypressed		(key, unicode)		{ if (G) lua_call(G.str['love'].str['keypressed'],[key, unicode]); }	// Callback function triggered when a key is pressed.
-function call_love_keyreleased		(key)				{ if (G) lua_call(G.str['love'].str['keyreleased'],[key]); }	// Callback function triggered when a key is released.
-function call_love_mousepressed		(x, y, button)		{ if (G) lua_call(G.str['love'].str['mousepressed'],[x, y, button]); }	// Callback function triggered when a mouse button is pressed.
-function call_love_mousereleased	(x, y, button)		{ if (G) lua_call(G.str['love'].str['mousereleased'],[x, y, button]); }	// Callback function triggered when a mouse button is released.
-function call_love_quit				()					{ if (G) lua_call(G.str['love'].str['quit'],[]); }	// Callback function triggered when the game is closed.
-function call_love_run				()					{ if (G) lua_call(G.str['love'].str['run'],[]); }	// The main function, containing the main loop. A sensible default is used when left out.
+function call_love_load				(cmdline_args)		{ return call_love_callback_guarded('load',[cmdline_args]); }	// This function is called exactly once at the beginning of the game.
+function call_love_draw				()					{ return call_love_callback_guarded('draw',[]); }	// Callback function used to draw on the screen every frame.
+function call_love_update			(dt)				{ return call_love_callback_guarded('update',[dt]); }	// Callback function used to update the state of the game every frame.
+function call_love_focus			(bHasFocus)			{ return call_love_callback_guarded('focus',[bHasFocus]); }	// Callback function triggered when window receives or loses focus.
+function call_love_joystickpressed	(joystick, button)	{ return call_love_callback_guarded('joystickpressed',[joystick, button]); }	// Called when a joystick button is pressed.
+function call_love_joystickreleased	(joystick, button)	{ return call_love_callback_guarded('joystickreleased',[joystick, button]); }	// Called when a joystick button is released.
+function call_love_keypressed		(key, unicode)		{ return call_love_callback_guarded('keypressed',[key, unicode]); }	// Callback function triggered when a key is pressed.
+function call_love_keyreleased		(key)				{ return call_love_callback_guarded('keyreleased',[key]); }	// Callback function triggered when a key is released.
+function call_love_mousepressed		(x, y, button)		{ return call_love_callback_guarded('mousepressed',[x, y, button]); }	// Callback function triggered when a mouse button is pressed.
+function call_love_mousereleased	(x, y, button)		{ return call_love_callback_guarded('mousereleased',[x, y, button]); }	// Callback function triggered when a mouse button is released.
+function call_love_quit				()					{ return call_love_callback_guarded('quit',[]); }	// Callback function triggered when the game is closed.
+function call_love_run				()					{ return call_love_callback_guarded('run',[]); }	// The main function, containing the main loop. A sensible default is used when left out.
 
 /// called every frame
 function MainStep () {
@@ -86,7 +103,12 @@ function MainOnLoad () {
 	UtilAjaxGet(kMainLuaURL,function (luacode) {
 		// code inside this callback is called when ajax asynchronous download of the lua code text has been finished
 		var myfun = lua_load(luacode,"maincode"); // parse code
-		G = myfun(); // run code
+		try {
+			G = myfun(); // run code
+		} catch (e) {
+			MainPrintToHTMLConsole("error during main.lua : "+String(e)); 
+			return;
+		}
 		call_love_load(); // call love.load()
 	});
 }
