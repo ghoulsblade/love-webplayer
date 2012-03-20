@@ -42,7 +42,8 @@ function NotImplemented (name) { MainPrint("NotImplemented:"+String(name)); retu
 /// called after lua code has finished loading and is about to be run, where environment has already been setup
 /// when calling the result from lua_load, LuaBootStrap is exectuted between lua environment setup and the parsed code
 function LuaBootStrap (G) {
-	//~ MainPrint("LuaBootStrap called");
+	//~ G.bla = (G.bla ? G.bla : 0) + 1; // check if G is preserved across multiple load_chunks
+	//~ MainPrint("LuaBootStrap called "+G.bla);
 	G.str['love'] = lua_newtable();
 	
 	// register love api functions

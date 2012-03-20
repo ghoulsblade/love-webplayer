@@ -119,7 +119,7 @@ var $0 = $$.length - 1;
 switch (yystate) {
 case 1:
     return "var tmp;\n" +
-      "var G = lua_newtable2(lua_core);\n" +
+      "G = G || lua_newtable2(lua_core);\n" + // added 2012-03-16 by ghoulsblade for love-webplayer
       "for (var i in lua_libs) {\n" +
       "  G.str[i] = lua_newtable2(lua_libs[i]);\n" +
       "}\n" +
