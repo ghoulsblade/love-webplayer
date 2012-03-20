@@ -155,6 +155,18 @@ function MainStep () {
 	Love_Graphics_Step_End();
 }
 
+/// http://www.khronos.org/webgl/wiki/FAQ#What_is_the_recommended_way_to_implement_a_rendering_loop.3F
+window.requestAnimFrame = (function() {
+  return window.requestAnimationFrame ||
+         window.webkitRequestAnimationFrame ||
+         window.mozRequestAnimationFrame ||
+         window.oRequestAnimationFrame ||
+         window.msRequestAnimationFrame ||
+         function(/* function FrameRequestCallback */ callback, /* DOMElement Element */ element) {
+           return window.setTimeout(callback, 1000/60);
+         };
+})();
+
 /// called on html-body onload event
 function MainOnLoad () {
 	Love_Audio_Init();
@@ -163,6 +175,7 @@ function MainOnLoad () {
 	
 	// call MainStep() every frame
 	window.setInterval("MainStep()", gFrameWait); // TODO: http://www.khronos.org/webgl/wiki/FAQ#What_is_the_recommended_way_to_implement_a_rendering_loop.3F
+	//~ window.requestAnimFrame(MainStep); // doesn't work ?
 
 	G = RunLuaFromPath(kMainLuaURL); // run main.lua
 	call_love_load(); // call love.load()
