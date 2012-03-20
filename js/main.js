@@ -4,13 +4,19 @@ var G = null; // the big lua _G containing lua global vars
 var gFrameWait = 1000/40; // TODO: adjust for performance ?
 var gMyTicks = MyGetTicks();
 var gSecondsSinceLastFrame = 0;
+var gMaxHTMLConsoleLines = 10;
+var gLoveExecutionHalted = false; // stop at first fatal error
 
 /// output in html, for fatal error messages etc, also users that don't have webdev console open can see them
 function MainPrintToHTMLConsole () {
+	if (gMaxHTMLConsoleLines == 0) return;
+	--gMaxHTMLConsoleLines;
 	var element = document.getElementById('output');
 	if (!element) return; // perhaps during startup
-	element.innerHTML += "<br>\n";
+	element.innerHTML += "<br/>\n";
 	for (var i = 0; i < arguments.length; ++i) element.innerHTML += String(arguments[i]) + " ";
+	element.innerHTML += "<hr/>\n";
+	if (gMaxHTMLConsoleLines == 0) element.innerHTML += "<br/>\n...";
 }
 
 /// debug output (usually just on webdev console)
@@ -18,7 +24,7 @@ function MainPrint () {
 	if (kUseHTMLConsole) {
 		var element = document.getElementById('output');
 		if (!element) return; // perhaps during startup
-		element.innerHTML += "<br>\n";
+		element.innerHTML += "<br/>\n";
 		for (var i = 0; i < arguments.length; ++i) element.innerHTML += String(arguments[i]) + " ";
 	} else {
 		try {
@@ -36,6 +42,8 @@ function NotImplemented (name) { MainPrint("NotImplemented:"+String(name)); retu
 /// when calling the result from lua_load, LuaBootStrap is exectuted between lua environment setup and the parsed code
 function LuaBootStrap (G) {
 	G.str['love'] = lua_newtable();
+	
+	// register love api functions
 	Love_Audio_CreateTable(G);
 	Love_Event_CreateTable(G);
 	Love_Filesystem_CreateTable(G);
@@ -49,15 +57,36 @@ function LuaBootStrap (G) {
 	Love_Sound_CreateTable(G);
 	Love_Thread_CreateTable(G);
 	Love_Timer_CreateTable(G);
+	
+	// replace default lua.js require
+	G.str['require'] = function (name) {
+		throw ("'require' not yet implemented ("+name+")");
+		//~ MainPrint("require "+name);
+		//~ lua_require(G, name);
+	};
+}
+
+/// format the exception stacktrace to be a bit readable in html output
+function PrepareExceptionStacktraceForOutput (e) {
+	var txt = e.stack ? e.stack : "";
+	txt = txt.replace(/@/g,"<br/>\n@");
+	return txt;
+}
+
+/// halt execution and display error message
+function LoveFatalError (msg) {
+	gLoveExecutionHalted = true;
+	MainPrintToHTMLConsole(msg); 
 }
 
 /// execute love callback function, catch any error message and display in html so people can see without webdev console  (blue love error screen)
 function call_love_callback_guarded (callbackname,fargs) {
+	if (gLoveExecutionHalted) return;
 	if (!G) return;
 	try {
 		return lua_call(G.str['love'].str[callbackname],fargs);
 	} catch (e) {
-		MainPrintToHTMLConsole("error during love."+callbackname+"("+String(fargs)+") : "+String(e)); 
+		LoveFatalError("error during love."+callbackname+"("+String(fargs)+") : "+String(e)+" : "+PrepareExceptionStacktraceForOutput(e));
 	}
 }
 
@@ -108,7 +137,7 @@ function MainOnLoad () {
 		try {
 			G = myfun(); // run code
 		} catch (e) {
-			MainPrintToHTMLConsole("error during main.lua : "+String(e)); 
+			LoveFatalError("error during main.lua : "+String(e)+" : "+PrepareExceptionStacktraceForOutput(e)); 
 			return;
 		}
 		call_love_load(); // call love.load()
