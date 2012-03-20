@@ -168,8 +168,8 @@ function push_event(eventname, a, b, c, d)
 
 /// just for debug until keyboard works, index.html: <br><a href="javascript:MainButton()">MainButton()</a>
 function MainButton () {
-	call_love_keypressed(" ");
-	call_love_keypressed("return");
+	push_event("keypressed", " ");
+	push_event("keypressed", "return");
 	MainPrint("MainButton");
 }
 
