@@ -1,4 +1,3 @@
-
 /// init lua api
 function Love_Timer_CreateTable (G) {
 	var t = lua_newtable();
@@ -8,7 +7,7 @@ function Love_Timer_CreateTable (G) {
 	var frames = 0;
 	var prevFps = MyGetTicks();
 	var fpsFrequency = 1;
-	var fps;
+	var fps = 0;
 
 	G.str['love'].str['timer'] = t;
 	
