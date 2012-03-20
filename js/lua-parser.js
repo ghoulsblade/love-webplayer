@@ -137,7 +137,7 @@ case 1:
       "  }\n" +
       "  module.metatable.str['__index'] = G;\n" +
       "};\n" +
-	  "LuaBootStrap(G);\n"+ // added 2012-03-16 by ghoulsblade
+	  "LuaBootStrap(G);\n"+ // added 2012-03-16 by ghoulsblade for love-webplayer
       "{\n" +
       $$[$0-2].simple_form + "\n" +
       "}\n";
@@ -1987,6 +1987,7 @@ lua_libs["os"] = {
   },
   "time": function () {
     // TODO
+	if (arguments.length == 0) return [new Date().getTime()]; // added 2012-03-16 by ghoulsblade for love-webplayer
     not_supported();
   }
 };

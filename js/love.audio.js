@@ -64,6 +64,7 @@ function Love_Audio_MakeSourceHandle (o) {
 
 function cLoveAudioSource (path) {
 	this.path = path;
+	var pre = "love.audio.source.";
 	
 	this.play				= function () { MainPrint("love.audio.source:play() called path="+String(this.path)); }	// called as object method
 	this.love_audio_play	= function () { MainPrint("love.audio.play(source) called path="+String(this.path)); }	// called as api function

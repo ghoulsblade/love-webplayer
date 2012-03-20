@@ -22,8 +22,11 @@ function Love_Graphics_CreateTable (G) {
 
 	G.str['love'].str['graphics'] = t;
 	
+	// note: pass through variable argument list ? myfun.apply(null,arguments) http://stackoverflow.com/questions/676721/calling-dynamic-function-with-dynamic-parameters-in-javascript
+	
 	// love.graphics.newImage(path)
-	t.str['newImage']	= function (path) { return [new cLoveImage(path)]; }
+	t.str['newImage']			= function (path) { return [Love_Graphics_MakeImageHandle(new cLoveImage(path))]; }
+	t.str['newImageFont']		= function (image, glyphs) { return [Love_Graphics_MakeImageFontHandle(new cLoveImageFont(image, glyphs))]; }
 	
 	// love.graphics.setBackgroundColor(r,g,b)
 	t.str['setBackgroundColor']	= function (r,g,b) { gl.clearColor(r/255.0, g/255.0, b/255.0, 1.0); }
@@ -33,9 +36,10 @@ function Love_Graphics_CreateTable (G) {
 	
 	//~ love.graphics.draw(drawable, x, y, r, sx, sy, ox, oy )
 	t.str['draw']		= function (drawable, x, y, r, sx, sy, ox, oy ) {
-		if (drawable.IsImage())
-				DrawSprite(drawable.GetTextureID(),drawable.GetWidth(),drawable.GetHeight(),x,y,r || 0.0,sx || 1.0,sy || 1.0,ox || 0.0,oy || 0.0);
-		else	drawable.RenderSelf(x,y,r || 0.0,sx || 1.0,sy || 1.0,ox || 0.0,oy || 0.0);
+		var o = drawable._data;
+		if (o.IsImage())
+				DrawSprite(o.GetTextureID(),o.getWidth(),o.getHeight(),x,y,r || 0.0,sx || 1.0,sy || 1.0,ox || 0.0,oy || 0.0);
+		else	o.RenderSelf(x,y,r || 0.0,sx || 1.0,sy || 1.0,ox || 0.0,oy || 0.0);
 	}
 	
 	// TODO : "newImage" overloads
@@ -65,7 +69,6 @@ function Love_Graphics_CreateTable (G) {
 	t.str['line']				= function () { return NotImplemented(pre+'line'); }
 	t.str['newFont']			= function () { return NotImplemented(pre+'newFont'); }
 	t.str['newFramebuffer']		= function () { return NotImplemented(pre+'newFramebuffer'); }
-	t.str['newImageFont']		= function () { return NotImplemented(pre+'newImageFont'); }
 	t.str['newParticleSystem']	= function () { return NotImplemented(pre+'newParticleSystem'); }
 	t.str['newQuad']			= function () { return NotImplemented(pre+'newQuad'); }
 	t.str['newScreenshot']		= function () { return NotImplemented(pre+'newScreenshot'); }
@@ -141,13 +144,27 @@ gl.uniform1i(shaderProgram.samplerUniform, 0);
 gl.uniform1i(shaderProgram.useLightingUniform, lighting);
 */
 
-// ***** ***** ***** ***** ***** love sprites
+// ***** ***** ***** ***** ***** cLoveImage
 
-function DrawLoveSprite(tex, x, y, r, sx, sy, ox, oy) {
+
+function Love_Graphics_MakeImageHandle (o) {
+	var t = lua_newtable();
+	var pre = "love.graphics.image.";
+	t._data = o;
 	
+	t.str['getHeight']			= function (t) { return [t._data.getHeight		()]; }	// Returns the height of the Image.
+	t.str['getWidth']			= function (t) { return [t._data.getWidth		()]; }	// Returns the width of the Image.
+	
+	t.str['getFilter']			= function (t) { return NotImplemented(pre+'getFilter'); }	// Gets the filter mode for an image.
+	t.str['getWrap']			= function (t) { return NotImplemented(pre+'getWrap'); }	// Gets the wrapping properties of an Image.
+	t.str['setFilter']			= function (t) { return NotImplemented(pre+'setFilter'); }	// Sets the filter mode for an image.
+	t.str['setWrap']			= function (t) { return NotImplemented(pre+'setWrap'); }	// Sets the wrapping properties of an Image.
+	
+	t.str['type']				= function (t) { return ["Image"]; 					}	// Gets the type of the object as a string.  // TODO: lowercase ???
+	t.str['typeOf']				= function (t) { return NotImplemented(pre+'typeOf'); }	// Checks whether an object is of a certain type.
+	
+	return t;
 }
-
-// ***** ***** ***** ***** ***** cImage
 
 function cLoveImage (path) {
 	var bPixelArt = false;
@@ -157,9 +174,35 @@ function cLoveImage (path) {
 	
 	this.GetTextureID	= function () { return this.tex; }
 	this.IsImage		= function () { return true; }
-	this.GetWidth		= function () { return this.tex.image.width; }
-	this.GetHeight		= function () { return this.tex.image.height; }
+	this.getWidth		= function () { return this.tex.image.width; }
+	this.getHeight		= function () { return this.tex.image.height; }
 }
+
+// ***** ***** ***** ***** ***** cLoveImageFont
+
+
+function Love_Graphics_MakeImageFontHandle (o) {
+	var t = lua_newtable();
+	var pre = "love.graphics.imagefont.";
+	t._data = o;
+	
+	t.str['getHeight']			= function (t) { return NotImplemented(pre+'getHeight'); }	// Gets the height of the Font in pixels.
+	t.str['getLineHeight']		= function (t) { return NotImplemented(pre+'getLineHeight'); }	// Gets the line height.
+	t.str['getWidth']			= function (t) { return NotImplemented(pre+'getWidth'); }	// Determines the horizontal size a line of text needs.
+	t.str['getWrap']			= function (t) { return NotImplemented(pre+'getWrap'); }	// Returns how many lines text would be wrapped to.
+	t.str['setLineHeight']		= function (t) { return NotImplemented(pre+'setLineHeight'); }	// Sets the line height.
+	t.str['type']				= function (t) { return NotImplemented(pre+'type'); }	// Gets the type of the object as a string.
+	t.str['typeOf']				= function (t) { return NotImplemented(pre+'typeOf'); }	// Checks whether an object is of a certain type.
+	
+	return t;
+}
+
+function cLoveImageFont (image, glyphs) {
+	this.image = image;
+	this.glyphs = glyphs;
+	// TODO
+}
+
 
 // ***** ***** ***** ***** ***** webgl stuff 
 

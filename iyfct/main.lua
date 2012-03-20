@@ -41,9 +41,9 @@ function love.load()
 	loadResources()
 	love.graphics.setFont(imgfont)
 
-	pl = Player.create()
-	updateScale()
-	restart()
+	print("load()1") pl = Player.create()
+	print("load()2") updateScale()
+	print("load()3") restart()
 end
 
 function restart()
