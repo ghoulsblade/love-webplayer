@@ -5,6 +5,7 @@ var gFrameWait = 1000/40; // TODO: adjust for performance ?
 var gMyTicks = MyGetTicks();
 var gSecondsSinceLastFrame = 0;
 
+/// output in html, for fatal error messages etc, also users that don't have webdev console open can see them
 function MainPrintToHTMLConsole () {
 	var element = document.getElementById('output');
 	if (!element) return; // perhaps during startup
@@ -12,7 +13,7 @@ function MainPrintToHTMLConsole () {
 	for (var i = 0; i < arguments.length; ++i) element.innerHTML += String(arguments[i]) + " ";
 }
 
-/// debug output
+/// debug output (usually just on webdev console)
 function MainPrint () {
 	if (kUseHTMLConsole) {
 		var element = document.getElementById('output');
@@ -28,12 +29,12 @@ function MainPrint () {
 	}
 }
 
+/// dummy/stub for love api functions that haven't been implemented yet
 function NotImplemented (name) { MainPrint("NotImplemented:"+String(name)); return []; }
 
 /// called after lua code has finished loading and is about to be run, where environment has already been setup
 /// when calling the result from lua_load, LuaBootStrap is exectuted between lua environment setup and the parsed code
 function LuaBootStrap (G) {
-	//~ MyPrint("bootloader called");
 	G.str['love'] = lua_newtable();
 	Love_Audio_CreateTable(G);
 	Love_Event_CreateTable(G);
@@ -60,6 +61,7 @@ function call_love_callback_guarded (callbackname,fargs) {
 	}
 }
 
+// love main callbacks, if you call them, please use these helpers for easier maintenance,error handling etc
 function call_love_load				(cmdline_args)		{ return call_love_callback_guarded('load',[cmdline_args]); }	// This function is called exactly once at the beginning of the game.
 function call_love_draw				()					{ return call_love_callback_guarded('draw',[]); }	// Callback function used to draw on the screen every frame.
 function call_love_update			(dt)				{ return call_love_callback_guarded('update',[dt]); }	// Callback function used to update the state of the game every frame.
