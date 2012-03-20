@@ -36,7 +36,16 @@ function Love_Graphics_CreateTable (G) {
 	}
 	
 	// love.graphics.setBackgroundColor(r,g,b)
-	t.str['setBackgroundColor']	= function (r,g,b) { gl.clearColor(r/255.0, g/255.0, b/255.0, 1.0); }
+	t.str['setBackgroundColor']	= function (r,g,b,a) { 
+		if ((typeof r) != "number") {
+			var rgb = r;
+			r = rgb.uints[0];
+			g = rgb.uints[1];
+			b = rgb.uints[2];
+			a = rgb.uints[3] || 255;
+		}
+		gl.clearColor(r/255.0, g/255.0, b/255.0, (a||255)/255.0); 
+	}
 	
 	// love.graphics.setColor(r,g,b,a)
 	t.str['setColor']	= function (r,g,b,a) { setColor(r,g,b,a); } //  MainPrint("graphics.setColor called");
