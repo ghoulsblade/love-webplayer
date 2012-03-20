@@ -26,7 +26,13 @@ function Love_Graphics_CreateTable (G) {
 	
 	// love.graphics.newImage(path)
 	t.str['newImage']			= function (path) { return [Love_Graphics_MakeImageHandle(new cLoveImage(path))]; }
-	t.str['newImageFont']		= function (image, glyphs) { return [Love_Graphics_MakeImageFontHandle(new cLoveImageFont(image, glyphs))]; }
+	t.str['newImageFont']		= function (image, glyphs) { // see love.font.js
+		if ((typeof image) == "string") {
+			return [Love_Graphics_MakeImageFontHandle(new cLoveImageFont(new cLoveImage(path), glyphs))]; 
+		} else {
+			return [Love_Graphics_MakeImageFontHandle(new cLoveImageFont(image, glyphs))]; 
+		}
+	}
 	t.str['newQuad']			= function (x, y, width, height, sw, sh) { return [Love_Graphics_MakeQuadHandle(new cLoveQuad(x, y, width, height, sw, sh))]; }
 	t.str['drawq']				= function (image, quad, x, y, r, sx, sy, ox, oy) {
 		var o = image._data;
@@ -196,30 +202,6 @@ function cLoveImage (path) {
 	this.getHeight		= function () { this.ensureLoaded(); return this.tex.image.height; }
 }
 
-// ***** ***** ***** ***** ***** cLoveImageFont
-
-
-function Love_Graphics_MakeImageFontHandle (o) {
-	var t = lua_newtable();
-	var pre = "love.graphics.imagefont.";
-	t._data = o;
-	
-	t.str['getHeight']			= function (t) { return NotImplemented(pre+'getHeight'); }	// Gets the height of the Font in pixels.
-	t.str['getLineHeight']		= function (t) { return NotImplemented(pre+'getLineHeight'); }	// Gets the line height.
-	t.str['getWidth']			= function (t) { return NotImplemented(pre+'getWidth'); }	// Determines the horizontal size a line of text needs.
-	t.str['getWrap']			= function (t) { return NotImplemented(pre+'getWrap'); }	// Returns how many lines text would be wrapped to.
-	t.str['setLineHeight']		= function (t) { return NotImplemented(pre+'setLineHeight'); }	// Sets the line height.
-	t.str['type']				= function (t) { return NotImplemented(pre+'type'); }	// Gets the type of the object as a string.
-	t.str['typeOf']				= function (t) { return NotImplemented(pre+'typeOf'); }	// Checks whether an object is of a certain type.
-	
-	return t;
-}
-
-function cLoveImageFont (image, glyphs) {
-	this.image = image;
-	this.glyphs = glyphs;
-	// TODO
-}
 
 
 // ***** ***** ***** ***** ***** cLoveQuad
