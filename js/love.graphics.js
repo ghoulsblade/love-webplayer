@@ -45,6 +45,8 @@ function Love_Graphics_CreateTable (G) {
 	// TODO : "newImage" overloads
 	// TODO : "draw" overloads
 	
+	t.str['scale']				= function (sx,sy,sz) { GLModelViewScale(sx || 1,sy || 1,sz || 1); return []; }
+	
 	t.str['checkMode']			= function () { return NotImplemented(pre+'checkMode'); }
 	t.str['circle']				= function () { return NotImplemented(pre+'circle'); }
 	t.str['clear']				= function () { return NotImplemented(pre+'clear'); }
@@ -84,7 +86,6 @@ function Love_Graphics_CreateTable (G) {
 	t.str['rectangle']			= function () { return NotImplemented(pre+'rectangle'); }
 	t.str['reset']				= function () { return NotImplemented(pre+'reset'); }
 	t.str['rotate']				= function () { return NotImplemented(pre+'rotate'); }
-	t.str['scale']				= function () { return NotImplemented(pre+'scale'); }
 	t.str['setBlendMode']		= function () { return NotImplemented(pre+'setBlendMode'); }
 	t.str['setCaption']			= function () { return NotImplemented(pre+'setCaption'); }
 	t.str['setColorMode']		= function () { return NotImplemented(pre+'setColorMode'); }
@@ -333,16 +334,24 @@ function mvRotate(ang, v) {
 
 */
 
-var gPerspective;
+var gGLMatrix_ModelView;
+var gGLMatrix_Perspective;
 function matrixGetIdentity() { return [ 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 ]; }
 function matrixGetSimple(tx,ty,tz, sx,sy,sz) { return [ sx,0,0,0, 0,sy,0,0, 0,0,sz,0, tx,ty,tz,1 ]; }
+
+function GLModelViewScale (sx,sy,sz) {
+	gGLMatrix_ModelView[0*4+0] *= sx;
+	gGLMatrix_ModelView[1*4+1] *= sy;
+	gGLMatrix_ModelView[2*4+2] *= sz;
+	setMatrixUniforms();
+}
 
 function setMatrixUniforms() {
     //~ gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, new Float32Array(pMatrix.flatten()));
     //~ gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, new Float32Array(mvMatrix.flatten()));
 	
-	gl.uniformMatrix4fv(shaderProgram.pMatrixUniform,  false, new Float32Array(gPerspective)); // perspective
-	gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, new Float32Array(matrixGetIdentity())); // modelview
+	gl.uniformMatrix4fv(shaderProgram.pMatrixUniform,  false, new Float32Array(gGLMatrix_Perspective)); // perspective
+	gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, new Float32Array(gGLMatrix_ModelView)); // modelview
 	gl.uniformMatrix4fv(shaderProgram.nMatrixUniform,  false, new Float32Array(matrixGetIdentity())); // normal (unused)
 }
 
@@ -358,8 +367,9 @@ function resetTransformMatrix	() {
 	//~ }
 	var w = gMyCanvasWidth;
 	var h = gMyCanvasHeight;
-	gPerspective = matrixGetIdentity();
-	gPerspective = matrixGetSimple(-1.0,1.0,0.0, 2/w,-2/h,1);
+	gGLMatrix_ModelView = matrixGetIdentity();
+	gGLMatrix_Perspective = matrixGetIdentity();
+	gGLMatrix_Perspective = matrixGetSimple(-1.0,1.0,0.0, 2/w,-2/h,1);
 	setMatrixUniforms();
 }
 
