@@ -196,10 +196,8 @@ function cLoveImage (path) {
 	
 	this.GetTextureID	= function () { return this.tex; }
 	this.IsImage		= function () { return true; }
-	this.ensureLoaded	= function () { 
-		if (!this.tex.image.bMyLoadSuccess && this.tex.image.width == 0) { MainPrint("img:ensureLoaded() w,h=",this.tex.image.width,this.tex.image.height); LoveFatalError("image:ensureLoaded() todo:wait"); } }
-	this.getWidth		= function () { this.ensureLoaded(); return this.tex.image.width; }
-	this.getHeight		= function () { this.ensureLoaded(); return this.tex.image.height; }
+	this.getWidth		= function () { return this.tex.image.width; }
+	this.getHeight		= function () { return this.tex.image.height; }
 }
 
 
