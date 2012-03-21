@@ -7,6 +7,29 @@ function Love_Keyboard_CreateTable (G) {
 	G.str['love'].str['keyboard'] = t;
 	
 	t.str['getKeyRepeat']		= function () { return NotImplemented(pre+'getKeyRepeat'); }
-	t.str['isDown']				= function (key) { NotImplemented(pre+'isDown'); return [(key == " ")?gTestKeyDown:false]; }
+	t.str['isDown']				= function (key) {
+		return [keyState[key]];
+	}
 	t.str['setKeyRepeat']		= function () { return NotImplemented(pre+'setKeyRepeat'); }
 }
+
+keyState = {};
+jQuery.hotkeys.specialKeys[32] = ' ';
+jQuery.hotkeys.specialKeys[46] = 'delete';
+  
+function keyName(event) {
+  return jQuery.hotkeys.specialKeys[event.which] ||
+    String.fromCharCode(event.which).toLowerCase();
+}
+
+$(document).bind("keydown", function(event) {
+	call_love_keypressed(keyName(event), keyName(event))
+  keyState[keyName(event)] = true;
+  return false
+});
+
+$(document).bind("keyup", function(event) {
+	//call_love_keyreleased(keyName(event), keyName(event))
+  keyState[keyName(event)] = false;
+  return false
+});

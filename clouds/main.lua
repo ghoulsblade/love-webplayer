@@ -38,6 +38,18 @@ function love.update(dt)
 	end
 	nekochan.x = nekochan.x + love.joystick.getAxis(1, 1)*200*dt
 	nekochan.y = nekochan.y + love.joystick.getAxis(1, 2)*200*dt
+	if love.keyboard.isDown('up') then
+		nekochan.y = nekochan.y - 200*dt
+	end
+	if love.keyboard.isDown('down') then
+		nekochan.y = nekochan.y + 200*dt
+	end
+	if love.keyboard.isDown('left') then
+		nekochan.x = nekochan.x - 200*dt
+	end
+	if love.keyboard.isDown('right') then
+		nekochan.x = nekochan.x + 200*dt
+	end
 	try_spawn_cloud(dt)
 	
 	nekochan:update(dt)
@@ -108,4 +120,9 @@ end
 
 function spawn_cloud(xpos, ypos, speed)
 	table.insert(clouds, { x = xpos, y = ypos, s = speed } )
+end
+
+
+function love.keypressed(key, uni)
+	print(key, uni)
 end
