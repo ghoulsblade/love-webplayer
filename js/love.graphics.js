@@ -196,8 +196,14 @@ function cLoveImage (path) {
 	
 	this.GetTextureID	= function () { return this.tex; }
 	this.IsImage		= function () { return true; }
-	this.ensureLoaded	= function () { 
-		if (!this.tex.image.bMyLoadSuccess && this.tex.image.width == 0) { MainPrint("img:ensureLoaded() w,h=",this.tex.image.width,this.tex.image.height); LoveFatalError("image:ensureLoaded() todo:wait"); } }
+	this.ensureLoaded	= function () {
+		//~ MainPrint("img:ensureLoaded() complete=",this.tex.image.complete);
+		if (!this.tex.image.complete) {
+			//~ MainPrint("img:ensureLoaded() waiting for download to complete: path",this.path);
+			while (!this.tex.image.complete) alert("waiting for images to load...\nplease press 'ok' =)\n(no sleep() in javascript and setTimeout doesn't block)"); // seems there's no thread.sleep() in javascript that can block execution of subsequent code. 
+			// setTimeout is not an option since it would need restructuring of the lua code that we don't have control over
+		}
+	}
 	this.getWidth		= function () { this.ensureLoaded(); return this.tex.image.width; }
 	this.getHeight		= function () { this.ensureLoaded(); return this.tex.image.height; }
 }
