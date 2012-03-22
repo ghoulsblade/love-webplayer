@@ -196,6 +196,7 @@ function cLoveImage (path) {
 	
 	this.GetTextureID	= function () { return this.tex; }
 	this.IsImage		= function () { return true; }
+
 	this.ensureLoaded	= function () {
 		//~ MainPrint("img:ensureLoaded() complete=",this.tex.image.complete);
 		if (!this.tex.image.complete) {
@@ -206,6 +207,7 @@ function cLoveImage (path) {
 	}
 	this.getWidth		= function () { this.ensureLoaded(); return this.tex.image.width; }
 	this.getHeight		= function () { this.ensureLoaded(); return this.tex.image.height; }
+
 }
 
 
