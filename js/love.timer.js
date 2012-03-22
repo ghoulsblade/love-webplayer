@@ -1,7 +1,7 @@
-var gTimerSecondsSinceLastFrame = 1; // variables outside Love_Timer_CreateTable since that might be run multiple times (one for every lua file)
-var frames = 0;
-var lastFrame = 0;
-var prevFps = 0;
+var gTimerSecondsSinceLastFrame = 0;
+var frames = undefined;
+var lastFrame = undefined;
+var prevFps = undefined;
 var fpsFrequency = 1;
 var fps = 0;
 
@@ -9,8 +9,12 @@ var fps = 0;
 function Love_Timer_CreateTable (G) {
 	var t = lua_newtable();
 	var pre = "love.timer.";
-	lastFrame = MyGetTicks();
-	prevFps = MyGetTicks();
+	if (!lastFrame)
+	{
+		lastFrame = MyGetTicks();
+		prevFps = MyGetTicks();
+		frames = 0;
+	}
 
 	G.str['love'].str['timer'] = t;
 	
