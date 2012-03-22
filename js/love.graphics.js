@@ -54,7 +54,17 @@ function Love_Graphics_CreateTable (G) {
 	}
 	
 	// love.graphics.setColor(r,g,b,a)
-	t.str['setColor']	= function (r,g,b,a) { setColor(r,g,b,a); } //  MainPrint("graphics.setColor called");
+	t.str['setColor']	= function (r,g,b,a) { 
+		//  MainPrint("graphics.setColor called");
+		if ((typeof r) != "number") {
+			var rgb = r;
+			r = rgb.uints[0];
+			g = rgb.uints[1];
+			b = rgb.uints[2];
+			a = rgb.uints[3] || 255;
+		}
+		setColor(r,g,b,a); 
+	}
 	
 	//~ love.graphics.draw(drawable, x, y, r, sx, sy, ox, oy )
 	t.str['draw']		= function (drawable, x, y, r, sx, sy, ox, oy ) {
@@ -71,6 +81,12 @@ function Love_Graphics_CreateTable (G) {
 	
 	t.str['scale']				= function (sx,sy,sz) { GLModelViewScale(sx || 1,sy || 1,sz || 1); return []; }
 	
+	t.str['getWidth']			= function () { return [gMyCanvasWidth]; }
+	t.str['getHeight']			= function () { return [gMyCanvasHeight]; }
+	
+	t.str['print']				= function () { return NotImplemented(pre+'print'); }
+	t.str['printf']				= function () { return NotImplemented(pre+'printf'); }
+	
 	t.str['checkMode']			= function () { return NotImplemented(pre+'checkMode'); }
 	t.str['circle']				= function () { return NotImplemented(pre+'circle'); }
 	t.str['clear']				= function () { return NotImplemented(pre+'clear'); }
@@ -80,7 +96,6 @@ function Love_Graphics_CreateTable (G) {
 	t.str['getColor']			= function () { return NotImplemented(pre+'getColor'); }
 	t.str['getColorMode']		= function () { return NotImplemented(pre+'getColorMode'); }
 	t.str['getFont']			= function () { return NotImplemented(pre+'getFont'); }
-	t.str['getHeight']			= function () { return NotImplemented(pre+'getHeight'); }
 	t.str['getLineStipple']		= function () { return NotImplemented(pre+'getLineStipple'); }
 	t.str['getLineStyle']		= function () { return NotImplemented(pre+'getLineStyle'); }
 	t.str['getLineWidth']		= function () { return NotImplemented(pre+'getLineWidth'); }
@@ -89,7 +104,6 @@ function Love_Graphics_CreateTable (G) {
 	t.str['getPointSize']		= function () { return NotImplemented(pre+'getPointSize'); }
 	t.str['getPointStyle']		= function () { return NotImplemented(pre+'getPointStyle'); }
 	t.str['getScissor']			= function () { return NotImplemented(pre+'getScissor'); }
-	t.str['getWidth']			= function () { return NotImplemented(pre+'getWidth'); }
 	t.str['isCreated']			= function () { return NotImplemented(pre+'isCreated'); }
 	t.str['line']				= function () { return NotImplemented(pre+'line'); }
 	t.str['newFont']			= function () { return NotImplemented(pre+'newFont'); }
@@ -101,8 +115,6 @@ function Love_Graphics_CreateTable (G) {
 	t.str['polygon']			= function () { return NotImplemented(pre+'polygon'); }
 	t.str['pop']				= function () { return NotImplemented(pre+'pop'); }
 	t.str['present']			= function () { return NotImplemented(pre+'present'); }
-	t.str['print']				= function () { return NotImplemented(pre+'print'); }
-	t.str['printf']				= function () { return NotImplemented(pre+'printf'); }
 	t.str['push']				= function () { return NotImplemented(pre+'push'); }
 	t.str['quad']				= function () { return NotImplemented(pre+'quad'); }
 	t.str['rectangle']			= function () { return NotImplemented(pre+'rectangle'); }

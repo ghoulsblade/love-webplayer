@@ -1,4 +1,3 @@
-var kMainLuaURL = "main.lua";
 var kUseHTMLConsole = false; // if false, output is still visible in firefox javascript console
 var G = null; // the big lua _G containing lua global vars
 var gFrameWait = 1000/40; // TODO: adjust for performance ?
@@ -283,6 +282,7 @@ function MainRunAfterPreloadFinished () {
 	window.setInterval("MainStep()", gFrameWait); // TODO: http://www.khronos.org/webgl/wiki/FAQ#What_is_the_recommended_way_to_implement_a_rendering_loop.3F
 	//~ window.requestAnimFrame(MainStep); // doesn't work ?
 
-	G = RunLuaFromPath(kMainLuaURL); // run main.lua
+	G = RunLuaFromPath("conf.lua"); // run main.lua
+	RunLuaFromPath("main.lua"); // run main.lua
 	call_love_load(); // call love.load()
 }
