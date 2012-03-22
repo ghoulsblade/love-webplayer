@@ -27,12 +27,18 @@ function Love_Graphics_CreateTable (G) {
 	// love.graphics.newImage(path)
 	t.str['newImage']			= function (path) { return [Love_Graphics_MakeImageHandle(new cLoveImage(path))]; }
 	t.str['newImageFont']		= function (image, glyphs) { // see love.font.js
+		NotImplemented(pre+'newImageFont');
 		if ((typeof image) == "string") {
 			return [Love_Graphics_MakeImageFontHandle(new cLoveImageFont(new cLoveImage(image), glyphs))]; 
 		} else {
 			return [Love_Graphics_MakeImageFontHandle(new cLoveImageFont(image, glyphs))]; 
 		}
 	}
+	t.str['newFont']			= function () { 
+		NotImplemented(pre+'newFont');
+		return [Love_Graphics_MakeImageFontHandle(new cLoveImageFont())]; 
+	}
+	
 	t.str['newQuad']			= function (x, y, width, height, sw, sh) { return [Love_Graphics_MakeQuadHandle(new cLoveQuad(x, y, width, height, sw, sh))]; }
 	t.str['drawq']				= function (image, quad, x, y, r, sx, sy, ox, oy) {
 		var o = image._data;
@@ -106,7 +112,6 @@ function Love_Graphics_CreateTable (G) {
 	t.str['getScissor']			= function () { return NotImplemented(pre+'getScissor'); }
 	t.str['isCreated']			= function () { return NotImplemented(pre+'isCreated'); }
 	t.str['line']				= function () { return NotImplemented(pre+'line'); }
-	t.str['newFont']			= function () { return NotImplemented(pre+'newFont'); }
 	t.str['newFramebuffer']		= function () { return NotImplemented(pre+'newFramebuffer'); }
 	t.str['newParticleSystem']	= function () { return NotImplemented(pre+'newParticleSystem'); }
 	t.str['newScreenshot']		= function () { return NotImplemented(pre+'newScreenshot'); }
