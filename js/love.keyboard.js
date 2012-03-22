@@ -23,13 +23,15 @@ function keyName(event) {
 }
 
 $(document).bind("keydown", function(event) {
-	call_love_keypressed(keyName(event), keyName(event))
+  if (keyName(event) == "f5") return true;
+  push_event("keypressed",keyName(event), keyName(event))
   keyState[keyName(event)] = true;
-  return false
+  return false;
 });
 
 $(document).bind("keyup", function(event) {
-	//call_love_keyreleased(keyName(event), keyName(event))
+  if (keyName(event) == "f5") return true;
+  push_event("keyreleased",keyName(event), keyName(event))
   keyState[keyName(event)] = false;
-  return false
+  return false;
 });
