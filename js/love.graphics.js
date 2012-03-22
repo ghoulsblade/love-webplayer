@@ -26,7 +26,19 @@ function Love_Graphics_CreateTable (G) {
 	
 	// love.graphics.newImage(path)
 	t.str['newImage']			= function (path) { return [Love_Graphics_MakeImageHandle(new cLoveImage(path))]; }
-	t.str['newImageFont']		= function (image, glyphs) { return [Love_Graphics_MakeImageFontHandle(new cLoveImageFont(image, glyphs))]; }
+	t.str['newImageFont']		= function (image, glyphs) { // see love.font.js
+		NotImplemented(pre+'newImageFont');
+		if ((typeof image) == "string") {
+			return [Love_Graphics_MakeImageFontHandle(new cLoveImageFont(new cLoveImage(image), glyphs))]; 
+		} else {
+			return [Love_Graphics_MakeImageFontHandle(new cLoveImageFont(image, glyphs))]; 
+		}
+	}
+	t.str['newFont']			= function () { 
+		NotImplemented(pre+'newFont');
+		return [Love_Graphics_MakeImageFontHandle(new cLoveImageFont())]; 
+	}
+	
 	t.str['newQuad']			= function (x, y, width, height, sw, sh) { return [Love_Graphics_MakeQuadHandle(new cLoveQuad(x, y, width, height, sw, sh))]; }
 	t.str['drawq']				= function (image, quad, x, y, r, sx, sy, ox, oy) {
 		var o = image._data;
@@ -48,7 +60,17 @@ function Love_Graphics_CreateTable (G) {
 	}
 	
 	// love.graphics.setColor(r,g,b,a)
-	t.str['setColor']	= function (r,g,b,a) { setColor(r,g,b,a); } //  MainPrint("graphics.setColor called");
+	t.str['setColor']	= function (r,g,b,a) { 
+		//  MainPrint("graphics.setColor called");
+		if ((typeof r) != "number") {
+			var rgb = r;
+			r = rgb.uints[0];
+			g = rgb.uints[1];
+			b = rgb.uints[2];
+			a = rgb.uints[3] || 255;
+		}
+		setColor(r,g,b,a); 
+	}
 	
 	//~ love.graphics.draw(drawable, x, y, r, sx, sy, ox, oy )
 	t.str['draw']		= function (drawable, x, y, r, sx, sy, ox, oy ) {
@@ -65,6 +87,12 @@ function Love_Graphics_CreateTable (G) {
 	
 	t.str['scale']				= function (sx,sy,sz) { GLModelViewScale(sx || 1,sy || 1,sz || 1); return []; }
 	
+	t.str['getWidth']			= function () { return [gMyCanvasWidth]; }
+	t.str['getHeight']			= function () { return [gMyCanvasHeight]; }
+	
+	t.str['print']				= function () { return NotImplemented(pre+'print'); }
+	t.str['printf']				= function () { return NotImplemented(pre+'printf'); }
+	
 	t.str['checkMode']			= function () { return NotImplemented(pre+'checkMode'); }
 	t.str['circle']				= function () { return NotImplemented(pre+'circle'); }
 	t.str['clear']				= function () { return NotImplemented(pre+'clear'); }
@@ -74,7 +102,6 @@ function Love_Graphics_CreateTable (G) {
 	t.str['getColor']			= function () { return NotImplemented(pre+'getColor'); }
 	t.str['getColorMode']		= function () { return NotImplemented(pre+'getColorMode'); }
 	t.str['getFont']			= function () { return NotImplemented(pre+'getFont'); }
-	t.str['getHeight']			= function () { return NotImplemented(pre+'getHeight'); }
 	t.str['getLineStipple']		= function () { return NotImplemented(pre+'getLineStipple'); }
 	t.str['getLineStyle']		= function () { return NotImplemented(pre+'getLineStyle'); }
 	t.str['getLineWidth']		= function () { return NotImplemented(pre+'getLineWidth'); }
@@ -83,10 +110,8 @@ function Love_Graphics_CreateTable (G) {
 	t.str['getPointSize']		= function () { return NotImplemented(pre+'getPointSize'); }
 	t.str['getPointStyle']		= function () { return NotImplemented(pre+'getPointStyle'); }
 	t.str['getScissor']			= function () { return NotImplemented(pre+'getScissor'); }
-	t.str['getWidth']			= function () { return NotImplemented(pre+'getWidth'); }
 	t.str['isCreated']			= function () { return NotImplemented(pre+'isCreated'); }
 	t.str['line']				= function () { return NotImplemented(pre+'line'); }
-	t.str['newFont']			= function () { return NotImplemented(pre+'newFont'); }
 	t.str['newFramebuffer']		= function () { return NotImplemented(pre+'newFramebuffer'); }
 	t.str['newParticleSystem']	= function () { return NotImplemented(pre+'newParticleSystem'); }
 	t.str['newScreenshot']		= function () { return NotImplemented(pre+'newScreenshot'); }
@@ -95,8 +120,6 @@ function Love_Graphics_CreateTable (G) {
 	t.str['polygon']			= function () { return NotImplemented(pre+'polygon'); }
 	t.str['pop']				= function () { return NotImplemented(pre+'pop'); }
 	t.str['present']			= function () { return NotImplemented(pre+'present'); }
-	t.str['print']				= function () { return NotImplemented(pre+'print'); }
-	t.str['printf']				= function () { return NotImplemented(pre+'printf'); }
 	t.str['push']				= function () { return NotImplemented(pre+'push'); }
 	t.str['quad']				= function () { return NotImplemented(pre+'quad'); }
 	t.str['rectangle']			= function () { return NotImplemented(pre+'rectangle'); }
@@ -187,39 +210,29 @@ function cLoveImage (path) {
 	//~ var bPixelArt = true;
 	this.path = path;
 	this.tex = loadImageTexture(gl, path, bPixelArt);
+	this.bPreLoadWarningPrinted = false;
 	
 	this.GetTextureID	= function () { return this.tex; }
 	this.IsImage		= function () { return true; }
-	this.ensureLoaded	= function () { 
-		if (!this.tex.image.bMyLoadSuccess && this.tex.image.width == 0) { MainPrint("img:ensureLoaded() w,h=",this.tex.image.width,this.tex.image.height); LoveFatalError("image:ensureLoaded() todo:wait"); } }
+
+	this.ensureLoaded	= function () {
+		//~ MainPrint("img:ensureLoaded() complete=",this.tex.image.complete);
+		if (!this.tex.image.complete) {
+			//~ MainPrint("img:ensureLoaded() waiting for download to complete: path",this.path);
+			//~ while (!this.tex.image.complete) alert("waiting for images to load...\nplease press 'ok' =)\n(no sleep() in javascript and setTimeout doesn't block)"); // seems there's no thread.sleep() in javascript that can block execution of subsequent code. 
+			// setTimeout is not an option since it would need restructuring of the lua code that we don't have control over
+			if (!this.bPreLoadWarningPrinted) {
+				this.bPreLoadWarningPrinted = true;
+				MainPrintToHTMLConsole("Warning, image("+this.path+"):getWidth()/getHeight() accessed before loaded, try reload/F5. "+
+					"This could change game behaviour and cannot be reliably prevented at js/lua runtime alone, list img files in index.html : &lt;body onload=\"MainOnLoad(['img1.png','img2.png'])\"&gt; to fix");
+			}
+		}
+	}
 	this.getWidth		= function () { this.ensureLoaded(); return this.tex.image.width; }
 	this.getHeight		= function () { this.ensureLoaded(); return this.tex.image.height; }
+
 }
 
-// ***** ***** ***** ***** ***** cLoveImageFont
-
-
-function Love_Graphics_MakeImageFontHandle (o) {
-	var t = lua_newtable();
-	var pre = "love.graphics.imagefont.";
-	t._data = o;
-	
-	t.str['getHeight']			= function (t) { return NotImplemented(pre+'getHeight'); }	// Gets the height of the Font in pixels.
-	t.str['getLineHeight']		= function (t) { return NotImplemented(pre+'getLineHeight'); }	// Gets the line height.
-	t.str['getWidth']			= function (t) { return NotImplemented(pre+'getWidth'); }	// Determines the horizontal size a line of text needs.
-	t.str['getWrap']			= function (t) { return NotImplemented(pre+'getWrap'); }	// Returns how many lines text would be wrapped to.
-	t.str['setLineHeight']		= function (t) { return NotImplemented(pre+'setLineHeight'); }	// Sets the line height.
-	t.str['type']				= function (t) { return NotImplemented(pre+'type'); }	// Gets the type of the object as a string.
-	t.str['typeOf']				= function (t) { return NotImplemented(pre+'typeOf'); }	// Checks whether an object is of a certain type.
-	
-	return t;
-}
-
-function cLoveImageFont (image, glyphs) {
-	this.image = image;
-	this.glyphs = glyphs;
-	// TODO
-}
 
 
 // ***** ***** ***** ***** ***** cLoveQuad

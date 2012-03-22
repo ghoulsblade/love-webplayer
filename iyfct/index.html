@@ -7,10 +7,13 @@
 <link rel="stylesheet" href="../style.css" type="text/css">
 
 <script type="text/javascript" src="../js/lua-parser.js"		></script>
+<script type="text/javascript" src="../js/gamepad.js"      ></script>
+<script type="text/javascript" src="../js/jquery.js"      ></script>
+<script type="text/javascript" src="../js/jquery.hotkeys.js"      ></script>
 <script type="text/javascript" src="../js/utils.js"			></script>
 <script type="text/javascript" src="../js/utils.webgl.js"		></script>
 <script type="text/javascript" src="../js/love.render.js"		></script>
-<script type="text/javascript" src="../js/main.js"			></script>
+<script type="text/javascript" src="../js/main.js"      ></script>
 
 <script type="text/javascript" src="../js/love.audio.js"		></script>
 <script type="text/javascript" src="../js/love.event.js"		></script>
@@ -97,12 +100,11 @@
 
 
 </head>
-<body onload='MainOnLoad()'>
+<body onload="MainOnLoad(['gfx/imgfont.png','gfx/splash.png','gfx/sprites.png','gfx/terrain.png','gfx/trains.png'])">
 <a href="https://github.com/ghoulsblade/love-webplayer">Love2D-Webplayer</a><br>
 <canvas id="glcanvas" width="900" height="300">  
 Your browser doesn't appear to support the HTML5 <code>&lt;canvas&gt;</code> element.  
 </canvas>
-<br><a href="javascript:MainButton()">MainButton()</a>
 <br><a href="https://love2d.org/wiki/In_Your_Face_City_Trains">In_Your_Face_City_Trains original</a><br>
 <div id="output" style="font-family: Courier New,Courier,monospace;"></div>
 </body></html>

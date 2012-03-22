@@ -6,9 +6,9 @@ function Love_Mouse_CreateTable (G) {
 
 	G.str['love'].str['mouse'] = t;
 	
-	t.str['getPosition']	= function () { return NotImplemented(pre+'getPosition'); }
-	t.str['getX']			= function () { return NotImplemented(pre+'getX'); }
-	t.str['getY']			= function () { return NotImplemented(pre+'getY'); }
+	t.str['getPosition']	= function () { NotImplemented(pre+'getPosition'); return [0,0]; }
+	t.str['getX']			= function () { NotImplemented(pre+'getX'); return [0]; }
+	t.str['getY']			= function () { NotImplemented(pre+'getY'); return [0]; }
 	t.str['isDown']			= function () { return NotImplemented(pre+'isDown'); }
 	t.str['isGrabbed']		= function () { return NotImplemented(pre+'isGrabbed'); }
 	t.str['isVisible']		= function () { return NotImplemented(pre+'isVisible'); }

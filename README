@@ -1,6 +1,6 @@
 Love2D WebPlayer
 started 2012-03 ghoulsblade@schattenkind.net
-demo: http://ghoulsblade.schattenkind.net/love-webplayer/
+demos: http://ghoulsblade.schattenkind.net/love-webplayer/
 github: https://github.com/ghoulsblade/love-webplayer
 infos: http://ghoulsblade.schattenkind.net/wiki/index.php/Love-WebPlayer
 love-forum: https://love2d.org/forums/viewtopic.php?f=5&t=8487
@@ -17,4 +17,5 @@ parser bug : clouds demo : parse error in keypressed :  >> love.filesystem.load(
 parser bug : >> myvar = .5 <<   workaround >> myvar = 0.5 <<
 parser bug : iyfct block comment in main.lua >> --[[ bla... ]]-- <<   workaround : remove comment (js regexp pre load?) or use single line comments
 parser bug : iyfct \" in table-save.lua >> "\"..string.char(26)..\"" <<   workaround : >> '"'.."..string.char(26).."..'"' <<
+parser bug : sinescroller >> local mytext = "bla"  print(mytext:len()) <<  workaround >> print(string.len(mytext)) << 
 

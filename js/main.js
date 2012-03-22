@@ -1,17 +1,24 @@
-var kMainLuaURL = "main.lua";
 var kUseHTMLConsole = false; // if false, output is still visible in firefox javascript console
 var G = null; // the big lua _G containing lua global vars
 var gFrameWait = 1000/40; // TODO: adjust for performance ?
-//var gMyTicks = MyGetTicks();
+var gMyTicks = MyGetTicks();
 var gSecondsSinceLastFrame = 0;
 var gMaxHTMLConsoleLines = 10;
 var gLoveExecutionHalted = false; // stop at first fatal error
 var gLastLoadedLuaCode;
+var gPreloadImages = {};
+var gMainRunAfterPreloadFinished = false;
+var GamepadState = false;
 
 /// output in html, for fatal error messages etc, also users that don't have webdev console open can see them
 function MainPrintToHTMLConsole () {
 	if (gMaxHTMLConsoleLines == 0) return;
 	--gMaxHTMLConsoleLines;
+	try {
+		console.log.apply(console, arguments); // javascript console, e.g. firefox
+	} catch (e) {
+		// do nothing
+	}
 	var element = document.getElementById('output');
 	if (!element) return; // perhaps during startup
 	element.innerHTML += "<br/>\n";
@@ -46,6 +53,19 @@ function LuaBootStrap (G) {
 	//~ MainPrint("LuaBootStrap called "+G.bla);
 	G.str['love'] = lua_newtable();
 	
+	// callback defaults
+	G.str['love'].str['load']		= function () {};
+	G.str['love'].str['draw']		= function () {};
+	G.str['love'].str['update']		= function () {};
+	G.str['love'].str['focus']	= function () {};
+	G.str['love'].str['joystickpressed']	= function () {};
+	G.str['love'].str['joystickreleased']	= function () {};
+	G.str['love'].str['keypressed']	= function () {};
+	G.str['love'].str['keyreleased']	= function () {};
+	G.str['love'].str['mousepressed']	= function () {};
+	G.str['love'].str['mousereleased']	= function () {};
+	G.str['love'].str['quit']	= function () {};
+
 	// register love api functions
 	Love_Audio_CreateTable(G);
 	Love_Event_CreateTable(G);
@@ -167,14 +187,19 @@ function push_event(eventname, a, b, c, d)
 }
 
 /// just for debug until keyboard works, index.html: <br><a href="javascript:MainButton()">MainButton()</a>
+var gTestKeyDown = false;
 function MainButton () {
 	push_event("keypressed", " ");
 	push_event("keypressed", "return");
+	gTestKeyDown = true;
+	window.setTimeout(function () { gTestKeyDown = false; }, 500);
 	MainPrint("MainButton");
 }
 
 /// called every frame
 function MainStep () {
+	if (gLoveExecutionHalted)
+		return;
 //	var t = MyGetTicks();
 //	gSecondsSinceLastFrame = min(1,(t - gMyTicks) / 1000.0);
 //	gMyTicks = t;
@@ -191,7 +216,10 @@ function MainStep () {
 			ev.shift();
 			call_lua_function("love."+ev_name, ev);
 		}
-		var dt = call_lua_function("love.timer.getDelta", [])[0];
+		var res = call_lua_function("love.timer.getDelta", []);
+		var dt = res[0];
+		if (Gamepad.supported)
+			GamepadState = Gamepad.getStates();
 		call_love_update(dt);
 		call_love_draw();
 	}
@@ -200,19 +228,52 @@ function MainStep () {
 }
 
 /// http://www.khronos.org/webgl/wiki/FAQ#What_is_the_recommended_way_to_implement_a_rendering_loop.3F
-window.requestAnimFrame = (function() {
-  return window.requestAnimationFrame ||
-         window.webkitRequestAnimationFrame ||
-         window.mozRequestAnimationFrame ||
-         window.oRequestAnimationFrame ||
-         window.msRequestAnimationFrame ||
-         function(/* function FrameRequestCallback */ callback, /* DOMElement Element */ element) {
-           return window.setTimeout(callback, 1000/60);
-         };
-})();
+if (false) {
+	window.requestAnimFrame = (function() {
+	  return window.requestAnimationFrame ||
+			 window.webkitRequestAnimationFrame ||
+			 window.mozRequestAnimationFrame ||
+			 window.oRequestAnimationFrame ||
+			 window.msRequestAnimationFrame ||
+			 function(/* function FrameRequestCallback */ callback, /* DOMElement Element */ element) {
+			   return window.setTimeout(callback, 1000/60);
+			 };
+	})();
+}
+
+function GetPreLoadedImage (url) { return gPreloadImages[url]; }
 
 /// called on html-body onload event
-function MainOnLoad () {
+function MainOnLoad (preload_image_list) {
+	if (preload_image_list) {
+		// preload images before starting, MainRunAfterPreloadFinished() will be called when all are done loading
+		for (k in preload_image_list) {
+			var url = preload_image_list[k];
+			MainPrint("preload image:"+url);
+			var img = new Image();
+			gPreloadImages[url] = img;
+			img.myurl = url; // img.src might be transformed to absolute path etc, so keep this as array-key
+			img.onload = function() { PreLoadImageFinishOne(this.myurl); }
+		}
+		for (k in preload_image_list) {
+			var url = preload_image_list[k];
+			gPreloadImages[url].src = url; // start loading here after the list has been filled in case of instant .onload call
+		}
+	} else {
+		// no preload list available, start immediately
+		MainRunAfterPreloadFinished();
+	}
+}
+
+function PreLoadImageFinishOne (url) {
+	MainPrint("preload image finished:"+url);
+	for (k in gPreloadImages) if (k != url && !gPreloadImages[k].complete) return; // still more to do
+	if (gMainRunAfterPreloadFinished) return; // only call once
+	gMainRunAfterPreloadFinished = true;
+	MainRunAfterPreloadFinished(); // preload for all images finished
+}
+
+function MainRunAfterPreloadFinished () {
 	Love_Audio_Init();
 	Love_Graphics_Init("glcanvas");
 	// additional init functions should be called here
@@ -221,6 +282,7 @@ function MainOnLoad () {
 	window.setInterval("MainStep()", gFrameWait); // TODO: http://www.khronos.org/webgl/wiki/FAQ#What_is_the_recommended_way_to_implement_a_rendering_loop.3F
 	//~ window.requestAnimFrame(MainStep); // doesn't work ?
 
-	G = RunLuaFromPath(kMainLuaURL); // run main.lua
+	G = RunLuaFromPath("conf.lua"); // run main.lua
+	RunLuaFromPath("main.lua"); // run main.lua
 	call_love_load(); // call love.load()
 }

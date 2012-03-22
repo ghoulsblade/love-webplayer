@@ -1,19 +1,26 @@
+var gTimerSecondsSinceLastFrame = 0;
+var frames = undefined;
+var lastFrame = undefined;
+var prevFps = undefined;
+var fpsFrequency = 1;
+var fps = 0;
+
 /// init lua api
 function Love_Timer_CreateTable (G) {
 	var t = lua_newtable();
 	var pre = "love.timer.";
-	var lastFrame = MyGetTicks();
-	var dt = 0;
-	var frames = 0;
-	var prevFps = MyGetTicks();
-	var fpsFrequency = 1;
-	var fps = 0;
+	if (!lastFrame)
+	{
+		lastFrame = MyGetTicks();
+		prevFps = MyGetTicks();
+		frames = 0;
+	}
 
 	G.str['love'].str['timer'] = t;
 	
 	t.str['getDelta']		= function ()
 	{
-		return [dt];
+		return [gTimerSecondsSinceLastFrame];
 	}
 
 	t.str['getFPS']			= function ()
@@ -35,7 +42,7 @@ function Love_Timer_CreateTable (G) {
 	t.str['step']			= function ()
 	{
 		var t = MyGetTicks();
-		dt = (t - lastFrame) / 1000.0;
+		gTimerSecondsSinceLastFrame = (t - lastFrame) / 1000.0;
 		lastFrame = t;
 
 		frames++;

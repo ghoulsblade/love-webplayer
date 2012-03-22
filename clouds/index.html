@@ -7,6 +7,9 @@
 <link rel="stylesheet" href="../style.css" type="text/css">
 
 <script type="text/javascript" src="../js/lua-parser.js"		></script>
+<script type="text/javascript" src="../js/gamepad.js"      ></script>
+<script type="text/javascript" src="../js/jquery.js"      ></script>
+<script type="text/javascript" src="../js/jquery.hotkeys.js"      ></script>
 <script type="text/javascript" src="../js/utils.js"			></script>
 <script type="text/javascript" src="../js/utils.webgl.js"		></script>
 <script type="text/javascript" src="../js/love.render.js"		></script>
@@ -97,9 +100,9 @@
 
 
 </head>
-<body onload='MainOnLoad()'>
+<body onload="MainOnLoad(['body.png','cloud_plain.png','ear.png','face.png','love.png'])">
 <a href="https://github.com/ghoulsblade/love-webplayer">Love2D-Webplayer</a><br>
-<canvas id="glcanvas" width="640" height="480">  
+<canvas id="glcanvas" width="800" height="600">  
 Your browser doesn't appear to support the HTML5 <code>&lt;canvas&gt;</code> element.  
 </canvas>
 <div id="output" style="font-family: Courier New,Courier,monospace;"></div>
