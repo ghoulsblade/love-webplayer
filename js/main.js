@@ -7,6 +7,8 @@ var gSecondsSinceLastFrame = 0;
 var gMaxHTMLConsoleLines = 10;
 var gLoveExecutionHalted = false; // stop at first fatal error
 var gLastLoadedLuaCode;
+var gPreloadImages = {};
+var gMainRunAfterPreloadFinished = false;
 
 /// output in html, for fatal error messages etc, also users that don't have webdev console open can see them
 function MainPrintToHTMLConsole () {
@@ -231,8 +233,39 @@ if (false) {
 	})();
 }
 
+function GetPreLoadedImage (url) { return gPreloadImages[url]; }
+
 /// called on html-body onload event
-function MainOnLoad () {
+function MainOnLoad (preload_image_list) {
+	if (preload_image_list) {
+		// preload images before starting, MainRunAfterPreloadFinished() will be called when all are done loading
+		for (k in preload_image_list) {
+			var url = preload_image_list[k];
+			MainPrint("preload image:"+url);
+			var img = new Image();
+			gPreloadImages[url] = img;
+			img.myurl = url; // img.src might be transformed to absolute path etc, so keep this as array-key
+			img.onload = function() { PreLoadImageFinishOne(this.myurl); }
+		}
+		for (k in preload_image_list) {
+			var url = preload_image_list[k];
+			gPreloadImages[url].src = url; // start loading here after the list has been filled in case of instant .onload call
+		}
+	} else {
+		// no preload list available, start immediately
+		MainRunAfterPreloadFinished();
+	}
+}
+
+function PreLoadImageFinishOne (url) {
+	MainPrint("preload image finished:"+url);
+	for (k in gPreloadImages) if (k != url && !gPreloadImages[k].complete) return; // still more to do
+	if (gMainRunAfterPreloadFinished) return; // only call once
+	gMainRunAfterPreloadFinished = true;
+	MainRunAfterPreloadFinished(); // preload for all images finished
+}
+
+function MainRunAfterPreloadFinished () {
 	Love_Audio_Init();
 	Love_Graphics_Init("glcanvas");
 	// additional init functions should be called here

@@ -63,35 +63,23 @@ function getShader(gl, id) {
 
 // ***** ***** ***** ***** ***** textures
 
-gTexturesToLoad = new Array();
-function CheckAllTexturesLoaded () {
-	var c_full = 0;
-	var c_loaded = 0;
-	for (var i=0;i<gTexturesToLoad.length;++i) { 
-		++c_full; 
-		if (gTexturesToLoad[i].bMyLoadSuccess) ++c_loaded;
-	}
-	alert("texture load check "+c_loaded+"/"+c_full+" : "+((c_loaded == c_full)?"ok":"!!!ERROR!!!"));
-}
-
-
-
 // Load the image at the passed url, place it in a new WebGLTexture object and return the WebGLTexture.
 function loadImageTexture(gl, url, bPixelArt)
 {
     var texture = gl.createTexture();
-    texture.image = new Image();
-    texture.image.bMyLoadSuccess = false;
-	gTexturesToLoad.push(texture.image);
-    texture.image.onload = function() { doLoadImageTexture(gl, texture.image, texture, bPixelArt); }
-	
-    texture.image.src = url;
+    texture.image = GetPreLoadedImage(url);
+	if (texture.image) {
+		doLoadImageTexture(gl, texture.image, texture, bPixelArt);
+	} else {
+		texture.image = new Image();
+		texture.image.onload = function() { doLoadImageTexture(gl, texture.image, texture, bPixelArt); }
+		texture.image.src = url;
+	}
     return texture;
 }
 
 function doLoadImageTexture(gl, image, texture, bPixelArt)
 {
-	image.bMyLoadSuccess = true;
 	//~ gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true); // chrome test
 
     gl.bindTexture(gl.TEXTURE_2D, texture);

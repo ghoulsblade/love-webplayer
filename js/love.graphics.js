@@ -193,6 +193,7 @@ function cLoveImage (path) {
 	//~ var bPixelArt = true;
 	this.path = path;
 	this.tex = loadImageTexture(gl, path, bPixelArt);
+	this.bPreLoadWarningPrinted = false;
 	
 	this.GetTextureID	= function () { return this.tex; }
 	this.IsImage		= function () { return true; }
@@ -201,8 +202,13 @@ function cLoveImage (path) {
 		//~ MainPrint("img:ensureLoaded() complete=",this.tex.image.complete);
 		if (!this.tex.image.complete) {
 			//~ MainPrint("img:ensureLoaded() waiting for download to complete: path",this.path);
-			while (!this.tex.image.complete) alert("waiting for images to load...\nplease press 'ok' =)\n(no sleep() in javascript and setTimeout doesn't block)"); // seems there's no thread.sleep() in javascript that can block execution of subsequent code. 
+			//~ while (!this.tex.image.complete) alert("waiting for images to load...\nplease press 'ok' =)\n(no sleep() in javascript and setTimeout doesn't block)"); // seems there's no thread.sleep() in javascript that can block execution of subsequent code. 
 			// setTimeout is not an option since it would need restructuring of the lua code that we don't have control over
+			if (!this.bPreLoadWarningPrinted) {
+				this.bPreLoadWarningPrinted = true;
+				MainPrintToHTMLConsole("Warning, image("+this.path+"):getWidth()/getHeight() accessed before loaded, try reload/F5. "+
+					"This could change game behaviour and cannot be reliably prevented at js/lua runtime alone, list img files in index.html : &lt;body onload=\"MainOnLoad(['img1.png','img2.png'])\"&gt; to fix");
+			}
 		}
 	}
 	this.getWidth		= function () { this.ensureLoaded(); return this.tex.image.width; }
