@@ -28,7 +28,7 @@ function Love_Graphics_CreateTable (G) {
 	t.str['newImage']			= function (path) { return [Love_Graphics_MakeImageHandle(new cLoveImage(path))]; }
 	t.str['newImageFont']		= function (image, glyphs) { // see love.font.js
 		if ((typeof image) == "string") {
-			return [Love_Graphics_MakeImageFontHandle(new cLoveImageFont(new cLoveImage(path), glyphs))]; 
+			return [Love_Graphics_MakeImageFontHandle(new cLoveImageFont(new cLoveImage(image), glyphs))]; 
 		} else {
 			return [Love_Graphics_MakeImageFontHandle(new cLoveImageFont(image, glyphs))]; 
 		}
