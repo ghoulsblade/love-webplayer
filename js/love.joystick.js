@@ -8,7 +8,8 @@ function Love_Joystick_CreateTable (G) {
 	
 	t.str['close'] = function (joystick) { return NotImplemented(pre+'close'); }
 	t.str['getAxes'] = function (joystick) {
-		var gamepad = GamepadState[joystick - 1];
+		var gamepad;
+		if (GamepadState) gamepad = GamepadState[joystick - 1];
 		if (typeof gamepad == 'undefined') {
 			return [0, 0, 0, 0];
 		}
@@ -16,7 +17,8 @@ function Love_Joystick_CreateTable (G) {
 				gamepad.rightStickX, gamepad.rightStickY];
 	}
 	t.str['getAxis'] = function (joystick, axis) {
-		var gamepad = GamepadState[joystick - 1];
+		var gamepad;
+		if (GamepadState) gamepad = GamepadState[joystick - 1];
 		if (typeof gamepad == 'undefined') {
 			return [0];
 		}
@@ -35,7 +37,8 @@ function Love_Joystick_CreateTable (G) {
 	t.str['getBall'] = function (joystick, ball) { return NotImplemented(pre+'getBall'); }
 	t.str['getHat'] = function (joystick, hat) { return NotImplemented(pre+'getHat'); }
 	t.str['getName'] = function (joystick) {
-		var gamepad = GamepadState[joystick - 1];
+		var gamepad;
+		if (GamepadState) gamepad = GamepadState[joystick - 1];
 		if (typeof gamepad == 'undefined') {
 			return [""];
 		}
@@ -47,7 +50,7 @@ function Love_Joystick_CreateTable (G) {
 	t.str['getNumHats'] = function (joystick) { return NotImplemented(pre+'getNumHats'); }
 	t.str['getNumJoysticks'] = function () {
 		var count = 0;
-		for (var i in GamepadState) {
+		if (GamepadState) for (var i in GamepadState) {
 			var gamepad = GamepadState[i];
 			if (typeof gamepad != 'undefined') {
 				count += 1;
@@ -56,7 +59,8 @@ function Love_Joystick_CreateTable (G) {
 		return [count];
 	}
 	t.str['isDown'] = function (joystick, button) {
-		var gamepad = GamepadState[joystick - 1];
+		var gamepad;
+		if (GamepadState) gamepad = GamepadState[joystick - 1];
 		if (typeof gamepad == 'undefined') {
 			return [false];
 		}
@@ -73,7 +77,8 @@ function Love_Joystick_CreateTable (G) {
 		return [false];
 	}
 	t.str['isOpen'] = function (joystick) {
-		var gamepad = GamepadState[joystick - 1];
+		var gamepad;
+		if (GamepadState) gamepad = GamepadState[joystick - 1];
 		if (typeof gamepad == 'undefined') {
 			return [false];
 		}

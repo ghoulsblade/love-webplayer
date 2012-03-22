@@ -9,11 +9,17 @@ var gLoveExecutionHalted = false; // stop at first fatal error
 var gLastLoadedLuaCode;
 var gPreloadImages = {};
 var gMainRunAfterPreloadFinished = false;
+var GamepadState = false;
 
 /// output in html, for fatal error messages etc, also users that don't have webdev console open can see them
 function MainPrintToHTMLConsole () {
 	if (gMaxHTMLConsoleLines == 0) return;
 	--gMaxHTMLConsoleLines;
+	try {
+		console.log.apply(console, arguments); // javascript console, e.g. firefox
+	} catch (e) {
+		// do nothing
+	}
 	var element = document.getElementById('output');
 	if (!element) return; // perhaps during startup
 	element.innerHTML += "<br/>\n";
@@ -193,6 +199,8 @@ function MainButton () {
 
 /// called every frame
 function MainStep () {
+	if (gLoveExecutionHalted)
+		return;
 //	var t = MyGetTicks();
 //	gSecondsSinceLastFrame = min(1,(t - gMyTicks) / 1000.0);
 //	gMyTicks = t;
@@ -209,7 +217,8 @@ function MainStep () {
 			ev.shift();
 			call_lua_function("love."+ev_name, ev);
 		}
-		var dt = call_lua_function("love.timer.getDelta", [])[0];
+		var res = call_lua_function("love.timer.getDelta", []);
+		var dt = res[0];
 		if (Gamepad.supported)
 			GamepadState = Gamepad.getStates();
 		call_love_update(dt);
