@@ -85,7 +85,21 @@ function Love_Graphics_CreateTable (G) {
 	// TODO : "newImage" overloads
 	// TODO : "draw" overloads
 	
+	t.str['rectangle']			= function (mode, x, y, w, h) { renderRectangle(mode, x, y, w, h); }
+	t.str['circle']				= function (mode, x, y, radius, segments) { renderCircle(mode, x, y, radius, segments || 10); }
+	t.str['triangle']			= function (mode, x1, y1, x2, y2, x3, y3) { renderTriangle(mode, x1, y1, x2, y2, x3, y3); }
+	t.str['polygon']			= function (mode) { renderPolygon(mode,arguments.slice(1)); }
+	t.str['quad']				= function (mode, x1, y1, x2, y2, x3, y3, x4, y4) { renderQuad(mode, x1, y1, x2, y2, x3, y3, x4, y4); }
+	t.str['line']				= function (x1, y1, x2, y2) { if (arguments.length > 4) renderPolyLine(arguments); else renderLine(x1, y1, x2, y2); }
+	t.str['point']				= function (x,y) { renderPoint(x, y); }
+	t.str['clear']				= function () { gl.clear(gl.COLOR_BUFFER_BIT); } // 	Clears the screen to background color.
+	
+	t.str['reset']				= function () { return NotImplemented(pre+'reset'); }
 	t.str['scale']				= function (sx,sy,sz) { GLModelViewScale(sx || 1,sy || 1,sz || 1); return []; }
+	t.str['translate']			= function (tx,ty,tz) { GLModelViewTranslate(tx || 0,ty || 0,tz || 0); return []; }
+	t.str['rotate']				= function () { return NotImplemented(pre+'rotate'); }
+	t.str['pop']				= function () { return NotImplemented(pre+'pop'); }
+	t.str['push']				= function () { return NotImplemented(pre+'push'); }
 	
 	t.str['getWidth']			= function () { return [gMyCanvasWidth]; }
 	t.str['getHeight']			= function () { return [gMyCanvasHeight]; }
@@ -93,9 +107,16 @@ function Love_Graphics_CreateTable (G) {
 	t.str['print']				= function () { return NotImplemented(pre+'print'); }
 	t.str['printf']				= function () { return NotImplemented(pre+'printf'); }
 	
+	t.str['newFramebuffer']		= function () { return NotImplemented(pre+'newFramebuffer'); }
+	t.str['newParticleSystem']	= function () { return NotImplemented(pre+'newParticleSystem'); }
+	t.str['newScreenshot']		= function () { return NotImplemented(pre+'newScreenshot'); }
+	t.str['newSpriteBatch']		= function () { return NotImplemented(pre+'newSpriteBatch'); }
+	
+	t.str['present']			= function () { return NotImplemented(pre+'present'); } // Displays the results of drawing operations on the screen.  (in custom love.run)
+	t.str['isCreated']			= function () { return NotImplemented(pre+'isCreated'); }
 	t.str['checkMode']			= function () { return NotImplemented(pre+'checkMode'); }
-	t.str['circle']				= function () { return NotImplemented(pre+'circle'); }
-	t.str['clear']				= function () { return NotImplemented(pre+'clear'); }
+	t.str['toggleFullscreen']	= function () { return NotImplemented(pre+'toggleFullscreen'); }
+	
 	t.str['getBackgroundColor']	= function () { return NotImplemented(pre+'getBackgroundColor'); }
 	t.str['getBlendMode']		= function () { return NotImplemented(pre+'getBlendMode'); }
 	t.str['getCaption']			= function () { return NotImplemented(pre+'getCaption'); }
@@ -110,21 +131,7 @@ function Love_Graphics_CreateTable (G) {
 	t.str['getPointSize']		= function () { return NotImplemented(pre+'getPointSize'); }
 	t.str['getPointStyle']		= function () { return NotImplemented(pre+'getPointStyle'); }
 	t.str['getScissor']			= function () { return NotImplemented(pre+'getScissor'); }
-	t.str['isCreated']			= function () { return NotImplemented(pre+'isCreated'); }
-	t.str['line']				= function () { return NotImplemented(pre+'line'); }
-	t.str['newFramebuffer']		= function () { return NotImplemented(pre+'newFramebuffer'); }
-	t.str['newParticleSystem']	= function () { return NotImplemented(pre+'newParticleSystem'); }
-	t.str['newScreenshot']		= function () { return NotImplemented(pre+'newScreenshot'); }
-	t.str['newSpriteBatch']		= function () { return NotImplemented(pre+'newSpriteBatch'); }
-	t.str['point']				= function () { return NotImplemented(pre+'point'); }
-	t.str['polygon']			= function () { return NotImplemented(pre+'polygon'); }
-	t.str['pop']				= function () { return NotImplemented(pre+'pop'); }
-	t.str['present']			= function () { return NotImplemented(pre+'present'); }
-	t.str['push']				= function () { return NotImplemented(pre+'push'); }
-	t.str['quad']				= function () { return NotImplemented(pre+'quad'); }
-	t.str['rectangle']			= function () { return NotImplemented(pre+'rectangle'); }
-	t.str['reset']				= function () { return NotImplemented(pre+'reset'); }
-	t.str['rotate']				= function () { return NotImplemented(pre+'rotate'); }
+	
 	t.str['setBlendMode']		= function () { return NotImplemented(pre+'setBlendMode'); }
 	t.str['setCaption']			= function () { return NotImplemented(pre+'setCaption'); }
 	t.str['setColorMode']		= function () { return NotImplemented(pre+'setColorMode'); }
@@ -139,9 +146,6 @@ function Love_Graphics_CreateTable (G) {
 	t.str['setPointStyle']		= function () { return NotImplemented(pre+'setPointStyle'); }
 	t.str['setRenderTarget']	= function () { return NotImplemented(pre+'setRenderTarget'); }
 	t.str['setScissor']			= function () { return NotImplemented(pre+'setScissor'); }
-	t.str['toggleFullscreen']	= function () { return NotImplemented(pre+'toggleFullscreen'); }
-	t.str['translate']			= function () { return NotImplemented(pre+'translate'); }
-	t.str['triangle']			= function () { return NotImplemented(pre+'triangle'); }
 
 }
 
@@ -419,6 +423,12 @@ function GLModelViewScale (sx,sy,sz) {
 	gGLMatrix_ModelView[0*4+0] *= sx;
 	gGLMatrix_ModelView[1*4+1] *= sy;
 	gGLMatrix_ModelView[2*4+2] *= sz;
+	setMatrixUniforms();
+}
+function GLModelViewTranslate (tx,ty,tz) {
+	gGLMatrix_ModelView[3*4+0] += tx;
+	gGLMatrix_ModelView[3*4+1] += ty;
+	gGLMatrix_ModelView[3*4+2] += tz;
 	setMatrixUniforms();
 }
 

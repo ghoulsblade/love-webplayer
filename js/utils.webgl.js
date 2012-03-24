@@ -170,6 +170,8 @@ function MyCheckGLError (where) {
 	}
 }
 
+function UpdateGlFloatBufferLen (gl,buffer,arr,len,mode) { UpdateGlFloatBuffer(gl,buffer,arr.slice(0,len),mode); }
+
 function UpdateGlFloatBuffer (gl,buffer,arr,mode) { // arr= [1,2,3,...] mode= gl.STATIC_DRAW
 
 	//~ if (!gl) alert("DrawSpriteAux:gl missing");

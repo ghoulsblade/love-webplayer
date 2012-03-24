@@ -106,7 +106,7 @@ function RunLuaFromPath (path) {
 		throw new Error("Lua parser not available, perhaps you're not using the lua+parser.js version of the library?");
 	}
 
-	MainPrint("RunLuaFromPath "+path);
+	//~ MainPrint("RunLuaFromPath "+path);
 	try {
 		// download code via synchronous ajax... sjax? ;)
 		gLastLoadedLuaCode = false;
@@ -256,7 +256,7 @@ function MainOnLoad (preload_image_list) {
 		// preload images before starting, MainRunAfterPreloadFinished() will be called when all are done loading
 		for (k in preload_image_list) {
 			var url = preload_image_list[k];
-			MainPrint("preload image:"+url);
+			//~ MainPrint("preload image:"+url);
 			var img = new Image();
 			gPreloadImages[url] = img;
 			img.myurl = url; // img.src might be transformed to absolute path etc, so keep this as array-key
@@ -273,7 +273,7 @@ function MainOnLoad (preload_image_list) {
 }
 
 function PreLoadImageFinishOne (url) {
-	MainPrint("preload image finished:"+url);
+	//~ MainPrint("preload image finished:"+url);
 	for (k in gPreloadImages) if (k != url && !gPreloadImages[k].complete) return; // still more to do
 	if (gMainRunAfterPreloadFinished) return; // only call once
 	gMainRunAfterPreloadFinished = true;
