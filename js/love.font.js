@@ -20,9 +20,9 @@ function Love_Graphics_MakeImageFontHandle (o) {
 	var pre = "love.graphics.imagefont.";
 	t._data = o;
 	
-	t.str['getHeight']			= function (t) { NotImplemented(pre+'getHeight'); return [0]; }	// Gets the height of the Font in pixels.
-	t.str['getLineHeight']		= function (t) { NotImplemented(pre+'getLineHeight'); return [0]; }	// Gets the line height.
-	t.str['getWidth']			= function (t) { NotImplemented(pre+'getWidth'); return [0]; }	// Determines the horizontal size a line of text needs.
+	t.str['getHeight']			= function (t) { NotImplemented(pre+'getHeight'); return [12]; }	// Gets the height of the Font in pixels.
+	t.str['getLineHeight']		= function (t) { NotImplemented(pre+'getLineHeight'); return [12]; }	// Gets the line height.
+	t.str['getWidth']			= function (t) { NotImplemented(pre+'getWidth'); return [100]; }	// Determines the horizontal size a line of text needs.
 	t.str['getWrap']			= function (t) { return NotImplemented(pre+'getWrap'); }	// Returns how many lines text would be wrapped to.
 	t.str['setLineHeight']		= function (t) { return NotImplemented(pre+'setLineHeight'); }	// Sets the line height.
 	t.str['type']				= function (t) { return NotImplemented(pre+'type'); }	// Gets the type of the object as a string.
