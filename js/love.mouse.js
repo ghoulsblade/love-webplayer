@@ -27,6 +27,10 @@ function Love_Mouse_Init(elementId)
 		gMouseDown[e.which-1] = false;
 		push_event("mousereleased", gMouseX, gMouseY, gMouseButtonNames[e.which-1]);
 	});
+	element.contextmenu(function()
+	{
+		return false;
+	});
 }
 
 /// init lua api
