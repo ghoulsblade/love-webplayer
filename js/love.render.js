@@ -24,9 +24,9 @@ var mFB_BasicGeo = [];
 function LoveRender_Init () {
 	spriteVB_Tex = MakeGlFloatBuffer(gl,spriteTexFloats,gl.STATIC_DRAW);
 	spriteVB_Pos = MakeGlFloatBuffer(gl,spritePosFloats,gl.STATIC_DRAW);
-	mVB_BasicGeo = MakeGlFloatBuffer(gl,[],gl.STATIC_DRAW);
 	var arr = []; for (i=0;i<kMaxBasicGeoVertices*2;++i) arr[i] = 0;
 	mVB_BasicGeo_TexCoord = MakeGlFloatBuffer(gl,arr,gl.STATIC_DRAW);
+	mVB_BasicGeo = MakeGlFloatBuffer(gl,arr,gl.STATIC_DRAW);
 	bLoveRenderInitDone = true;
 }
 
@@ -121,13 +121,16 @@ function BasicGeo_Draw (mode) {
 	UpdateGlFloatBufferLen(gl,mVB_BasicGeo,mFB_BasicGeo,mi_BasicGeo_Vertices*2,gl.STATIC_DRAW);
 	
 	gl.bindTexture(gl.TEXTURE_2D, null);
+	//~ gl.uniform4f(shaderProgram.samplerUniform, 1,1,1,1);
 	gl.bindBuffer(gl.ARRAY_BUFFER, mVB_BasicGeo);
 	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0*kFloatSize, 0*kFloatSize);
 	gl.bindBuffer(gl.ARRAY_BUFFER, mVB_BasicGeo_TexCoord);
 	gl.vertexAttribPointer(shaderProgram.textureCoordAttribute  , 2, gl.FLOAT, false, 0*kFloatSize, 0*kFloatSize);
 	//~ setVertexBuffersToCustom(mVB_BasicGeo);
 	//~ gl.disableVertexAttribArray(shaderProgram.textureCoordAttribute);
+	gl.uniform4f(shaderProgram.uFragOverrideAddColor,1,1,1,1);
 	gl.drawArrays(mode, 0, mi_BasicGeo_Vertices);
+	gl.uniform4f(shaderProgram.uFragOverrideAddColor,0,0,0,0);
 	//~ MainPrint("BasicGeo_Draw",mode,mi_BasicGeo_Vertices);
 	//~ gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 }

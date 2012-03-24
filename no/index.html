@@ -29,75 +29,8 @@
 <script type="text/javascript" src="../js/love.thread.js"		></script>
 <script type="text/javascript" src="../js/love.timer.js"		></script>
 
-
-
-<script id="shader-fs" type="x-shader/x-fragment">
-  #ifdef GL_ES
-  precision highp float;
-  #endif
-  // old: precision mediump float;
-  // old: uniform vec4 u_MaterialColor;
-
-  varying vec2 vTextureCoord;
-  //~ varying vec3 vLightWeighting;
-
-  uniform sampler2D uSampler;
-  uniform vec4 uMaterialColor;
-
-  void main(void) {
-     vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
-	 //~ if (textureColor.a < .5) discard;
-	 if (textureColor.a <= .0) discard;
-     //~ gl_FragColor = vec4(textureColor.rgb * vLightWeighting, textureColor.a);
-     gl_FragColor = vec4(textureColor.rgb * uMaterialColor.rgb, textureColor.a * uMaterialColor.a);
-     //~ gl_FragColor = vec4(textureColor.rgb * uMaterialColor.rgb,textureColor.a * 200.0/255.0);
-     //~ gl_FragColor = vec4(textureColor.rgb, 0.5);
-     //~ gl_FragColor = textureColor * uMaterialColor;
-     //~ gl_FragColor = uMaterialColor;
-     //~ gl_FragColor = vec4(textureColor.rgb, 0.5);
-     //~ gl_FragColor = vec4(0,1,0,0.5);
-	//~ old: vec4 color = texture2D(sampler2d, v_texCoord);
-	//~ old: if (color.a < .5) discard;
-	//~ old: gl_FragColor = color * u_MaterialColor;
-  }
-</script>
-
-<script id="shader-vs" type="x-shader/x-vertex">
-  attribute vec3 aVertexPosition;
-  //~ attribute vec3 aVertexNormal;
-  attribute vec2 aTextureCoord;
-
-  uniform mat4 uMVMatrix;
-  uniform mat4 uPMatrix;
-  uniform mat4 uNMatrix;
-
-  uniform vec3 uTranslate; // particles
-  uniform vec3 uAmbientColor;
-
-  uniform vec3 uLightingDirection;
-  uniform vec3 uDirectionalColor;
-
-  uniform bool uUseLighting;
-
-  varying vec2 vTextureCoord;
-  //~ varying vec3 vLightWeighting;
-
-  void main(void) {
-    gl_Position = uPMatrix * uMVMatrix * vec4(uTranslate + aVertexPosition, 1.0);
-    //~ gl_Position = vec4(uTranslate + aVertexPosition, 1.0);
-    vTextureCoord = aTextureCoord;
-
-    //~ if (!uUseLighting) {
-      //~ vLightWeighting = vec3(1.0, 1.0, 1.0);
-    //~ } else {
-      //~ vec4 transformedNormal = uNMatrix * vec4(aVertexNormal, 1.0);
-      //~ float directionalLightWeighting = max(dot(transformedNormal.xyz, uLightingDirection), 0.0);
-      //~ vLightWeighting = uAmbientColor + uDirectionalColor * directionalLightWeighting;
-      //~ vLightWeighting = uAmbientColor;
-    //~ }
-  }
-</script>
-
+<script type="text/javascript">gShaderCode_Fragment = LoadShaderCode("../js/fragment.shader");</script>
+<script type="text/javascript">gShaderCode_Vertex   = LoadShaderCode("../js/vertex.shader");</script>
 
 </head>
 <body onload="MainOnLoad(['media/fmas.png','media/logo.png','media/notset.png','media/set.png'])">
