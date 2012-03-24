@@ -19,4 +19,5 @@ parser bug : >> myvar = .5 <<   workaround >> myvar = 0.5 <<
 parser bug : iyfct block comment in main.lua >> --[[ bla... ]]-- <<   workaround : remove comment (js regexp pre load?) or use single line comments
 parser bug : iyfct \" in table-save.lua >> "\"..string.char(26)..\"" <<   workaround : >> '"'.."..string.char(26).."..'"' <<
 parser bug : sinescroller >> local mytext = "bla"  print(mytext:len()) <<  workaround >> print(string.len(mytext)) << 
+parser bug (fixed): demo:no >> print("unpack test1:",unpack({1,2,3,4})) << , fixed by using return list.uints.slice(i - 1, j); in parser code for "unpack"
 

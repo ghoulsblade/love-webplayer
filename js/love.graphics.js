@@ -2,6 +2,7 @@
 var gl;
 var gWebGLCanvasId;
 var shaderProgram;
+var gMaterialColor = [1,1,1,1];
 
 /// called on startup after pageload
 function Love_Graphics_Init (id_canvas) {
@@ -54,9 +55,9 @@ function Love_Graphics_CreateTable (G) {
 			r = rgb.uints[0];
 			g = rgb.uints[1];
 			b = rgb.uints[2];
-			a = rgb.uints[3] || 255;
+			a = (rgb.uints[3] == undefined) ? 255 : rgb.uints[3];
 		}
-		gl.clearColor(r/255.0, g/255.0, b/255.0, (a||255)/255.0); 
+		gl.clearColor(r/255.0, g/255.0, b/255.0, ((a == undefined)?255:a)/255.0); 
 	}
 	
 	// love.graphics.setColor(r,g,b,a)
@@ -67,7 +68,7 @@ function Love_Graphics_CreateTable (G) {
 			r = rgb.uints[0];
 			g = rgb.uints[1];
 			b = rgb.uints[2];
-			a = rgb.uints[3] || 255;
+			a = (rgb.uints[3] == undefined) ? 255 : rgb.uints[3];
 		}
 		setColor(r,g,b,a); 
 	}
@@ -80,7 +81,7 @@ function Love_Graphics_CreateTable (G) {
 		else	o.RenderSelf(x,y,r || 0.0,sx || 1.0,sy || 1.0,ox || 0.0,oy || 0.0);
 	}
 	
-	t.str['setMode']			= function (width, height, fullscreen, vsync, fsaa) { MainPrint("setMode",width, height, fullscreen||false, vsync||true, fsaa||0); return NotImplemented(pre+'setMode'); }
+	t.str['setMode']			= function (width, height, fullscreen, vsync, fsaa) { MainPrint("setMode",width, height, fullscreen||false, (vsync == undefined)?true:vsync, fsaa||0); return NotImplemented(pre+'setMode'); }
 	
 	// TODO : "newImage" overloads
 	// TODO : "draw" overloads
@@ -171,6 +172,7 @@ function setScissor (left, top, width, height) {
 		gl.disable(gl.SCISSOR_TEST);
 	}
 }
+
 function restoreScissorState() {
 	if (mScissorEnabled)
 			setScissor(mScissorBox.left, mScissorBox.top, mScissorBox.width, mScissorBox.height);
@@ -178,7 +180,7 @@ function restoreScissorState() {
 }
 
 function setColor (r,g,b,a) {
-	gl.uniform4f(shaderProgram.materialColorUniform,(r || 255.0)/255.0, (g || 255.0)/255.0, (b || 255.0)/255.0, (a || 255.0)/255.0);
+	gl.uniform4f(shaderProgram.materialColorUniform,(r == undefined) ? 1 : (r/255.0),(g == undefined) ? 1 : (g/255.0),(b == undefined) ? 1 : (b/255.0),(a == undefined) ? 1 : (a/255.0));
 }
 
 /// called every frame (before love.update and love.draw)
@@ -321,9 +323,24 @@ function cLoveQuad (x, y, width, height, sw, sh) {
 
 // ***** ***** ***** ***** ***** webgl stuff 
 
+/// download code via synchronous ajax... sjax? ;)
+function LoadShaderCode (url) {
+	var mycode;
+	UtilAjaxGet(url,function (code) { mycode = code; },true);
+	return mycode;
+}
+
+function MyLoadShader (mode,code) {
+	var shader = gl.createShader(mode);
+	gl.shaderSource(shader, code);
+	gl.compileShader(shader);
+	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS))
+		throw gl.getShaderInfoLog(shader);
+	return shader;
+}
 
 function MainInitScene () {
-	gl.clearColor(1,1,1,1);  // Set clear color to black, fully opaque  
+	gl.clearColor(0,0,0,1);  // Set clear color to black, fully opaque  
 	gl.clearDepth(1.0);                 // Clear everything  
 	//~ gl.enable(gl.TEXTURE_2D); // needed for chrome@archlinux(fkrauthan,26.12.2010)
 	//~ gl.enable(gl.DEPTH_TEST);           // Enable depth testing  
@@ -345,10 +362,11 @@ function MainInitScene () {
 	MyCheckGLError();
 	
 	// shaders
-	if (1) {
-		var fragmentShader = getShader(gl, "shader-fs");
-		var vertexShader = getShader(gl, "shader-vs");
-
+	try {
+		//~ var fragmentShader = gShaderCode_Fragment_NoTex ? MyLoadShader(gl.FRAGMENT_SHADER,gShaderCode_Fragment_NoTex) : getShader(gl, "shader-fs");
+		var fragmentShader = gShaderCode_Fragment ? MyLoadShader(gl.FRAGMENT_SHADER,gShaderCode_Fragment) : getShader(gl, "shader-fs");
+		var vertexShader = gShaderCode_Vertex ? MyLoadShader(gl.VERTEX_SHADER,gShaderCode_Vertex) : getShader(gl, "shader-vs");
+		
 		// Create the shader program
 		shaderProgram = gl.createProgram();
 		gl.attachShader(shaderProgram, vertexShader);
@@ -362,11 +380,8 @@ function MainInitScene () {
 		gl.linkProgram(shaderProgram);
 		
 		// If creating the shader program failed, alert
-		if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-			alert("Unable to initialize the shader program.");
-			return;
-			// note : this happens on win-vista missing drivers (directx for angle or opengl) for webgl in firefox beta8
-		}
+		if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) throw ("Unable to initialize the shader program.");
+		// note : this happens on win-vista missing drivers (directx for angle or opengl) for webgl in firefox beta8
 
 		gl.useProgram(shaderProgram);
 
@@ -390,9 +405,11 @@ function MainInitScene () {
 		shaderProgram.materialColorUniform		= gl.getUniformLocation(shaderProgram, "uMaterialColor");
 		shaderProgram.lightingDirectionUniform	= gl.getUniformLocation(shaderProgram, "uLightingDirection");
 		shaderProgram.directionalColorUniform	= gl.getUniformLocation(shaderProgram, "uDirectionalColor");
+		shaderProgram.uFragOverrideAddColor			= gl.getUniformLocation(shaderProgram, "uFragOverrideAddColor");
 		if (shaderProgram.my_uTranslate == null || shaderProgram.my_uTranslate == -1) alert("shader error : couldn't find uTranslate");
 	
 		gl.uniform4f(shaderProgram.materialColorUniform,1,1,1,1);
+		gl.uniform4f(shaderProgram.uFragOverrideAddColor,0,0,0,0);
 		
 		MyCheckGLError();
 	
@@ -411,16 +428,12 @@ function MainInitScene () {
 		//~ vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
 		//~ gl.enableVertexAttribArray(vertexPositionAttribute);
 		*/
+	} catch (e) {
+		LoveFatalError("error during shader init:"+String(e));
+		return;
 	}
 	
-	// mapdata
-	
 	//~ gTex_Tools		= loadImageTexture(gl, "gfx/tools.gif", true);
-	
-	//~ LoadMapData();
-	//~ InitPlayerPos(gCamPos[0],gCamPos[1],gCamPos[2]);
-	//~ PlayerToolInit();
-	//~ OtherPlayerInit();
 }
 
 function SetMaterialColor (r,g,b,a) { gl.uniform4f(gl.u_MaterialColorLoc,r,g,b,a ? a : 1); }
