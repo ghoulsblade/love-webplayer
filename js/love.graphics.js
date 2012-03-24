@@ -191,13 +191,15 @@ function Love_Graphics_Step_Start() {
 		MySetTranslateUniform(0,0,0);
 	}
 	
+	
+	gl.disable(gl.SCISSOR_TEST);
 	gl.clear(gl.COLOR_BUFFER_BIT);
+	restoreScissorState();
 	
 	//~ bVertexBuffersSprite = false;
 	//~ setVertexBuffersToSprite();
 	
 	resetTransformMatrix();
-	restoreScissorState();
 	//~ perspective(45, gMyCanvasWidth / gMyCanvasHeight, 0.1, 100.0);
 	//~ loadIdentity();
 	MyCheckGLError();
