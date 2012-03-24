@@ -34,7 +34,13 @@ function Love_Mouse_CreateTable (G) {
 	t.str['getPosition']	= function () { return [gMouseX, gMouseY]; }
 	t.str['getX']			= function () { return [gMouseX]; }
 	t.str['getY']			= function () { return [gMouseY]; }
-	t.str['isDown']			= function () { return [gMouseDown]; } // Only left clicks, sorry!
+	t.str['isDown']			= function (btn)
+	{
+		btn = gMouseButtonNames.indexOf(btn);
+		if (btn == -1)
+			return [false]; // Non-existing button
+		return [gMouseDown[btn]];
+	}
 	t.str['isGrabbed']		= function () { return [false];}
 	t.str['isVisible']		= function () { return [true]; }
 	t.str['setGrab']		= function () { return NotImplemented(pre+'setGrab'); }
