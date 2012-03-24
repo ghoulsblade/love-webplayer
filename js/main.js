@@ -9,6 +9,9 @@ var gLastLoadedLuaCode;
 var gPreloadImages = {};
 var gMainRunAfterPreloadFinished = false;
 var GamepadState = false;
+var gLoveConf = false;
+var gScreenWidth = 800;
+var gScreenHeight = 600;
 var gNotImplementedAlreadyPrinted = {};
 
 /// output in html, for fatal error messages etc, also users that don't have webdev console open can see them
@@ -175,6 +178,31 @@ function call_lua_function(name, fargs)
 	}
 }
 
+function call_lua_function_safe(name, fargs)
+{
+	if (gLoveExecutionHalted)
+		return;
+	if (!G)
+		return;
+
+	try
+	{
+		var parts = name.split(".");
+		var func = G;
+		for (part in parts)
+		{
+			func = func.str[parts[part]];
+			if (!func)
+				return;
+		}
+		return lua_call(func, fargs);
+	}
+	catch (e)
+	{
+		LoveFatalError("Error during "+name+"("+String(fargs)+") : "+String(e)+" : "+PrepareExceptionStacktraceForOutput(e));
+	}
+}
+
 // love main callbacks, if you call them, please use these helpers for easier maintenance,error handling etc
 function call_love_load				(cmdline_args)		{ return call_love_callback_guarded('load',[cmdline_args]); }	// This function is called exactly once at the beginning of the game.
 function call_love_draw				()					{ return call_love_callback_guarded('draw',[]); }	// Callback function used to draw on the screen every frame.
@@ -216,12 +244,13 @@ function MainStep () {
 	
 	// only call love functions if MainStep() has finished loading
 	if (G) {
+		var it = call_lua_function("love.event.poll", [])[0];
 		var ev;
-		while ((ev = call_lua_function("love.event.poll", [])))
+		while ((ev = lua_call(it, [])))
 		{
 			var ev_name = ev[0];
 			ev.shift();
-			call_lua_function("love."+ev_name, ev);
+			call_lua_function_safe("love."+ev_name, ev);
 		}
 		var res = call_lua_function("love.timer.getDelta", []);
 		var dt = res[0];
@@ -281,15 +310,53 @@ function PreLoadImageFinishOne (url) {
 }
 
 function MainRunAfterPreloadFinished () {
+	var elementid = "glcanvas";
 	Love_Audio_Init();
-	Love_Graphics_Init("glcanvas");
+	Love_Graphics_Init(elementid);
+	Love_Mouse_Init(elementid);
 	// additional init functions should be called here
 	
 	// call MainStep() every frame
 	window.setInterval("MainStep()", gFrameWait); // TODO: http://www.khronos.org/webgl/wiki/FAQ#What_is_the_recommended_way_to_implement_a_rendering_loop.3F
 	//~ window.requestAnimFrame(MainStep); // doesn't work ?
 
-	G = RunLuaFromPath("conf.lua"); // run main.lua
+	G = RunLuaFromPath("conf.lua"); // run conf.lua
+	gLoveConf = lua_newtable2({
+		title: "Untitled",
+		author: "Unnamed",
+		version: "0.7.2",
+		screen: lua_newtable2({
+			width: 800,
+			height: 600,
+			fullscreen: false,
+			vsync: true,
+			fsaa: 0,
+		}),
+		modules: lua_newtable2({
+			event: true,
+			keyboard: true,
+			mouse: true,
+			timer: true,
+			joystick: true,
+			image: true,
+			graphics: true,
+			audio: true,
+			physics: true,
+			sound: true,
+			font: true,
+			thread: true,
+		}),
+		console: false,
+		identity: false,
+	});
+	call_lua_function_safe("love.conf", [gLoveConf]);
+	if (gLoveConf.str["screen"])
+	{
+		if (gLoveConf.str["screen"].str["width"])
+			gScreenWidth = gLoveConf.str["screen"].str["width"];
+		if (gLoveConf.str["screen"].str["height"])
+			gScreenHeight = gLoveConf.str["screen"].str["height"];
+	}
 	RunLuaFromPath("main.lua"); // run main.lua
 	call_love_load(); // call love.load()
 }
