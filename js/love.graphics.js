@@ -145,8 +145,36 @@ function Love_Graphics_CreateTable (G) {
 	t.str['setPointSize']		= function () { return NotImplemented(pre+'setPointSize'); }
 	t.str['setPointStyle']		= function () { return NotImplemented(pre+'setPointStyle'); }
 	t.str['setRenderTarget']	= function () { return NotImplemented(pre+'setRenderTarget'); }
-	t.str['setScissor']			= function () { return NotImplemented(pre+'setScissor'); }
+	
+	t.str['setScissor']			= function (left, top, width, height) { setScissor(left, top, width, height); }
 
+}
+
+var mScissorEnabled = false;
+var mScissorBox = {};
+function setScissor (left, top, width, height) {
+	if (left) {
+		mScissorBox.left = left;
+		mScissorBox.top = top;
+		mScissorBox.width = width;
+		mScissorBox.height = height;
+		mScissorEnabled = true;
+		
+		gl.scissor(
+				mScissorBox.left, 
+				(gMyCanvasHeight - (mScissorBox.top + mScissorBox.height)), // Compensates for the fact that our y-coordinate is reverse of OpenGLs.
+				mScissorBox.width, 
+				mScissorBox.height);
+		gl.enable(gl.SCISSOR_TEST);
+	} else {
+		mScissorEnabled = false;
+		gl.disable(gl.SCISSOR_TEST);
+	}
+}
+function restoreScissorState() {
+	if (mScissorEnabled)
+			setScissor(mScissorBox.left, mScissorBox.top, mScissorBox.width, mScissorBox.height);
+	else	setScissor();
 }
 
 function setColor (r,g,b,a) {
@@ -165,7 +193,11 @@ function Love_Graphics_Step_Start() {
 	
 	gl.clear(gl.COLOR_BUFFER_BIT);
 	
+	//~ bVertexBuffersSprite = false;
+	//~ setVertexBuffersToSprite();
+	
 	resetTransformMatrix();
+	restoreScissorState();
 	//~ perspective(45, gMyCanvasWidth / gMyCanvasHeight, 0.1, 100.0);
 	//~ loadIdentity();
 	MyCheckGLError();
@@ -454,7 +486,7 @@ function resetTransformMatrix	() {
 	var w = gMyCanvasWidth;
 	var h = gMyCanvasHeight;
 	gGLMatrix_ModelView = matrixGetIdentity();
-	gGLMatrix_Perspective = matrixGetIdentity();
+	//~ gGLMatrix_Perspective = matrixGetIdentity();
 	gGLMatrix_Perspective = matrixGetSimple(-1.0,1.0,0.0, 2/w,-2/h,1);
 	setMatrixUniforms();
 }
