@@ -27,17 +27,17 @@ function Love_Graphics_CreateTable (G) {
 	
 	// love.graphics.newImage(path)
 	t.str['newImage']			= function (path) { return [Love_Graphics_MakeImageHandle(new cLoveImage(path))]; }
-	t.str['newImageFont']		= function (image, glyphs) { // see love.font.js
-		NotImplemented(pre+'newImageFont');
-		if ((typeof image) == "string") {
-			return [Love_Graphics_MakeImageFontHandle(new cLoveImageFont(new cLoveImage(image), glyphs))]; 
-		} else {
-			return [Love_Graphics_MakeImageFontHandle(new cLoveImageFont(image, glyphs))]; 
-		}
+	
+	// font = love.graphics.newImageFont( image, glyphs )
+	// font = love.graphics.newImageFont( filename, glyphs )
+	t.str['newImageFont']		= function (image_or_filename, glyphs) { // see love.font.js
+		return [Love_Graphics_MakeFontHandle(new cLoveFont("newImageFont",image_or_filename, glyphs))]; 
 	}
-	t.str['newFont']			= function () { 
-		NotImplemented(pre+'newFont');
-		return [Love_Graphics_MakeImageFontHandle(new cLoveImageFont())]; 
+	
+	// font = love.graphics.newFont( filename, size=12 )
+	// font = love.graphics.newFont( size ) // This variant uses the default font (Vera Sans) with a custom size. 
+	t.str['newFont']			= function (a,b) { 
+		return [Love_Graphics_MakeFontHandle(new cLoveFont("newFont",a,b))]; 
 	}
 	
 	t.str['newQuad']			= function (x, y, width, height, sw, sh) { return [Love_Graphics_MakeQuadHandle(new cLoveQuad(x, y, width, height, sw, sh))]; }
