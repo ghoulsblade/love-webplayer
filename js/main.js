@@ -168,6 +168,31 @@ function call_lua_function(name, fargs)
 	}
 }
 
+function call_lua_function_safe(name, fargs)
+{
+	if (gLoveExecutionHalted)
+		return;
+	if (!G)
+		return;
+
+	try
+	{
+		var parts = name.split(".");
+		var func = G;
+		for (part in parts)
+		{
+			func = func.str[parts[part]];
+			if (!func)
+				return;
+		}
+		return lua_call(func, fargs);
+	}
+	catch (e)
+	{
+		LoveFatalError("Error during "+name+"("+String(fargs)+") : "+String(e)+" : "+PrepareExceptionStacktraceForOutput(e));
+	}
+}
+
 // love main callbacks, if you call them, please use these helpers for easier maintenance,error handling etc
 function call_love_load				(cmdline_args)		{ return call_love_callback_guarded('load',[cmdline_args]); }	// This function is called exactly once at the beginning of the game.
 function call_love_draw				()					{ return call_love_callback_guarded('draw',[]); }	// Callback function used to draw on the screen every frame.
@@ -209,12 +234,13 @@ function MainStep () {
 	
 	// only call love functions if MainStep() has finished loading
 	if (G) {
+		var it = call_lua_function("love.event.poll", [])[0];
 		var ev;
-		while ((ev = call_lua_function("love.event.poll", [])))
+		while ((ev = lua_call(it, [])))
 		{
 			var ev_name = ev[0];
 			ev.shift();
-			call_lua_function("love."+ev_name, ev);
+			call_lua_function_safe("love."+ev_name, ev);
 		}
 		var res = call_lua_function("love.timer.getDelta", []);
 		var dt = res[0];
