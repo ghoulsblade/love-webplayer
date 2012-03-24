@@ -60,6 +60,9 @@ function Menu:mousepressed(x,y,button)
 end
 
 function Menu:keypressed(key)
+	if key == " " then
+		state = Game.create() -- start game with space
+	end
 	if key == "escape" then
 		love.event.push("q")
 	end
@@ -334,7 +337,7 @@ function Game:draw()
 	for i=1,size do
 		love.graphics.printf(self.horizontal[i],
 					gx+(50*i)-50,
-					gy-((self.horizontal[i]:len()/2) * font["default"]:getHeight() * font["default"]:getLineHeight()),
+					gy-((string.len(self.horizontal[i])/2) * font["default"]:getHeight() * font["default"]:getLineHeight()),
 					50, "center")
 		love.graphics.printf(self.vertical[i], 0, gy+(50*i)-36, gx, "right")
 	end
