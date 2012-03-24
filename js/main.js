@@ -310,8 +310,10 @@ function PreLoadImageFinishOne (url) {
 }
 
 function MainRunAfterPreloadFinished () {
+	var elementid = "glcanvas";
 	Love_Audio_Init();
-	Love_Graphics_Init("glcanvas");
+	Love_Graphics_Init(elementid);
+	Love_Mouse_Init(elementid);
 	// additional init functions should be called here
 	
 	// call MainStep() every frame

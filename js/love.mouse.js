@@ -3,26 +3,30 @@ var gMouseY = 0;
 var gMouseDown = [false, false, false];
 var gMouseButtonNames = ["left", "middle", "right"];
 
-//document.captureEvents(Event.MOUSEMOVE);
-document.onmousemove = function(e)
+function Love_Mouse_Init(elementId)
 {
-	var tempX = e.pageX;
-	var tempY = e.pageY;
-	if (tempX >= 0 && tempX < gScreenWidth)
-		gMouseX = tempX;
-	if (tempY >= 0 && tempY < gScreenHeight)
-		gMouseY = tempY;
-};
-document.onmousedown = function(e)
-{
-	gMouseDown[e.button] = true;
-	push_event("mousepressed", gMouseX, gMouseY, gMouseButtonNames[e.button]);
-};
-document.onmouseup = function(e)
-{
-	gMouseDown[e.button] = false;
-	push_event("mousereleased", gMouseX, gMouseY, gMouseButtonNames[e.button]);
-};
+	elementId = "#"+elementId;
+	var element = $(elementId);
+	element.mousemove(function(e)
+	{
+		var tempX = e.pageX - element.offset().left;
+		var tempY = e.pageY - element.offset().top;
+		if (tempX >= 0 && tempX < gScreenWidth)
+			gMouseX = tempX;
+		if (tempY >= 0 && tempY < gScreenHeight)
+			gMouseY = tempY;
+	});
+	element.mousedown(function(e)
+	{
+		gMouseDown[e.which-1] = true;
+		push_event("mousepressed", gMouseX, gMouseY, gMouseButtonNames[e.which-1]);
+	});
+	element.mouseup(function(e)
+	{
+		gMouseDown[e.which-1] = false;
+		push_event("mousereleased", gMouseX, gMouseY, gMouseButtonNames[e.which-1]);
+	});
+}
 
 /// init lua api
 function Love_Mouse_CreateTable (G) {
