@@ -3,12 +3,17 @@ var spritePosFloats = [ 0.0,0.0, 1.0,0.0, 0.0,1.0, 1.0,1.0 ];
 var spriteIdxFloats = [ 0,1,2,3 ];
 var spriteVB_Pos;
 var spriteVB_Tex;
-var spriteIB;
 var bLoveRenderInitDone = false;
 var DrawMode = {};
 var Math_PI = Math.PI;
 DrawMode.FILL = "fill";
 DrawMode.LINE = "line";
+
+var mVB_BasicGeo;
+var mVB_BasicGeo_TexCoord;
+var kMaxBasicGeoVertices = 128;
+var mi_BasicGeo_Vertices = 0;
+var mFB_BasicGeo = [];
 	
 //~ NOTE: glTexCoordPointer not in wbgl, see vertexAttribPointer(shaderProgram.textureCoordAttribute  , 2, gl.FLOAT, false, 0*kFloatSize, 0*kFloatSize);
 
@@ -19,7 +24,9 @@ DrawMode.LINE = "line";
 function LoveRender_Init () {
 	spriteVB_Tex = MakeGlFloatBuffer(gl,spriteTexFloats,gl.STATIC_DRAW);
 	spriteVB_Pos = MakeGlFloatBuffer(gl,spritePosFloats,gl.STATIC_DRAW);
-	spriteIB	 = MakeGlIndexBuffer(gl,spriteIdxFloats,gl.STATIC_DRAW); // gBox_Indices
+	mVB_BasicGeo = MakeGlFloatBuffer(gl,[],gl.STATIC_DRAW);
+	var arr = []; for (i=0;i<kMaxBasicGeoVertices*2;++i) arr[i] = 0;
+	mVB_BasicGeo_TexCoord = MakeGlFloatBuffer(gl,arr,gl.STATIC_DRAW);
 	bLoveRenderInitDone = true;
 }
 
@@ -80,19 +87,17 @@ function DrawSpriteAux	(iTextureID,vb_texcoords,w,h,x,y,r,sx,sy,ox,oy) {
 	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0*kFloatSize, 0*kFloatSize);
 	gl.bindBuffer(gl.ARRAY_BUFFER, vb_texcoords);
 	gl.vertexAttribPointer(shaderProgram.textureCoordAttribute  , 2, gl.FLOAT, false, 0*kFloatSize, 0*kFloatSize);
-	//~ gl.drawArrays(gl.GL_TRIANGLE_STRIP, 0, 4); DOESN'T WORK?
+	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 	
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, spriteIB);  
-	gl.drawElements(gl.TRIANGLE_STRIP, 4, gl.UNSIGNED_SHORT, 0);
+	//~ var spriteIB;
+	//~ spriteIB	 = MakeGlIndexBuffer(gl,spriteIdxFloats,gl.STATIC_DRAW); // gBox_Indices
+	//~ gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, spriteIB);  
+	//~ gl.drawElements(gl.TRIANGLE_STRIP, 4, gl.UNSIGNED_SHORT, 0);
 }
 
 	
 // ***** ***** ***** ***** ***** geometric BasicGeo_*
 
-var kMaxBasicGeoVertices = 128;
-var mi_BasicGeo_Vertices = 0;
-var mVB_BasicGeo;
-var mFB_BasicGeo = [];
 
 function BasicGeo_Prepare (vnum) {
 	//~ assert(vnum <= kMaxBasicGeoVertices);
@@ -112,20 +117,20 @@ function BasicGeo_Vertex (x,y) {
 function BasicGeo_Draw (mode) {
 	//~ assert(mi_BasicGeo_Vertices <= kMaxBasicGeoVertices);
 	if (!(mi_BasicGeo_Vertices <= kMaxBasicGeoVertices)) alert("BasicGeo_Draw : incomplete");
-	//~ UpdateGlFloatBufferLen(gl,mVB_BasicGeo,mFB_BasicGeo,mi_BasicGeo_Vertices*2,gl.STATIC_DRAW);
+	//~ MainPrint(mFB_BasicGeo.slice(0,mi_BasicGeo_Vertices*2));
+	UpdateGlFloatBufferLen(gl,mVB_BasicGeo,mFB_BasicGeo,mi_BasicGeo_Vertices*2,gl.STATIC_DRAW);
+	
+	gl.bindTexture(gl.TEXTURE_2D, null);
+	gl.bindBuffer(gl.ARRAY_BUFFER, mVB_BasicGeo);
+	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0*kFloatSize, 0*kFloatSize);
+	gl.bindBuffer(gl.ARRAY_BUFFER, mVB_BasicGeo_TexCoord);
+	gl.vertexAttribPointer(shaderProgram.textureCoordAttribute  , 2, gl.FLOAT, false, 0*kFloatSize, 0*kFloatSize);
 	//~ setVertexBuffersToCustom(mVB_BasicGeo);
-	//~ gl.bindTexture(GL10.GL_TEXTURE_2D, 0);
-	//~ gl.drawArrays(mode, 0, mi_BasicGeo_Vertices);
+	//~ gl.disableVertexAttribArray(shaderProgram.textureCoordAttribute);
+	gl.drawArrays(mode, 0, mi_BasicGeo_Vertices);
+	//~ MainPrint("BasicGeo_Draw",mode,mi_BasicGeo_Vertices);
+	//~ gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 }
-//~ gl.bindTexture(gl.TEXTURE_2D, iTextureID);
-//~ gl.bindBuffer(gl.ARRAY_BUFFER, spriteVB_Pos);
-//~ gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0*kFloatSize, 0*kFloatSize);
-//~ gl.bindBuffer(gl.ARRAY_BUFFER, vb_texcoords);
-//~ gl.vertexAttribPointer(shaderProgram.textureCoordAttribute  , 2, gl.FLOAT, false, 0*kFloatSize, 0*kFloatSize);
-//~// gl.drawArrays(gl.GL_TRIANGLE_STRIP, 0, 4); DOESN'T WORK?
-
-//~ gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, spriteIB);  
-//~ gl.drawElements(gl.TRIANGLE_STRIP, 4, gl.UNSIGNED_SHORT, 0);
 
 // ***** ***** ***** ***** ***** setVertexBuffersToCustom etc
 
