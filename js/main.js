@@ -9,6 +9,7 @@ var gLastLoadedLuaCode;
 var gPreloadImages = {};
 var gMainRunAfterPreloadFinished = false;
 var GamepadState = false;
+var gNotImplementedAlreadyPrinted = {};
 
 /// output in html, for fatal error messages etc, also users that don't have webdev console open can see them
 function MainPrintToHTMLConsole () {
@@ -44,7 +45,13 @@ function MainPrint () {
 }
 
 /// dummy/stub for love api functions that haven't been implemented yet
-function NotImplemented (name) { MainPrint("NotImplemented:"+String(name)); return []; }
+function NotImplemented (name) { 
+	if (!gNotImplementedAlreadyPrinted[name]) {
+		gNotImplementedAlreadyPrinted[name] = true;
+		MainPrint("NotImplemented:"+String(name)); 
+	}
+	return []; 
+}
 
 /// called after lua code has finished loading and is about to be run, where environment has already been setup
 /// when calling the result from lua_load, LuaBootStrap is exectuted between lua environment setup and the parsed code
