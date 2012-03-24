@@ -83,10 +83,7 @@ function DrawSpriteAux	(iTextureID,vb_texcoords,w,h,x,y,r,sx,sy,ox,oy) {
 	UpdateGlFloatBuffer(gl,spriteVB_Pos,spritePosFloats,gl.STATIC_DRAW);
 	
 	gl.bindTexture(gl.TEXTURE_2D, iTextureID);
-	gl.bindBuffer(gl.ARRAY_BUFFER, spriteVB_Pos);
-	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0*kFloatSize, 0*kFloatSize);
-	gl.bindBuffer(gl.ARRAY_BUFFER, vb_texcoords);
-	gl.vertexAttribPointer(shaderProgram.textureCoordAttribute  , 2, gl.FLOAT, false, 0*kFloatSize, 0*kFloatSize);
+	setVertexBuffers_Aux(spriteVB_Pos,vb_texcoords);
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 	
 	//~ var spriteIB;
@@ -95,7 +92,6 @@ function DrawSpriteAux	(iTextureID,vb_texcoords,w,h,x,y,r,sx,sy,ox,oy) {
 	//~ gl.drawElements(gl.TRIANGLE_STRIP, 4, gl.UNSIGNED_SHORT, 0);
 }
 
-	
 // ***** ***** ***** ***** ***** geometric BasicGeo_*
 
 
@@ -121,58 +117,25 @@ function BasicGeo_Draw (mode) {
 	UpdateGlFloatBufferLen(gl,mVB_BasicGeo,mFB_BasicGeo,mi_BasicGeo_Vertices*2,gl.STATIC_DRAW);
 	
 	gl.bindTexture(gl.TEXTURE_2D, null);
-	//~ gl.uniform4f(shaderProgram.samplerUniform, 1,1,1,1);
-	gl.bindBuffer(gl.ARRAY_BUFFER, mVB_BasicGeo);
-	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0*kFloatSize, 0*kFloatSize);
-	gl.bindBuffer(gl.ARRAY_BUFFER, mVB_BasicGeo_TexCoord);
-	gl.vertexAttribPointer(shaderProgram.textureCoordAttribute  , 2, gl.FLOAT, false, 0*kFloatSize, 0*kFloatSize);
-	//~ setVertexBuffersToCustom(mVB_BasicGeo);
-	//~ gl.disableVertexAttribArray(shaderProgram.textureCoordAttribute);
+	setVertexBuffersToCustom(mVB_BasicGeo,mVB_BasicGeo_TexCoord);
 	gl.uniform4f(shaderProgram.uFragOverrideAddColor,1,1,1,1);
 	gl.drawArrays(mode, 0, mi_BasicGeo_Vertices);
 	gl.uniform4f(shaderProgram.uFragOverrideAddColor,0,0,0,0);
-	//~ MainPrint("BasicGeo_Draw",mode,mi_BasicGeo_Vertices);
-	//~ gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 }
 
 // ***** ***** ***** ***** ***** setVertexBuffersToCustom etc
 
 var bVertexBuffersSprite;
 
-function setVertexBuffersToCustom (pos,tex,col) {
-	if (col) setVertexBuffersToCustom3(pos,tex,col);
-	else if (tex) setVertexBuffersToCustom2(pos,tex);
-	else setVertexBuffersToCustom1(pos);
-}
+function setVertexBuffersToCustom (vb_Pos,vb_Tex) { setVertexBuffers_Aux(vb_Pos,vb_Tex); }
 
-/// texcoords disabled
-function setVertexBuffersToCustom1 (pos) {
+function setVertexBuffers_Aux(vb_Pos,vb_Tex) {
 	bVertexBuffersSprite = false;
-	//~ gl.glDisableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
-	//~ gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
-	//~ gl.glVertexPointer(2, GL10.GL_FLOAT, 0, pos);
+	gl.bindBuffer(gl.ARRAY_BUFFER, vb_Pos);
+	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0*kFloatSize, 0*kFloatSize);
+	gl.bindBuffer(gl.ARRAY_BUFFER, vb_Tex);
+	gl.vertexAttribPointer(shaderProgram.textureCoordAttribute  , 2, gl.FLOAT, false, 0*kFloatSize, 0*kFloatSize);
 }
-
-/// texcoords enabled
-function setVertexBuffersToCustom2 (pos,tex) {
-	bVertexBuffersSprite = false;
-	//~ gl.glEnableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
-	//~ gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
-	//~ gl.glVertexPointer(2, GL10.GL_FLOAT, 0, pos);
-	//~ gl.glTexCoordPointer(2, GL10.GL_FLOAT, 0, tex);
-}
-
-/// texcoords and vertexcolor enabled
-function setVertexBuffersToCustom3 (pos,tex,col) {
-	bVertexBuffersSprite = false;
-	//~ gl.enableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
-	//~ gl.enableClientState(GL10.GL_COLOR_ARRAY);
-	//~ gl.vertexPointer(2, GL10.GL_FLOAT, 0, pos);
-	//~ gl.texCoordPointer(2, GL10.GL_FLOAT, 0, tex);
-	//~ gl.colorPointer(4, GL10.GL_FLOAT, 0, col);
-}
-// NOTE : enableClientState -> enableVertexAttribArray ?? http://www.khronos.org/opengles/sdk/docs/man/xhtml/glEnableVertexAttribArray.xml  NO! for shader: gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
-
 
 // ***** ***** ***** ***** ***** geometric primitives
 

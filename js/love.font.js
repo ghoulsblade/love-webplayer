@@ -14,6 +14,10 @@ function Love_Font_CreateTable (G) {
 
 // ***** ***** ***** ***** ***** cLoveFont
 
+var g_mVB_Pos_font;
+var g_mVB_Tex_font;
+var g_mVB_Pos2_font;
+var g_mVB_Tex2_font;
 var AlignMode = {};
 AlignMode.CENTER = "center";
 AlignMode.LEFT = "left";
@@ -184,40 +188,30 @@ function cLoveFont (caller_name,a,b) {
 		return 0;
 	}
 	
-	/*
 	// render buffer 
 	
-	private FloatBuffer	mVB_Pos;
-	private FloatBuffer	mVB_Tex;
-	private float[]		mVB_Pos2;
-	private float[]		mVB_Tex2;
+	//~ private FloatBuffer	mVB_Pos;
+	//~ private FloatBuffer	mVB_Tex;
+	//~ private float[]		mVB_Pos2;
+	//~ private float[]		mVB_Tex2;
+	//~ int					mBufferVertices;
 	
-	int					mBufferVertices;
-	
-	public void prepareBuffer (int maxglyphs) { prepareBuffer(maxglyphs,0f); }
-	public void prepareBuffer (int maxglyphs,float fRotate) {
+	this.prepareBuffer = function (maxglyphs) { this.prepareBuffer(maxglyphs,0); }
+	this.prepareBuffer = function (maxglyphs,fRotate) {
 		// alloc/resize float buffers
-		//~ mVB_Pos = LuanGraphics.LuanCreateBuffer(maxglyphs*6*2); // TODO: memleak?  reuse/clear existing possible ? 
-		//~ mVB_Tex = LuanGraphics.LuanCreateBuffer(maxglyphs*6*2);
-		//~ mVB_Pos2 = new float[maxglyphs*6*2];
-		//~ mVB_Tex2 = new float[maxglyphs*6*2];
-		
-		if (g.mVB_Pos_font == null) {
-			g.mVB_Pos_font = LuanGraphics.LuanCreateBuffer(kMaxGlyphsPerString*6*2); // TODO: memleak?  reuse/clear existing possible ? 
-			g.mVB_Tex_font = LuanGraphics.LuanCreateBuffer(kMaxGlyphsPerString*6*2);
-			g.mVB_Pos2_font = new float[kMaxGlyphsPerString*6*2];
-			g.mVB_Tex2_font = new float[kMaxGlyphsPerString*6*2];
+		if (g_mVB_Pos_font == null) {
+			g_mVB_Pos_font = MakeGlFloatBuffer(gl,[],gl.STATIC_DRAW);
+			g_mVB_Tex_font = MakeGlFloatBuffer(gl,[],gl.STATIC_DRAW);
+			g_mVB_Pos2_font = [this.kMaxGlyphsPerString*6*2];
+			g_mVB_Tex2_font = [this.kMaxGlyphsPerString*6*2];
 		}
-		mVB_Pos = g.mVB_Pos_font; // TODO: memleak?  reuse/clear existing possible ? 
-		mVB_Tex = g.mVB_Tex_font;
-		mVB_Pos2 = g.mVB_Pos2_font;
-		mVB_Tex2 = g.mVB_Tex2_font;
+		this.mVB_Pos = g_mVB_Pos_font;
+		this.mVB_Tex = g_mVB_Tex_font;
+		this.mVB_Pos2 = g_mVB_Pos2_font;
+		this.mVB_Tex2 = g_mVB_Tex2_font;
 		
-		
-		
-		mBufferVertices = 0;
+		this.mBufferVertices = 0;
 	}
-	*/
 	
 	
 	this.addCharToBuffer  = function (c,draw_x,draw_y) { this.addCharToBufferS(c,draw_x,draw_y,1,1); }
@@ -260,24 +254,16 @@ function cLoveFont (caller_name,a,b) {
 		}
 	}
 	
-	/*
 	this.drawBuffer = function () {
-		if (mVB_Pos == null) { MainPrint(this.TAG,"drawBuffer:mVB_Pos = null"); return; }
-		if (mVB_Tex == null) { MainPrint(this.TAG,"drawBuffer:mVB_Tex = null"); return; }
-		if (g == null) { MainPrint(this.TAG,"drawBuffer:g = null"); return; }
-		GL10 gl = g.getGL();
-		if (gl == null) { MainPrint(this.TAG,"drawBuffer:gl = null"); return; }
-		if (img == null) { MainPrint(this.TAG,"drawBuffer:img = null"); return; }
-		// TODO: send geometry to ogre
-		//~ mVB_Pos.position(0); // set the buffer to read the first coordinate
-		//~ mVB_Tex.position(0); // set the buffer to read the first coordinate
-		LuanGraphics.LuanFillBuffer(mVB_Pos,mVB_Pos2,mBufferVertices*2);
-		LuanGraphics.LuanFillBuffer(mVB_Tex,mVB_Tex2,mBufferVertices*2);
-		g.setVertexBuffersToCustom(mVB_Pos,mVB_Tex);
-		gl.glBindTexture(GL10.GL_TEXTURE_2D, img.GetTextureID());
-		gl.glDrawArrays(GL10.GL_TRIANGLES, 0, mBufferVertices);
+		if (this.mVB_Pos == null) { MainPrint(this.TAG,"drawBuffer:mVB_Pos = null"); return; }
+		if (this.mVB_Tex == null) { MainPrint(this.TAG,"drawBuffer:mVB_Tex = null"); return; }
+		if (this.img == null) { MainPrint(this.TAG,"drawBuffer:img = null"); return; }
+		UpdateGlFloatBufferLen(gl,this.mVB_Pos,mVB_Pos2,mBufferVertices*2,gl.STATIC_DRAW);
+		UpdateGlFloatBufferLen(gl,this.mVB_Tex,mVB_Tex2,mBufferVertices*2,gl.STATIC_DRAW);
+		setVertexBuffersToCustom(this.mVB_Pos,this.mVB_Tex);
+		gl.bindTexture(gl.TEXTURE_2D, img.GetTextureID());
+		gl.drawArrays(gl.TRIANGLES, 0, this.mBufferVertices);
 	}
-	*/
 	
 	this.print = function (text, param_x, param_y, r, sx, sy) {
 		if (r != 0) NotImplemented("love.graphics.print !rotation!");
