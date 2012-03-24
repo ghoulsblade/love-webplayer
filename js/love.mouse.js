@@ -1,7 +1,8 @@
 var gMouseX = 0;
 var gMouseY = 0;
 var gMouseDown = [false, false, false];
-var gMouseButtonNames = ["left", "middle", "right"];
+var gMouseButtonNames = ["l", "m", "r"];
+// Sadly, no mousewheel events
 
 function Love_Mouse_Init(elementId)
 {
