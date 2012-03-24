@@ -9,6 +9,9 @@ var gLastLoadedLuaCode;
 var gPreloadImages = {};
 var gMainRunAfterPreloadFinished = false;
 var GamepadState = false;
+var gLoveConf = false;
+var gScreenWidth = 800;
+var gScreenHeight = 600;
 
 /// output in html, for fatal error messages etc, also users that don't have webdev console open can see them
 function MainPrintToHTMLConsole () {
@@ -308,7 +311,43 @@ function MainRunAfterPreloadFinished () {
 	window.setInterval("MainStep()", gFrameWait); // TODO: http://www.khronos.org/webgl/wiki/FAQ#What_is_the_recommended_way_to_implement_a_rendering_loop.3F
 	//~ window.requestAnimFrame(MainStep); // doesn't work ?
 
-	G = RunLuaFromPath("conf.lua"); // run main.lua
+	G = RunLuaFromPath("conf.lua"); // run conf.lua
+	gLoveConf = lua_newtable2({
+		title: "Untitled",
+		author: "Unnamed",
+		version: "0.7.2",
+		screen: lua_newtable2({
+			width: 800,
+			height: 600,
+			fullscreen: false,
+			vsync: true,
+			fsaa: 0,
+		}),
+		modules: lua_newtable2({
+			event: true,
+			keyboard: true,
+			mouse: true,
+			timer: true,
+			joystick: true,
+			image: true,
+			graphics: true,
+			audio: true,
+			physics: true,
+			sound: true,
+			font: true,
+			thread: true,
+		}),
+		console: false,
+		identity: false,
+	});
+	call_lua_function_safe("love.conf", [gLoveConf]);
+	if (gLoveConf.str["screen"])
+	{
+		if (gLoveConf.str["screen"].str["width"])
+			gScreenWidth = gLoveConf.str["screen"].str["width"];
+		if (gLoveConf.str["screen"].str["height"])
+			gScreenHeight = gLoveConf.str["screen"].str["height"];
+	}
 	RunLuaFromPath("main.lua"); // run main.lua
 	call_love_load(); // call love.load()
 }
