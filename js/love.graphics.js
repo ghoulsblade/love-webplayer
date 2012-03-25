@@ -89,6 +89,8 @@ function Love_Graphics_CreateTable (G) {
 		else	o.RenderSelf(x,y,r || 0.0,sx || 1.0,sy || 1.0,ox || 0.0,oy || 0.0);
 		return LuaNil;
 	}
+	// NOTE: setMode: var canvas = document.getElementById(gWebGLCanvasId);
+	// NOTE: setMode: if (canvas) { canvas.width = width; canvas.height = height; }
 	
 	t.str['setMode']			= function (width, height, fullscreen, vsync, fsaa)
 	{
