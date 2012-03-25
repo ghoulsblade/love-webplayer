@@ -1,8 +1,7 @@
 var gMouseX = 0;
 var gMouseY = 0;
-var gMouseDown = [false, false, false];
-var gMouseButtonNames = ["l", "m", "r"];
-// Sadly, no mousewheel events
+var gMouseDown = [false, false, false, false, false];
+var gMouseButtonNames = ["l", "m", "r", "wu", "wd"];
 
 function Love_Mouse_Init(elementId)
 {
@@ -31,6 +30,14 @@ function Love_Mouse_Init(elementId)
 	{
 		return false;
 	});
+	window.onmousewheel = function(ev)
+	{
+		var btn = 4;
+		if (ev.wheelDelta > 0)
+			btn = 3;
+		push_event("mousepressed", gMouseX, gMouseY, gMouseButtonNames[btn]);
+		push_event("mousereleased", gMouseX, gMouseY, gMouseButtonNames[btn]);
+	};
 }
 
 /// init lua api
