@@ -156,7 +156,10 @@ function Love_Graphics_CreateTable (G) {
 	t.str['getScissor']			= function () { return NotImplemented(pre+'getScissor'); }
 	
 	t.str['setBlendMode']		= function () { return NotImplemented(pre+'setBlendMode'); }
-	t.str['setCaption']			= function () { return NotImplemented(pre+'setCaption'); }
+	t.str['setCaption']			= function (caption)
+	{
+		document.title = caption;
+	}
 	t.str['setColorMode']		= function () { return NotImplemented(pre+'setColorMode'); }
 	t.str['setIcon']			= function () { return NotImplemented(pre+'setIcon'); }
 	t.str['setLine']			= function () { return NotImplemented(pre+'setLine'); }

@@ -364,6 +364,7 @@ function MainRunAfterPreloadFinished () {
 				[screen.width, screen.height, screen.fullscreen,
 				screen.vsync, screen.fsaa]);
 	}
+	call_lua_function("love.graphics.setCaption", [gLoveConf.str["title"] || "LÖVE-webplayer"]);
 	RunLuaFromPath("main.lua"); // run main.lua
 	call_love_load(); // call love.load()
 }
