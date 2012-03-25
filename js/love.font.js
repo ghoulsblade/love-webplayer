@@ -54,7 +54,8 @@ function GlyphInfo (w,movex,u0,u1) {
 
 function cLoveFont (caller_name,a,b) {
 	this.TAG = "love.graphics.font";
-	this.kMaxGlyphsPerString = 1024;
+	this.kMaxGlyphsPerString = 1024*8; // limit not really needed in webgl, keep code for porting code to other platforms
+	this.kMaxVerticesPerString = this.kMaxGlyphsPerString * 6;
 	
 	this.w_space = 0; // TODO: set from letter 'a' ? 
 	this.font_h = 12; // TODO: set from letter 'a' ? probably just the height of the whole image
@@ -226,12 +227,16 @@ function cLoveFont (caller_name,a,b) {
 	
 	this.prepareBuffer = function (maxglyphs) { this.prepareBuffer(maxglyphs,0); }
 	this.prepareBuffer = function (maxglyphs,fRotate) {
+		if (maxglyphs > this.kMaxGlyphsPerString) {
+			NotImplemented("font: really really long text");
+		}
+		
 		// alloc/resize float buffers
 		if (g_mVB_Pos_font == null) {
 			g_mVB_Pos_font = MakeGlFloatBuffer(gl,[],gl.DYNAMIC_DRAW);
 			g_mVB_Tex_font = MakeGlFloatBuffer(gl,[],gl.DYNAMIC_DRAW);
-			g_mVB_Pos2_font = [this.kMaxGlyphsPerString*6*2];
-			g_mVB_Tex2_font = [this.kMaxGlyphsPerString*6*2];
+			g_mVB_Pos2_font = [this.kMaxVerticesPerString*2];
+			g_mVB_Tex2_font = [this.kMaxVerticesPerString*2];
 		}
 		this.mVB_Pos = g_mVB_Pos_font;
 		this.mVB_Tex = g_mVB_Tex_font;
@@ -260,11 +265,12 @@ function cLoveFont (caller_name,a,b) {
 		var mVB_Tex2 = this.mVB_Tex2;
 		var mVB_Pos2 = this.mVB_Pos2;
 		
-		var i = this.mBufferVertices*2;
-		this.mBufferVertices += 6;
 		
 		// triangle1  lt-rt-lb
-		if (this.mBufferVertices < this.kMaxGlyphsPerString) {
+		if (this.mBufferVertices < this.kMaxVerticesPerString) {
+			var i = this.mBufferVertices*2;
+			this.mBufferVertices += 6;
+			
 			mVB_Tex2[i+0] = gi.u0; mVB_Pos2[i+0] = ax;
 			mVB_Tex2[i+1] = gi.v0; mVB_Pos2[i+1] = ay;
 			mVB_Tex2[i+2] = gi.u1; mVB_Pos2[i+2] = ax + vx_x;
@@ -283,6 +289,7 @@ function cLoveFont (caller_name,a,b) {
 	}
 	
 	this.drawBuffer = function () {
+		if (this.mBufferVertices == 0) return;
 		if (this.mVB_Pos == null) { MainPrint(this.TAG,"drawBuffer:mVB_Pos = null"); return; }
 		if (this.mVB_Tex == null) { MainPrint(this.TAG,"drawBuffer:mVB_Tex = null"); return; }
 		if (this.img == null) { MainPrint(this.TAG,"drawBuffer:img = null"); return; }
