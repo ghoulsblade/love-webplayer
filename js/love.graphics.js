@@ -314,7 +314,7 @@ function cLoveQuad (x, y, width, height, sw, sh) {
 		var		a;
 		if (this.bFlippedX) { a = u0; u0 = u1; u1 = a; }
 		if (this.bFlippedY) { a = v0; v0 = v1; v1 = a; }
-		UpdateGlFloatBuffer(gl,this.vb_Tex,[u0,v0, u1,v0, u0,v1, u1,v1],gl.STATIC_DRAW);
+		UpdateGlFloatBuffer(gl,this.vb_Tex,[u0,v0, u1,v0, u0,v1, u1,v1],gl.DYNAMIC_DRAW);
 	}
 	
 	this.setViewport = function (x,y,w,h) {
@@ -327,7 +327,7 @@ function cLoveQuad (x, y, width, height, sw, sh) {
 	
 	this.sw = sw;
 	this.sh = sh;
-	this.vb_Tex = MakeGlFloatBuffer(gl,[0,0, 10,0, 0,10, 10,10],gl.STATIC_DRAW);
+	this.vb_Tex = MakeGlFloatBuffer(gl,[0,0, 10,0, 0,10, 10,10],gl.DYNAMIC_DRAW);
 	this.setViewport(x,y,width,height);
 	
 	// TODO

@@ -32,7 +32,7 @@ function lua_load(chunk, chunkname) {
   eval(
     "fn = function " + (chunkname || "load") + "() {\n" +
     lua_parser.parse(chunk) + "\n" +
-    "  return G;\n" +
+    "  return G;\n" +// thanks to deltaflux, for finding the bug that revealed that this line was missing
     "};");
   return fn;
 }
@@ -119,7 +119,8 @@ var $0 = $$.length - 1;
 switch (yystate) {
 case 1:
     return "var tmp;\n" +
-      "G = G || lua_newtable2(lua_core);\n" + // added 2012-03 by ghoulsblade for love-webplayer
+      "if (G == undefined) {;\n" + // added 2012-03 by ghoulsblade for love-webplayer
+      "G = lua_newtable2(lua_core);\n" + // added 2012-03 by ghoulsblade for love-webplayer
       "for (var i in lua_libs) {\n" +
       "  G.str[i] = lua_newtable2(lua_libs[i]);\n" +
       "}\n" +
@@ -136,6 +137,7 @@ case 1:
       "    module.metatable = lua_newtable();\n" +
       "  }\n" +
       "  module.metatable.str['__index'] = G;\n" +
+      "};\n" +
       "};\n" +
 	  "LuaBootStrap(G);\n"+ // added 2012-03 by ghoulsblade for love-webplayer
       "{\n" +
@@ -978,135 +980,119 @@ case 3:return 54;
 break;
 case 4:return 54;
 break;
-case 5:return 55;
+case 5:return 54;
 break;
 case 6:return 55;
 break;
-case 7:yy_.yytext = longStringToString(yy_.yytext); return 55;
+case 7:return 55;
 break;
-case 8:return 42;
+case 8:yy_.yytext = longStringToString(yy_.yytext); return 55;
 break;
-case 9:return 14;
+case 9:return 42;
 break;
-case 10:return 20;
+case 10:return 14;
 break;
-case 11:return 22;
+case 11:return 20;
 break;
-case 12:return 83;
+case 12:return 22;
 break;
-case 13:return 84;
+case 13:return 83;
 break;
-case 14:return 78;
+case 14:return 84;
 break;
-case 15:return 79;
+case 15:return 78;
 break;
-case 16:return 60;
+case 16:return 79;
 break;
-case 17:return 61;
+case 17:return 60;
 break;
-case 18:return 62;
+case 18:return 61;
 break;
-case 19:return 63;
+case 19:return 62;
 break;
-case 20:return 65;
+case 20:return 63;
 break;
-case 21:return 64;
+case 21:return 65;
 break;
-case 22:return 71;
+case 22:return 64;
 break;
-case 23:return 25;
+case 23:return 71;
 break;
-case 24:return 72;
+case 24:return 25;
 break;
-case 25:return 69;
+case 25:return 72;
 break;
-case 26:return 70;
+case 26:return 69;
 break;
-case 27:return 67;
+case 27:return 70;
 break;
-case 28:return 68;
+case 28:return 67;
 break;
-case 29:return 76;
+case 29:return 68;
 break;
-case 30:return 37;
+case 30:return 76;
 break;
-case 31:return 77;
+case 31:return 37;
 break;
-case 32:return 66;
+case 32:return 77;
 break;
-case 33:return 53;
+case 33:return 66;
 break;
-case 34:return 75;
+case 34:return 53;
 break;
-case 35:return 73;
+case 35:return 75;
 break;
-case 36:return 74;
+case 36:return 73;
 break;
-case 37:return 56;
+case 37:return 74;
 break;
-case 38:return 57;
+case 38:return 56;
 break;
-case 39:return 59;
+case 39:return 57;
 break;
-case 40:return 39;
+case 40:return 59;
 break;
-case 41:return 33;
+case 41:return 39;
 break;
-case 42:return 29;
+case 42:return 33;
 break;
-case 43:return 30;
+case 43:return 29;
 break;
-case 44:return 31;
+case 44:return 30;
 break;
-case 45:return 34;
+case 45:return 31;
 break;
-case 46:return 51;
+case 46:return 34;
 break;
-case 47:return 50;
+case 47:return 51;
 break;
-case 48:return 48;
+case 48:return 50;
 break;
-case 49:return 36;
+case 49:return 48;
 break;
-case 50:return 27;
+case 50:return 36;
 break;
-case 51:return 32;
+case 51:return 27;
 break;
-case 52:return 38;
+case 52:return 32;
 break;
-case 53:return 45;
+case 53:return 38;
 break;
-case 54:return 46;
+case 54:return 45;
 break;
-case 55:return 43;
+case 55:return 46;
 break;
-case 56:return 7;
+case 56:return 43;
+break;
+case 57:return 7;
 break;
 }
 };
-lexer.rules = [/^\s+/,/^--\[\[(.|\n|\r)*?\]\]--/,/^--.*/,/^0x[0-9a-fA-f]+/,/^\d+(\.\d*)?([eE]-?\d+)?/,/^"([^\n]|(\.))*?"/,/^'([^\n]|(\.))*?'/,/^\[\[(.|\n|\r)*?\]\]/,/^:/,/^;/,/^\(/,/^\)/,/^\[/,/^\]/,/^\{/,/^\}/,/^\+/,/^-/,/^\*/,/^\//,/^%/,/^\^/,/^==/,/^=/,/^~=/,/^<=/,/^>=/,/^</,/^>/,/^#/,/^,/,/^\.\.\./,/^\.\./,/^\./,/^not\b/,/^and\b/,/^or\b/,/^true\b/,/^false\b/,/^nil\b/,/^function\b/,/^until\b/,/^do\b/,/^end\b/,/^while\b/,/^if\b/,/^then\b/,/^elseif\b/,/^else\b/,/^for\b/,/^local\b/,/^repeat\b/,/^in\b/,/^return\b/,/^break\b/,/^[a-zA-Z_][a-zA-Z0-9_]*/,/^$/];
-lexer.conditions = {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56],"inclusive":true}};return lexer;})()
+lexer.rules = [/^\s+/,/^--\[\[(.|\n|\r)*?\]\]/,/^--.*/,/^0x[0-9a-fA-f]+/,/^\d+(\.\d*)?([eE]-?\d+)?/,/^\.\d+([eE]-?\d+)?/,/^"(\\"|[^\"])*"/,/^'(\\'|[^'])*'/,/^\[\[(.|\n|\r)*?\]\]/,/^:/,/^;/,/^\(/,/^\)/,/^\[/,/^\]/,/^\{/,/^\}/,/^\+/,/^-/,/^\*/,/^\//,/^%/,/^\^/,/^==/,/^=/,/^~=/,/^<=/,/^>=/,/^</,/^>/,/^#/,/^,/,/^\.\.\./,/^\.\./,/^\./,/^not\b/,/^and\b/,/^or\b/,/^true\b/,/^false\b/,/^nil\b/,/^function\b/,/^until\b/,/^do\b/,/^end\b/,/^while\b/,/^if\b/,/^then\b/,/^elseif\b/,/^else\b/,/^for\b/,/^local\b/,/^repeat\b/,/^in\b/,/^return\b/,/^break\b/,/^[a-zA-Z_][a-zA-Z0-9_]*/,/^$/];
+lexer.conditions = {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57],"inclusive":true}};return lexer;})()
 parser.lexer = lexer;
 return parser;
-})();
-if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
-exports.parser = lua_parser;
-exports.parse = function () { return lua_parser.parse.apply(lua_parser, arguments); }
-exports.main = function commonjsMain(args) {
-    if (!args[1])
-        throw new Error('Usage: '+args[0]+' FILE');
-    if (typeof process !== 'undefined') {
-        var source = require('fs').readFileSync(require('path').join(process.cwd(), args[1]), "utf8");
-    } else {
-        var cwd = require("file").path(require("file").cwd());
-        var source = cwd.join(args[1]).read({charset: "utf-8"});
-    }
-    return exports.parser.parse(source);
-}
-if (typeof module !== 'undefined' && require.main === module) {
-  exports.main(typeof process !== 'undefined' ? process.argv.slice(1) : require("system").args);
-}
-}/*
+})();/*
    Copyright 2011 Maximilian Herkender
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -1161,9 +1147,8 @@ function ensure_notarraymode(table) {
   }
 }
 
-function ReturnValues(vars, count) {
+function ReturnValues(vars) {
   this.vars = vars || [];
-  this.count = count || 1;
 }
 
 // methods used by generated lua code
@@ -1261,7 +1246,7 @@ function lua_rawcall(func, args) {
   try {
     return func.apply(null, args);
   } catch (e) {
-    if (e.constructor == ReturnValues && --e.count <= 0) {
+    if (e.constructor == ReturnValues) {
       return e.vars;
     }
     // This breaks the stack on Chrome
@@ -1637,7 +1622,7 @@ var lua_core = {
   },
   "pairs": function (table) {
     var props = [], i;
-    for (var i in table.str) {
+    for (i in table.str) {
       props.push(i);
     }
     if (table.arraymode) {
@@ -1648,14 +1633,14 @@ var lua_core = {
         }
       }
     } else {
-      for (var i in table.uints) {
+      for (i in table.uints) {
         props.push(parseFloat(i));
       }
     }
-    for (var i in table.floats) {
+    for (i in table.floats) {
       props.push(parseFloat(i));
     }
-    for (var i in table.bools) {
+    for (i in table.bools) {
       props.push(i === "true" ? true : false);
     }
 
@@ -1785,8 +1770,7 @@ var lua_core = {
     if (j == null) {
       j = list.length;
     }
-	return list.uints.slice(i - 1, j); // added 2012-03 by ghoulsblade for love-webplayer
-    //~ throw new ReturnValues(list.uints.slice(i - 1, j), 2);
+    throw new ReturnValues(list.uints.slice(i - 1, j));
   },
   "_VERSION": "Lua 5.1",
   "xpcall": function () {
@@ -1832,8 +1816,8 @@ _io["close"] = _io["input"] = _io["lines"] = _io["output"] = _io["popen"] = _io[
 };
 
 // math
-var max_num = 0x100000000;
-var seed = (Math.random() * max_num) & (max_num - 1);
+var mherkender_luajs_max = 0x100000000;
+var mherkender_luajs_seed = (Math.random() * mherkender_luajs_max) & (mherkender_luajs_max - 1);
 lua_libs["math"] = {
   "abs": function (x) {
     return [Math.abs(x)];
@@ -1921,18 +1905,18 @@ lua_libs["math"] = {
   "random": function (m, n) {
     // Based on the 32 bit mix function found here:
     // http://www.concentric.net/~Ttwang/tech/inthash.htm
-    seed = ~seed + (seed << 15); // seed = (seed << 15) - seed - 1;
-    seed = seed ^ (seed >>> 12);
-    seed = seed + (seed << 2);
-    seed = seed ^ (seed >>> 4);
-    seed = seed * 2057; // seed = (seed + (seed << 3)) + (seed << 11);
-    seed = seed ^ (seed >>> 16);
+    mherkender_luajs_seed = ~mherkender_luajs_seed + (mherkender_luajs_seed << 15); // seed = (seed << 15) - seed - 1;
+    mherkender_luajs_seed = mherkender_luajs_seed ^ (mherkender_luajs_seed >>> 12);
+    mherkender_luajs_seed = mherkender_luajs_seed + (mherkender_luajs_seed << 2);
+    mherkender_luajs_seed = mherkender_luajs_seed ^ (mherkender_luajs_seed >>> 4);
+    mherkender_luajs_seed = mherkender_luajs_seed * 2057; // seed = (seed + (seed << 3)) + (seed << 11);
+    mherkender_luajs_seed = mherkender_luajs_seed ^ (mherkender_luajs_seed >>> 16);
 
     var val;
-    if (seed < 0) {
-      val = ((seed + max_num) / max_num) % 1;
+    if (mherkender_luajs_seed < 0) {
+      val = ((mherkender_luajs_seed + mherkender_luajs_max) / mherkender_luajs_max) % 1;
     } else {
-      val = (seed / max_num) % 1;
+      val = (mherkender_luajs_seed / mherkender_luajs_max) % 1;
     }
 
     if (arguments.length >= 2) {
@@ -1947,7 +1931,7 @@ lua_libs["math"] = {
     }
   },
   "randomseed": function (x) {
-    seed = x & (max_num - 1);
+    mherkender_luajs_seed = x & (mherkender_luajs_max - 1);
   }
 };
 
@@ -1986,10 +1970,12 @@ lua_libs["os"] = {
   "setlocale": function () {
     not_supported();
   },
-  "time": function () {
-    // TODO
-	if (arguments.length == 0) return [new Date().getTime()]; // added 2012-03 by ghoulsblade for love-webplayer
-    not_supported();
+  "time": function (table) {
+    if (table) {
+      not_supported();
+    } else {
+      return [new Date().getTime()]; // thanks ghoulsblade
+    }
   }
 };
 
@@ -2114,15 +2100,23 @@ lua_libs["string"] = {
     }
   },
   "sub": function (s, i, j) {
-    if (i < 0) {
-      i = s.length + 1 + i;
-    }
+    // thanks to ghoulsblade for pointing out the bugs in string.sub
+    i = i < 0 ? (i + s.length + 1) : (i >= 0 ? i : 0)
     if (j == null) {
-      return [s.substring(i-1)];
-    } else if (j < 0) {
-      j = s.length + 1 + j;
+      j = -1;
     }
-    return [s.substring(i-1, j)];
+    j = j < 0 ? (j + s.length + 1) : (j >= 0 ? j : 0)
+    if (i < 1) {
+      i = 1;
+    }
+    if (j > s.length) {
+      j = s.length;
+    }
+    if (i <= j) {
+      return [s.substr(i - 1, j - i + 1)];
+    } else {
+      return [""];
+    }
   },
   "upper": function (s) {
     if (typeof s == "string") {
