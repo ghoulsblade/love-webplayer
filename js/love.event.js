@@ -6,6 +6,16 @@ function Love_Event_PollIterator()
 	return ev;
 }
 
+$(window).focus(function()
+{
+	push_event("focus", true);
+});
+
+$(window).blur(function()
+{
+	push_event("focus", false);
+});
+
 /// init lua api
 function Love_Event_CreateTable (G) {
 	var t = lua_newtable();
