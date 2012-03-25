@@ -31,7 +31,7 @@ function Love_Graphics_MakeFontHandle (o) {
 	
 	t.str['getHeight']			= function (t) { return [t._data.font_h]; }	// Gets the height of the Font in pixels.
 	t.str['getLineHeight']		= function (t) { return [t._data.line_h]; }	// Gets the line height.
-	t.str['getWidth']			= function (t,txt) { MainPrint("font.getWidth",t,txt); return [t._data.getLineW(txt)]; }	// Determines the horizontal size a line of text needs.
+	t.str['getWidth']			= function (t,txt) { return [t._data.getLineW(txt)]; }	// Determines the horizontal size a line of text needs.
 	t.str['getWrap']			= function (t) { NotImplemented(pre+'getWrap'); return [1]; }	// Returns how many lines text would be wrapped to.
 	t.str['setLineHeight']		= function (t,line_h) { t._data.line_h = line_h; }	// Sets the line height.
 	t.str['type']				= function (t) { return ["Font"]; }	// Gets the type of the object as a string.
