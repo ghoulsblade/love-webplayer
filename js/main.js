@@ -107,7 +107,7 @@ function LuaBootStrap (G) {
 }
 
 /// synchronous ajax to get file, so code executed before function returns
-function RunLuaFromPath (path) {
+function RunLuaFromPath (path, safe) {
 	if (gLoveExecutionHalted) return;
 	if (!lua_parser) {
 		throw new Error("Lua parser not available, perhaps you're not using the lua+parser.js version of the library?");
@@ -129,7 +129,8 @@ function RunLuaFromPath (path) {
 		var myfun = lua_load(luacode,temp_function_name); // parse code
 		return myfun(); // run code, returns _G
 	} catch (e) {
-		LoveFatalError("error during "+path+" : "+String(e)+" : "+PrepareExceptionStacktraceForOutput(e)); 
+		if (!safe)
+			LoveFatalError("error during "+path+" : "+String(e)+" : "+PrepareExceptionStacktraceForOutput(e)); 
 	}
 }
 
@@ -286,7 +287,7 @@ function GetPreLoadedImage (url) { return gPreloadImages[url]; }
 /// called on html-body onload event
 function MainOnLoad (preload_image_list) {
 	if (kDefaultImageFontURL) { if (!preload_image_list) preload_image_list = []; preload_image_list.push(kDefaultImageFontURL); } // preload default image font if available for this host
-	if (preload_image_list) {
+	if (preload_image_list && preload_image_list.length > 0) {
 		// preload images before starting, MainRunAfterPreloadFinished() will be called when all are done loading
 		for (k in preload_image_list) {
 			var url = preload_image_list[k];
@@ -325,7 +326,7 @@ function MainRunAfterPreloadFinished () {
 	window.setInterval("MainStep()", gFrameWait); // TODO: http://www.khronos.org/webgl/wiki/FAQ#What_is_the_recommended_way_to_implement_a_rendering_loop.3F
 	//~ window.requestAnimFrame(MainStep); // doesn't work ?
 
-	G = RunLuaFromPath("conf.lua"); // run conf.lua
+	G = RunLuaFromPath("conf.lua", true); // run conf.lua
 	gLoveConf = lua_newtable2({
 		title: "Untitled",
 		author: "Unnamed",

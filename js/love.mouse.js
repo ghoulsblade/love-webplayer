@@ -1,7 +1,7 @@
 var gMouseX = 0;
 var gMouseY = 0;
-var gMouseDown = [false, false, false];
-var gMouseButtonNames = ["left", "middle", "right"];
+var gMouseDown = [false, false, false, false, false];
+var gMouseButtonNames = ["l", "m", "r", "wu", "wd"];
 
 function Love_Mouse_Init(elementId)
 {
@@ -26,6 +26,18 @@ function Love_Mouse_Init(elementId)
 		gMouseDown[e.which-1] = false;
 		push_event("mousereleased", gMouseX, gMouseY, gMouseButtonNames[e.which-1]);
 	});
+	element.contextmenu(function()
+	{
+		return false;
+	});
+	window.onmousewheel = function(ev)
+	{
+		var btn = 4;
+		if (ev.wheelDelta > 0)
+			btn = 3;
+		push_event("mousepressed", gMouseX, gMouseY, gMouseButtonNames[btn]);
+		push_event("mousereleased", gMouseX, gMouseY, gMouseButtonNames[btn]);
+	};
 }
 
 /// init lua api
