@@ -5,7 +5,6 @@ var shaderProgram;
 var gMaterialColor = [1,1,1,1];
 var mFont;
 var mDefaultFont;
-var LuaNil = [];
 
 /// called on startup after pageload
 function Love_Graphics_Init (id_canvas) {
