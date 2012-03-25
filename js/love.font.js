@@ -62,16 +62,21 @@ function cLoveFont (caller_name,a,b) {
 	
 	this.prepareImgForGetPixel = function (img) {
 		var newCanvas = document.createElement('canvas');
+		newCanvas.width = img.width;
+		newCanvas.height = img.height;
 		var context = newCanvas.getContext('2d');
 		context.drawImage(img, 0, 0);
 		this.imgGetPixelContext = context;
+		//~ document.getElementById("output").appendChild(newCanvas);
 		// NOTE:getpixel : http://stackoverflow.com/questions/3528299/get-pixel-color-of-base64-png-using-javascript
 		// NOTE:getpixel : http://stackoverflow.com/questions/1041399/how-to-use-javascript-or-jquery-to-read-a-pixel-of-an-image
 		// NOTE:getpixel : http://stackoverflow.com/questions/4154223/get-pixel-from-bitmap
 	}
 	this.getPixel = function(x,y) { 
 		var data = this.imgGetPixelContext.getImageData(x, y, 1, 1).data; 
-		return data ? (data[0] + 256*(data[1] + 256*(data[2] + 256*data[3]))) : 0;
+		//~ if (x == 0 && y == 0) MainPrint("font pixel0,0=",this.img.path,typeof data,data);
+		//~ return data ? (data[0] + 256*(data[1] + 256*(data[2] + 256*data[3]))) : 0;
+		return data ? (data[0] + 256*(data[1] + 256*(data[2]))) : 0;
 	}
 
 	/// constructor
@@ -155,7 +160,6 @@ function cLoveFont (caller_name,a,b) {
 		The width of the separator areas affect the spacing of the font glyphs. It is possible to have more areas in the image than are required for the font in the love.graphics.newImageFont() call. The extra areas are ignored. 
 		*/
 		var col = this.getPixel(0,0);
-		MainPrint("font pixel0,0=",typeof col,col);
 		var x = 0;
 		var imgw = img.getWidth();
 		this.font_h = img.getHeight();
