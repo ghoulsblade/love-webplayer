@@ -2115,14 +2115,14 @@ lua_libs["string"] = {
   },
   "sub": function (s, i, j) {
     if (i < 0) {
-      i = s.length + 1 - i;
+      i = s.length + 1 + i;
     }
     if (j == null) {
-      return [s.substring(i)];
+      return [s.substring(i-1)];
     } else if (j < 0) {
-      j = s.length + 1 - j;
+      j = s.length + 1 + j;
     }
-    return [s.substring(i, j)];
+    return [s.substring(i-1, j)];
   },
   "upper": function (s) {
     if (typeof s == "string") {
