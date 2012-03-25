@@ -1,15 +1,13 @@
 // see also love.render.js
 var gl;
-var gWebGLCanvasId;
 var shaderProgram;
 var gMaterialColor = [1,1,1,1];
 var mFont;
 var mDefaultFont;
 
 /// called on startup after pageload
-function Love_Graphics_Init (id_canvas) {
-	gWebGLCanvasId = id_canvas;
-	canvas = document.getElementById(id_canvas);
+function Love_Graphics_Init () {
+	canvas = document.getElementById(gWebGLCanvasId);
 	initWebGL(canvas);      // Initialize the GL context  
 	if (!gl) return; // WebGL available and working  
 	LoveRender_Init();
@@ -92,7 +90,18 @@ function Love_Graphics_CreateTable (G) {
 		return LuaNil;
 	}
 	
-	t.str['setMode']			= function (width, height, fullscreen, vsync, fsaa) { MainPrint("setMode",width, height, fullscreen||false, (vsync == undefined)?true:vsync, fsaa||0); return NotImplemented(pre+'setMode'); }
+	t.str['setMode']			= function (width, height, fullscreen, vsync, fsaa)
+	{
+		gScreenWidth = width || gScreenWidth;
+		gScreenHeight = height || gScreenHeight;
+		var canvas = document.getElementById(gWebGLCanvasId);
+		if (canvas)
+		{
+			canvas.width = gScreenWidth;
+			canvas.height = gScreenHeight;
+		}
+		MainPrint("setMode",width, height, fullscreen||false, (vsync == undefined)?true:vsync, fsaa||0); return NotImplemented(pre+'setMode');
+	}
 	
 	// TODO : "newImage" overloads
 	// TODO : "draw" overloads

@@ -13,6 +13,7 @@ var gLoveConf = false;
 var gScreenWidth = 800;
 var gScreenHeight = 600;
 var gNotImplementedAlreadyPrinted = {};
+var gWebGLCanvasId = "glcanvas";
 var LuaNil = [];
 var LuaNoParam = [];
 
@@ -316,17 +317,17 @@ function PreLoadImageFinishOne (url) {
 }
 
 function MainRunAfterPreloadFinished () {
-	var elementid = "glcanvas";
 	Love_Audio_Init();
-	Love_Graphics_Init(elementid);
-	Love_Mouse_Init(elementid);
+	Love_Graphics_Init();
+	Love_Mouse_Init();
 	// additional init functions should be called here
 	
 	// call MainStep() every frame
 	window.setInterval("MainStep()", gFrameWait); // TODO: http://www.khronos.org/webgl/wiki/FAQ#What_is_the_recommended_way_to_implement_a_rendering_loop.3F
 	//~ window.requestAnimFrame(MainStep); // doesn't work ?
 
-	G = RunLuaFromPath("conf.lua", true); // run conf.lua
+	G = lua_load("", "stub")();
+	RunLuaFromPath("conf.lua", true); // run conf.lua
 	gLoveConf = lua_newtable2({
 		title: "Untitled",
 		author: "Unnamed",
@@ -358,10 +359,10 @@ function MainRunAfterPreloadFinished () {
 	call_lua_function_safe("love.conf", [gLoveConf]);
 	if (gLoveConf.str["screen"])
 	{
-		if (gLoveConf.str["screen"].str["width"])
-			gScreenWidth = gLoveConf.str["screen"].str["width"];
-		if (gLoveConf.str["screen"].str["height"])
-			gScreenHeight = gLoveConf.str["screen"].str["height"];
+		var screen = gLoveConf.str["screen"].str;
+		call_lua_function("love.graphics.setMode",
+				[screen.width, screen.height, screen.fullscreen,
+				screen.vsync, screen.fsaa]);
 	}
 	RunLuaFromPath("main.lua"); // run main.lua
 	call_love_load(); // call love.load()
