@@ -13,6 +13,8 @@ var gLoveConf = false;
 var gScreenWidth = 800;
 var gScreenHeight = 600;
 var gNotImplementedAlreadyPrinted = {};
+var LuaNil = [];
+var LuaNoParam = [];
 
 /// output in html, for fatal error messages etc, also users that don't have webdev console open can see them
 function MainPrintToHTMLConsole () {
@@ -53,7 +55,7 @@ function NotImplemented (name) {
 		gNotImplementedAlreadyPrinted[name] = true;
 		MainPrint("NotImplemented:"+String(name)); 
 	}
-	return []; 
+	return LuaNil; 
 }
 
 /// called after lua code has finished loading and is about to be run, where environment has already been setup
@@ -206,7 +208,7 @@ function call_lua_function_safe(name, fargs)
 
 // love main callbacks, if you call them, please use these helpers for easier maintenance,error handling etc
 function call_love_load				(cmdline_args)		{ return call_love_callback_guarded('load',[cmdline_args]); }	// This function is called exactly once at the beginning of the game.
-function call_love_draw				()					{ return call_love_callback_guarded('draw',[]); }	// Callback function used to draw on the screen every frame.
+function call_love_draw				()					{ return call_love_callback_guarded('draw',LuaNoParam); }	// Callback function used to draw on the screen every frame.
 function call_love_update			(dt)				{ return call_love_callback_guarded('update',[dt]); }	// Callback function used to update the state of the game every frame.
 //function call_love_focus			(bHasFocus)			{ return call_love_callback_guarded('focus',[bHasFocus]); }	// Callback function triggered when window receives or loses focus.
 //function call_love_joystickpressed	(joystick, button)	{ return call_love_callback_guarded('joystickpressed',[joystick, button]); }	// Called when a joystick button is pressed.
@@ -216,7 +218,7 @@ function call_love_update			(dt)				{ return call_love_callback_guarded('update'
 //function call_love_mousepressed		(x, y, button)		{ return call_love_callback_guarded('mousepressed',[x, y, button]); }	// Callback function triggered when a mouse button is pressed.
 //function call_love_mousereleased	(x, y, button)		{ return call_love_callback_guarded('mousereleased',[x, y, button]); }	// Callback function triggered when a mouse button is released.
 //function call_love_quit				()					{ return call_love_callback_guarded('quit',[]); }	// Callback function triggered when the game is closed.
-function call_love_run				()					{ return call_love_callback_guarded('run',[]); }	// The main function, containing the main loop. A sensible default is used when left out.
+function call_love_run				()					{ return call_love_callback_guarded('run',LuaNoParam); }	// The main function, containing the main loop. A sensible default is used when left out.
 function push_event(eventname, a, b, c, d)
 {
 	call_lua_function("love.event.push", [eventname, a, b, c, d]);
@@ -239,13 +241,13 @@ function MainStep () {
 //	var t = MyGetTicks();
 //	gSecondsSinceLastFrame = min(1,(t - gMyTicks) / 1000.0);
 //	gMyTicks = t;
-	call_lua_function("love.timer.step", []);
+	call_lua_function("love.timer.step", LuaNoParam);
 	
 	Love_Graphics_Step_Start();
 	
 	// only call love functions if MainStep() has finished loading
 	if (G) {
-		var it = call_lua_function("love.event.poll", [])[0];
+		var it = call_lua_function("love.event.poll", LuaNoParam)[0];
 		var ev;
 		while ((ev = lua_call(it, [])))
 		{
@@ -253,7 +255,7 @@ function MainStep () {
 			ev.shift();
 			call_lua_function_safe("love."+ev_name, ev);
 		}
-		var res = call_lua_function("love.timer.getDelta", []);
+		var res = call_lua_function("love.timer.getDelta", LuaNoParam);
 		var dt = res[0];
 		if (Gamepad.supported)
 			GamepadState = Gamepad.getStates();

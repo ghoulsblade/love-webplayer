@@ -1637,7 +1637,7 @@ var lua_core = {
   },
   "pairs": function (table) {
     var props = [], i;
-    for (i in table.str) {
+    for (var i in table.str) {
       props.push(i);
     }
     if (table.arraymode) {
@@ -1648,14 +1648,14 @@ var lua_core = {
         }
       }
     } else {
-      for (i in table.uints) {
+      for (var i in table.uints) {
         props.push(parseFloat(i));
       }
     }
-    for (i in table.floats) {
+    for (var i in table.floats) {
       props.push(parseFloat(i));
     }
-    for (i in table.bools) {
+    for (var i in table.bools) {
       props.push(i === "true" ? true : false);
     }
 
@@ -2115,14 +2115,14 @@ lua_libs["string"] = {
   },
   "sub": function (s, i, j) {
     if (i < 0) {
-      i = s.length + 1 - i;
+      i = s.length + 1 + i;
     }
     if (j == null) {
-      return [s.substring(i)];
+      return [s.substring(i-1)];
     } else if (j < 0) {
-      j = s.length + 1 - j;
+      j = s.length + 1 + j;
     }
-    return [s.substring(i, j)];
+    return [s.substring(i-1, j)];
   },
   "upper": function (s) {
     if (typeof s == "string") {
