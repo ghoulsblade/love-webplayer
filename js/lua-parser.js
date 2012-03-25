@@ -119,7 +119,8 @@ var $0 = $$.length - 1;
 switch (yystate) {
 case 1:
     return "var tmp;\n" +
-      "G = G || lua_newtable2(lua_core);\n" + // added 2012-03 by ghoulsblade for love-webplayer
+      "if (G == undefined) {;\n" + // added 2012-03 by ghoulsblade for love-webplayer
+      "G = lua_newtable2(lua_core);\n" + // added 2012-03 by ghoulsblade for love-webplayer
       "for (var i in lua_libs) {\n" +
       "  G.str[i] = lua_newtable2(lua_libs[i]);\n" +
       "}\n" +
@@ -136,6 +137,7 @@ case 1:
       "    module.metatable = lua_newtable();\n" +
       "  }\n" +
       "  module.metatable.str['__index'] = G;\n" +
+      "};\n" +
       "};\n" +
 	  "LuaBootStrap(G);\n"+ // added 2012-03 by ghoulsblade for love-webplayer
       "{\n" +
