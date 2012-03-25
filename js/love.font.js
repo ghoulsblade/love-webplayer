@@ -1,4 +1,7 @@
-
+var kDefaultImageFontURL;
+if (window.location.host == "ghoulsblade.schattenkind.net") kDefaultImageFontURL = "http://ghoulsblade.schattenkind.net/love-webplayer/iyfct/gfx/imgfont.png";
+if (window.location.host == "localhost" && window.location.pathname.substring(0,16) == "/love-webplayer/") kDefaultImageFontURL = "http://localhost/love-webplayer/iyfct/gfx/imgfont.png";
+// otherwise : error:cross domain security. we'll have to canvas-draw sth.
 
 /// init lua api
 function Love_Font_CreateTable (G) {
@@ -80,30 +83,35 @@ function cLoveFont (caller_name,a,b) {
 	}
 
 	/// constructor
+	this.init_default_font = function (image_or_filename,glyphs) {
+		// TODO: "Vera Sans"  12 . but until ttf/canvas font stuff works, just use standard image font 
+		if (kDefaultImageFontURL) {
+			this.init_image_font(kDefaultImageFontURL," abcdefghijklmnopqrstuvwxyz0123456789.!'-:·");
+			this.bForceLowerCase = true;
+		}
+	}
+	
+	this.init_image_font = function (image_or_filename,glyphs) {
+		this.glyphs = glyphs;
+		var img;
+		if ((typeof image_or_filename) == "string")
+				img = new cLoveImage(image_or_filename);
+		else	img = image_or_filename._data;
+		this.prepareImgForGetPixel(img.tex.image);
+		this.init(img, glyphs);
+	}
+	
 	this.constructor = function (caller_name,a,b) {
 		if (caller_name == "initDefaultFont") {
-			// TODO: "Vera Sans"  12 . but until ttf/canvas font stuff works, just use standard image font 
-			//~ var kDefaultImageFontURL = "http://ghoulsblade.schattenkind.net/love-webplayer/iyfct/gfx/imgfont.png";		// error:cross domain security. we'll have to canvas-draw sth.
-			//~ var filename = kDefaultImageFontURL;
-			//~ var glyphs = " abcdefghijklmnopqrstuvwxyz0123456789.!'-:·";
-			//~ caller_name = "newImageFont";
-			//~ a = filename;
-			//~ b = glyphs;
-			//~ this.bForceLowerCase = true;
+			if (!kDefaultImageFontURL) MainPrint("warning:kDefaultImageFontURL not set for this hostname/path (needed for cross-domain image-load), default font disabled");
+			// otherwise : error:cross domain security. we'll have to canvas-draw sth.
+			this.init_default_font();
 		}
 		if (caller_name == "newImageFont") {
 			// font = love.graphics.newImageFont( image, glyphs )
 			// font = love.graphics.newImageFont( filename, glyphs )
 			// Creates a new font by loading a specifically formatted image.  : https://love2d.org/wiki/ImageFontFormat
-			var image_or_filename = a;
-			var glyphs = b;
-			this.glyphs = glyphs;
-			var img;
-			if ((typeof image_or_filename) == "string")
-					img = new cLoveImage(image_or_filename);
-			else	img = image_or_filename._data;
-			this.prepareImgForGetPixel(img.tex.image);
-			this.init(img, glyphs);
+			this.init_image_font(a,b);
 		} else if (caller_name == "newFont") {
 			// font = love.graphics.newFont( filename, size=12 )
 			// font = love.graphics.newFont( size=12 ) // This variant uses the default font (Vera Sans) with a custom size. 
@@ -117,6 +125,7 @@ function cLoveFont (caller_name,a,b) {
 				size = (a == undefined) ? 12 : a;
 			}
 			NotImplemented('love.graphics.newFont (ttf)');
+			this.init_default_font(); // fallback
 		}
 	}
 	

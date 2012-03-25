@@ -285,6 +285,7 @@ function GetPreLoadedImage (url) { return gPreloadImages[url]; }
 
 /// called on html-body onload event
 function MainOnLoad (preload_image_list) {
+	if (kDefaultImageFontURL) { if (!preload_image_list) preload_image_list = []; preload_image_list.push(kDefaultImageFontURL); } // preload default image font if available for this host
 	if (preload_image_list) {
 		// preload images before starting, MainRunAfterPreloadFinished() will be called when all are done loading
 		for (k in preload_image_list) {
