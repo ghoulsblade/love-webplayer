@@ -16,6 +16,10 @@ $(window).blur(function()
 	push_event("focus", false);
 });
 
+window.onbeforeunload = function() {
+	call_lua_function_safe("love.quit", []);
+};
+
 /// init lua api
 function Love_Event_CreateTable (G) {
 	var t = lua_newtable();
