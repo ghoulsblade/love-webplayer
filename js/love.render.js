@@ -24,7 +24,7 @@ var mFB_BasicGeo = [];
 function LoveRender_Init () {
 	spriteVB_Tex = MakeGlFloatBuffer(gl,spriteTexFloats,gl.STATIC_DRAW);
 	spriteVB_Pos = MakeGlFloatBuffer(gl,spritePosFloats,gl.STATIC_DRAW);
-	var arr = []; for (i=0;i<kMaxBasicGeoVertices*2;++i) arr[i] = 0;
+	var arr = []; for (var i=0;i<kMaxBasicGeoVertices*2;++i) arr[i] = 0;
 	mVB_BasicGeo_TexCoord = MakeGlFloatBuffer(gl,arr,gl.STATIC_DRAW);
 	mVB_BasicGeo = MakeGlFloatBuffer(gl,arr,gl.STATIC_DRAW);
 	bLoveRenderInitDone = true;
@@ -160,7 +160,7 @@ function renderRectangle(mode, x, y, w, h) {
 
 function renderCircle(mode, x, y, radius, segments ) {
 	BasicGeo_Prepare(segments);
-	for (i=0;i<segments;++i) {
+	for (var i=0;i<segments;++i) {
 		var ang = Math_PI * 2 * (i) / (segments);
 		var x1 = x + radius * sin(ang);
 		var y1 = y + radius * cos(ang);
@@ -189,11 +189,11 @@ function renderTriangle(mode, x1, y1, x2, y2, x3, y3) {
 function renderPolygon(mode,arr) {
 	if (mode == DrawMode.FILL) {
 		BasicGeo_Prepare(arr.length/2);
-		for (i=0;i<2*(arr.length/2);i+=2) BasicGeo_Vertex(arr[i],arr[i+1]);
+		for (var i=0;i<2*(arr.length/2);i+=2) BasicGeo_Vertex(arr[i],arr[i+1]);
 		BasicGeo_Draw(gl.TRIANGLE_FAN);
 	} else {
 		BasicGeo_Prepare(arr.length/2+1);
-		for (i=0;i<2*(arr.length/2);i+=2) BasicGeo_Vertex(arr[i],arr[i+1]);
+		for (var i=0;i<2*(arr.length/2);i+=2) BasicGeo_Vertex(arr[i],arr[i+1]);
 		BasicGeo_Vertex(arr[0],arr[1]);
 		BasicGeo_Draw(gl.LINE_STRIP);
 	}
@@ -220,7 +220,7 @@ function renderQuad(mode, x1, y1, x2, y2, x3, y3, x4, y4) {
 
 function renderPolyLine(arr) {
 	BasicGeo_Prepare(arr.length/2);
-	for (i=0;i<2*(arr.length/2);i+=2) BasicGeo_Vertex(arr[i],arr[i+1]);
+	for (var i=0;i<2*(arr.length/2);i+=2) BasicGeo_Vertex(arr[i],arr[i+1]);
 	BasicGeo_Draw(gl.LINE_STRIP);
 }
 

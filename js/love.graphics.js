@@ -3,6 +3,9 @@ var gl;
 var gWebGLCanvasId;
 var shaderProgram;
 var gMaterialColor = [1,1,1,1];
+var mFont;
+var mDefaultFont;
+var LuaNil = [];
 
 /// called on startup after pageload
 function Love_Graphics_Init (id_canvas) {
@@ -14,7 +17,13 @@ function Love_Graphics_Init (id_canvas) {
 	MyCheckGLError();
 	MainInitScene();
 	MyCheckGLError();
+	
+	mDefaultFont = new cLoveFont("initDefaultFont");
+	mFont = mDefaultFont;
+	MyCheckGLError();
 }
+
+function MyDefault (x,def) { return (x == undefined) ? def : x; }
 
 /// init lua api
 function Love_Graphics_CreateTable (G) {
@@ -44,8 +53,8 @@ function Love_Graphics_CreateTable (G) {
 	t.str['drawq']				= function (image, quad, x, y, r, sx, sy, ox, oy) {
 		var o = image._data;
 		var q = quad._data;
-		DrawSpriteQ(o.GetTextureID(),q,q.w,q.h,x,y,r||0,sx||1,(sy||sx)||1,ox||0,oy||0); 
-		return []; 
+		DrawSpriteQ(o.GetTextureID(),q,q.w,q.h,x,y,r||0,sx||1,(sy||sx)||1,ox||0,oy||0);
+		return LuaNil;
 	}
 	
 	// love.graphics.setBackgroundColor(r,g,b)
@@ -55,9 +64,10 @@ function Love_Graphics_CreateTable (G) {
 			r = rgb.uints[0];
 			g = rgb.uints[1];
 			b = rgb.uints[2];
-			a = (rgb.uints[3] == undefined) ? 255 : rgb.uints[3];
+			a = MyDefault(rgb.uints[3],255);
 		}
-		gl.clearColor(r/255.0, g/255.0, b/255.0, ((a == undefined)?255:a)/255.0); 
+		gl.clearColor(r/255.0, g/255.0, b/255.0, MyDefault(a,255)/255.0);
+		return LuaNil;
 	}
 	
 	// love.graphics.setColor(r,g,b,a)
@@ -68,9 +78,10 @@ function Love_Graphics_CreateTable (G) {
 			r = rgb.uints[0];
 			g = rgb.uints[1];
 			b = rgb.uints[2];
-			a = (rgb.uints[3] == undefined) ? 255 : rgb.uints[3];
+			a = MyDefault(rgb.uints[3],255);
 		}
-		setColor(r,g,b,a); 
+		setColor(r,g,b,a);
+		return LuaNil;
 	}
 	
 	//~ love.graphics.draw(drawable, x, y, r, sx, sy, ox, oy )
@@ -79,6 +90,7 @@ function Love_Graphics_CreateTable (G) {
 		if (o.IsImage())
 				DrawSprite(o.GetTextureID(),o.getWidth(),o.getHeight(),x,y,r || 0.0,sx || 1.0,sy || 1.0,ox || 0.0,oy || 0.0);
 		else	o.RenderSelf(x,y,r || 0.0,sx || 1.0,sy || 1.0,ox || 0.0,oy || 0.0);
+		return LuaNil;
 	}
 	
 	t.str['setMode']			= function (width, height, fullscreen, vsync, fsaa) { MainPrint("setMode",width, height, fullscreen||false, (vsync == undefined)?true:vsync, fsaa||0); return NotImplemented(pre+'setMode'); }
@@ -86,18 +98,18 @@ function Love_Graphics_CreateTable (G) {
 	// TODO : "newImage" overloads
 	// TODO : "draw" overloads
 	
-	t.str['rectangle']			= function (mode, x, y, w, h) { renderRectangle(mode, x, y, w, h); }
-	t.str['circle']				= function (mode, x, y, radius, segments) { renderCircle(mode, x, y, radius, segments || 10); }
-	t.str['triangle']			= function (mode, x1, y1, x2, y2, x3, y3) { renderTriangle(mode, x1, y1, x2, y2, x3, y3); }
-	t.str['polygon']			= function (mode) { renderPolygon(mode,arguments.slice(1)); }
-	t.str['quad']				= function (mode, x1, y1, x2, y2, x3, y3, x4, y4) { renderQuad(mode, x1, y1, x2, y2, x3, y3, x4, y4); }
-	t.str['line']				= function (x1, y1, x2, y2) { if (arguments.length > 4) renderPolyLine(arguments); else renderLine(x1, y1, x2, y2); }
-	t.str['point']				= function (x,y) { renderPoint(x, y); }
-	t.str['clear']				= function () { gl.clear(gl.COLOR_BUFFER_BIT); } // 	Clears the screen to background color.
+	t.str['rectangle']			= function (mode, x, y, w, h) { renderRectangle(mode, x, y, w, h); return LuaNil; }
+	t.str['circle']				= function (mode, x, y, radius, segments) { renderCircle(mode, x, y, radius, segments || 10); return LuaNil; }
+	t.str['triangle']			= function (mode, x1, y1, x2, y2, x3, y3) { renderTriangle(mode, x1, y1, x2, y2, x3, y3); return LuaNil; }
+	t.str['polygon']			= function (mode) { renderPolygon(mode,arguments.slice(1)); return LuaNil; }
+	t.str['quad']				= function (mode, x1, y1, x2, y2, x3, y3, x4, y4) { renderQuad(mode, x1, y1, x2, y2, x3, y3, x4, y4); return LuaNil; }
+	t.str['line']				= function (x1, y1, x2, y2) { if (arguments.length > 4) renderPolyLine(arguments); else renderLine(x1, y1, x2, y2); return LuaNil; }
+	t.str['point']				= function (x,y) { renderPoint(x, y); return LuaNil; }
+	t.str['clear']				= function () { gl.clear(gl.COLOR_BUFFER_BIT); return LuaNil; } // 	Clears the screen to background color.
 	
 	t.str['reset']				= function () { return NotImplemented(pre+'reset'); }
-	t.str['scale']				= function (sx,sy,sz) { GLModelViewScale(sx || 1,sy || 1,sz || 1); return []; }
-	t.str['translate']			= function (tx,ty,tz) { GLModelViewTranslate(tx || 0,ty || 0,tz || 0); return []; }
+	t.str['scale']				= function (sx,sy,sz) { GLModelViewScale(sx || 1,sy || 1,sz || 1); return LuaNil; }
+	t.str['translate']			= function (tx,ty,tz) { GLModelViewTranslate(tx || 0,ty || 0,tz || 0); return LuaNil; }
 	t.str['rotate']				= function () { return NotImplemented(pre+'rotate'); }
 	t.str['pop']				= function () { return NotImplemented(pre+'pop'); }
 	t.str['push']				= function () { return NotImplemented(pre+'push'); }
@@ -105,8 +117,10 @@ function Love_Graphics_CreateTable (G) {
 	t.str['getWidth']			= function () { return [gMyCanvasWidth]; }
 	t.str['getHeight']			= function () { return [gMyCanvasHeight]; }
 	
-	t.str['print']				= function () { return NotImplemented(pre+'print'); }
-	t.str['printf']				= function () { return NotImplemented(pre+'printf'); }
+	t.str['print']				= function (s, x, y, r, sx, sy)		{ if (mFont != null) mFont.print(s, x, y, r||0, sx||1, (sy||sx)||1 ); return LuaNil; }
+	t.str['printf']				= function (s, x, y, limit, align )	{ if (mFont != null) mFont.printf(s, x, y, limit, align || "left"); return LuaNil; }
+	t.str['setFont']			= function (x) { mFont = (x == undefined) ? mDefaultFont : x._data; return LuaNil; }
+	//~ t.str['setFont']			= function (x) { mFont = mDefaultFont; return LuaNil; }
 	
 	t.str['newFramebuffer']		= function () { return NotImplemented(pre+'newFramebuffer'); }
 	t.str['newParticleSystem']	= function () { return NotImplemented(pre+'newParticleSystem'); }
@@ -136,7 +150,6 @@ function Love_Graphics_CreateTable (G) {
 	t.str['setBlendMode']		= function () { return NotImplemented(pre+'setBlendMode'); }
 	t.str['setCaption']			= function () { return NotImplemented(pre+'setCaption'); }
 	t.str['setColorMode']		= function () { return NotImplemented(pre+'setColorMode'); }
-	t.str['setFont']			= function () { return NotImplemented(pre+'setFont'); }
 	t.str['setIcon']			= function () { return NotImplemented(pre+'setIcon'); }
 	t.str['setLine']			= function () { return NotImplemented(pre+'setLine'); }
 	t.str['setLineStipple']		= function () { return NotImplemented(pre+'setLineStipple'); }

@@ -1637,7 +1637,7 @@ var lua_core = {
   },
   "pairs": function (table) {
     var props = [], i;
-    for (i in table.str) {
+    for (var i in table.str) {
       props.push(i);
     }
     if (table.arraymode) {
@@ -1648,14 +1648,14 @@ var lua_core = {
         }
       }
     } else {
-      for (i in table.uints) {
+      for (var i in table.uints) {
         props.push(parseFloat(i));
       }
     }
-    for (i in table.floats) {
+    for (var i in table.floats) {
       props.push(parseFloat(i));
     }
-    for (i in table.bools) {
+    for (var i in table.bools) {
       props.push(i === "true" ? true : false);
     }
 
