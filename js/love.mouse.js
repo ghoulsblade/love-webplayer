@@ -3,9 +3,9 @@ var gMouseY = 0;
 var gMouseDown = [false, false, false, false, false];
 var gMouseButtonNames = ["l", "m", "r", "wu", "wd"];
 
-function Love_Mouse_Init(elementId)
+function Love_Mouse_Init()
 {
-	elementId = "#"+elementId;
+	var elementId = "#"+gWebGLCanvasId;
 	var element = $(elementId);
 	element.mousemove(function(e)
 	{
