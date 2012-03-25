@@ -1814,8 +1814,8 @@ _io["close"] = _io["input"] = _io["lines"] = _io["output"] = _io["popen"] = _io[
 };
 
 // math
-var max_num = 0x100000000;
-var seed = (Math.random() * max_num) & (max_num - 1);
+var mherkender_luajs_max = 0x100000000;
+var mherkender_luajs_seed = (Math.random() * mherkender_luajs_max) & (mherkender_luajs_max - 1);
 lua_libs["math"] = {
   "abs": function (x) {
     return [Math.abs(x)];
@@ -1903,18 +1903,18 @@ lua_libs["math"] = {
   "random": function (m, n) {
     // Based on the 32 bit mix function found here:
     // http://www.concentric.net/~Ttwang/tech/inthash.htm
-    seed = ~seed + (seed << 15); // seed = (seed << 15) - seed - 1;
-    seed = seed ^ (seed >>> 12);
-    seed = seed + (seed << 2);
-    seed = seed ^ (seed >>> 4);
-    seed = seed * 2057; // seed = (seed + (seed << 3)) + (seed << 11);
-    seed = seed ^ (seed >>> 16);
+    mherkender_luajs_seed = ~mherkender_luajs_seed + (mherkender_luajs_seed << 15); // seed = (seed << 15) - seed - 1;
+    mherkender_luajs_seed = mherkender_luajs_seed ^ (mherkender_luajs_seed >>> 12);
+    mherkender_luajs_seed = mherkender_luajs_seed + (mherkender_luajs_seed << 2);
+    mherkender_luajs_seed = mherkender_luajs_seed ^ (mherkender_luajs_seed >>> 4);
+    mherkender_luajs_seed = mherkender_luajs_seed * 2057; // seed = (seed + (seed << 3)) + (seed << 11);
+    mherkender_luajs_seed = mherkender_luajs_seed ^ (mherkender_luajs_seed >>> 16);
 
     var val;
-    if (seed < 0) {
-      val = ((seed + max_num) / max_num) % 1;
+    if (mherkender_luajs_seed < 0) {
+      val = ((mherkender_luajs_seed + mherkender_luajs_max) / mherkender_luajs_max) % 1;
     } else {
-      val = (seed / max_num) % 1;
+      val = (mherkender_luajs_seed / mherkender_luajs_max) % 1;
     }
 
     if (arguments.length >= 2) {
@@ -1929,7 +1929,7 @@ lua_libs["math"] = {
     }
   },
   "randomseed": function (x) {
-    seed = x & (max_num - 1);
+    mherkender_luajs_seed = x & (mherkender_luajs_max - 1);
   }
 };
 

@@ -66,6 +66,7 @@ function LuaBootStrap (G) {
 	G.str['love'] = lua_newtable();
 	
 	// callback defaults
+	// note : could maybe be done by lua_libs['love']['load'] = ...
 	G.str['love'].str['load']		= function () {};
 	G.str['love'].str['draw']		= function () {};
 	G.str['love'].str['update']		= function () {};
@@ -94,6 +95,7 @@ function LuaBootStrap (G) {
 	Love_Timer_CreateTable(G);
 	
 	// replace default lua.js require
+	// could also be done by lua_core["require"] = function () {...}
 	G.str['require'] = function (path) {
 		if (path.substr(-4) != ".lua") path += ".lua"; // require automatically appends .lua to the filepath
 		//~ MainPrint("require "+path);
