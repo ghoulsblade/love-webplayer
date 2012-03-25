@@ -219,8 +219,8 @@ function cLoveFont (caller_name,a,b) {
 	this.prepareBuffer = function (maxglyphs,fRotate) {
 		// alloc/resize float buffers
 		if (g_mVB_Pos_font == null) {
-			g_mVB_Pos_font = MakeGlFloatBuffer(gl,[],gl.STATIC_DRAW);
-			g_mVB_Tex_font = MakeGlFloatBuffer(gl,[],gl.STATIC_DRAW);
+			g_mVB_Pos_font = MakeGlFloatBuffer(gl,[],gl.DYNAMIC_DRAW);
+			g_mVB_Tex_font = MakeGlFloatBuffer(gl,[],gl.DYNAMIC_DRAW);
 			g_mVB_Pos2_font = [this.kMaxGlyphsPerString*6*2];
 			g_mVB_Tex2_font = [this.kMaxGlyphsPerString*6*2];
 		}
@@ -277,8 +277,8 @@ function cLoveFont (caller_name,a,b) {
 		if (this.mVB_Pos == null) { MainPrint(this.TAG,"drawBuffer:mVB_Pos = null"); return; }
 		if (this.mVB_Tex == null) { MainPrint(this.TAG,"drawBuffer:mVB_Tex = null"); return; }
 		if (this.img == null) { MainPrint(this.TAG,"drawBuffer:img = null"); return; }
-		UpdateGlFloatBufferLen(gl,this.mVB_Pos,this.mVB_Pos2,this.mBufferVertices*2,gl.STATIC_DRAW);
-		UpdateGlFloatBufferLen(gl,this.mVB_Tex,this.mVB_Tex2,this.mBufferVertices*2,gl.STATIC_DRAW);
+		UpdateGlFloatBufferLen(gl,this.mVB_Pos,this.mVB_Pos2,this.mBufferVertices*2,gl.DYNAMIC_DRAW);
+		UpdateGlFloatBufferLen(gl,this.mVB_Tex,this.mVB_Tex2,this.mBufferVertices*2,gl.DYNAMIC_DRAW);
 		setVertexBuffersToCustom(this.mVB_Pos,this.mVB_Tex);
 		gl.bindTexture(gl.TEXTURE_2D, this.img.GetTextureID());
 		gl.drawArrays(gl.TRIANGLES, 0, this.mBufferVertices);

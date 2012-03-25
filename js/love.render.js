@@ -22,11 +22,11 @@ var mFB_BasicGeo = [];
 //~ }
 
 function LoveRender_Init () {
-	spriteVB_Tex = MakeGlFloatBuffer(gl,spriteTexFloats,gl.STATIC_DRAW);
-	spriteVB_Pos = MakeGlFloatBuffer(gl,spritePosFloats,gl.STATIC_DRAW);
+	spriteVB_Tex = MakeGlFloatBuffer(gl,spriteTexFloats,gl.DYNAMIC_DRAW);
+	spriteVB_Pos = MakeGlFloatBuffer(gl,spritePosFloats,gl.DYNAMIC_DRAW);
 	var arr = []; for (var i=0;i<kMaxBasicGeoVertices*2;++i) arr[i] = 0;
-	mVB_BasicGeo_TexCoord = MakeGlFloatBuffer(gl,arr,gl.STATIC_DRAW);
-	mVB_BasicGeo = MakeGlFloatBuffer(gl,arr,gl.STATIC_DRAW);
+	mVB_BasicGeo_TexCoord = MakeGlFloatBuffer(gl,arr,gl.DYNAMIC_DRAW);
+	mVB_BasicGeo = MakeGlFloatBuffer(gl,arr,gl.DYNAMIC_DRAW);
 	bLoveRenderInitDone = true;
 }
 
@@ -80,7 +80,7 @@ function DrawSpriteAux	(iTextureID,vb_texcoords,w,h,x,y,r,sx,sy,ox,oy) {
 	spritePosFloats[3*2 + 0] = x0 + vx_x + vy_x;  
 	spritePosFloats[3*2 + 1] = y0 + vx_y + vy_y;  
 	
-	UpdateGlFloatBuffer(gl,spriteVB_Pos,spritePosFloats,gl.STATIC_DRAW);
+	UpdateGlFloatBuffer(gl,spriteVB_Pos,spritePosFloats,gl.DYNAMIC_DRAW);
 	
 	gl.bindTexture(gl.TEXTURE_2D, iTextureID);
 	setVertexBuffers_Aux(spriteVB_Pos,vb_texcoords);
@@ -114,7 +114,7 @@ function BasicGeo_Draw (mode) {
 	//~ assert(mi_BasicGeo_Vertices <= kMaxBasicGeoVertices);
 	if (!(mi_BasicGeo_Vertices <= kMaxBasicGeoVertices)) alert("BasicGeo_Draw : incomplete");
 	//~ MainPrint(mFB_BasicGeo.slice(0,mi_BasicGeo_Vertices*2));
-	UpdateGlFloatBufferLen(gl,mVB_BasicGeo,mFB_BasicGeo,mi_BasicGeo_Vertices*2,gl.STATIC_DRAW);
+	UpdateGlFloatBufferLen(gl,mVB_BasicGeo,mFB_BasicGeo,mi_BasicGeo_Vertices*2,gl.DYNAMIC_DRAW);
 	
 	gl.bindTexture(gl.TEXTURE_2D, null);
 	setVertexBuffersToCustom(mVB_BasicGeo,mVB_BasicGeo_TexCoord);
