@@ -28,7 +28,7 @@ function LoveFileList (url) {
 				var pathlist = gFilesystemEnumerateList[parentpath];
 				if (!pathlist) { pathlist = []; gFilesystemEnumerateList[parentpath] = pathlist; }
 				pathlist.push(basename);
-				gFilesystemEnumerateIsFile[path] = true; MainPrint("IsFile",path);
+				gFilesystemEnumerateIsFile[path] = true;
 				gFilesystemEnumerateIsDirectory[parentpath] = true;
 				gFilesystemEnumerateIsFile[parentpath] = false;
 			}
@@ -79,11 +79,11 @@ function Love_Filesystem_CreateTable (G) {
 	t.str['isDirectory']			= function (path) { return [LoveFS_isDir(path)]; }
 	t.str['isFile']					= function (path) { return [LoveFS_isFile(path)]; }
 	
-	t.str['getAppdataDirectory']	= function () { return NotImplemented(pre+'getAppdataDirectory'); }
 	t.str['getLastModified']		= function () { return NotImplemented(pre+'getLastModified'); }
-	t.str['getSaveDirectory']		= function () { return NotImplemented(pre+'getSaveDirectory'); }
-	t.str['getUserDirectory']		= function () { return NotImplemented(pre+'getUserDirectory'); }
-	t.str['getWorkingDirectory']	= function () { return NotImplemented(pre+'getWorkingDirectory'); }
+	t.str['getAppdataDirectory']	= function () { NotImplemented(pre+'getAppdataDirectory'); return [""]; }
+	t.str['getSaveDirectory']		= function () { NotImplemented(pre+'getSaveDirectory'); return [""]; }
+	t.str['getUserDirectory']		= function () { NotImplemented(pre+'getUserDirectory'); return [""]; }
+	t.str['getWorkingDirectory']	= function () { NotImplemented(pre+'getWorkingDirectory'); return [""]; }
 	t.str['init']					= function () { }
 	t.str['lines']					= function () { return NotImplemented(pre+'lines'); }
 	t.str['load']					= function (path) { return [function () { return RunLuaFromPath(path); }]; } // quick&dirty

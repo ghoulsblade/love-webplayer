@@ -16,4 +16,5 @@ known issues :
 ticket/issue at lua.js github : https://github.com/mherkender/lua.js/issues/5
 parser bug : clouds demo : parse error in keypressed :  >> love.filesystem.load("main.lua")() <<   workaround : >> (love.filesystem.load("main.lua"))() <<
 parser bug : sinescroller >> local mytext = "bla"  print(mytext:len()) <<  workaround >> print(string.len(mytext)) << 
+parser bug : >> print("\\") << workaround >> print(string.char(92)) <<
 
