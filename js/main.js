@@ -73,7 +73,10 @@ function LuaBootStrap (G) {
 	G.str['love'] = lua_newtable();
 	
 	if (gEnableLove080) {
+		// const int VERSION_MAJOR = 0; const int VERSION_MINOR = 8; const int VERSION_REV = 0;
 		G.str['love'].str['_version_major'] = 0; // 0.8.0 ... 0? or 8?
+		G.str['love'].str['_version_minor'] = 8;
+		G.str['love'].str['_version_rev'] = 0;
 	}
 	
 	// callback defaults
@@ -108,6 +111,8 @@ function LuaBootStrap (G) {
 	// replace default lua.js require
 	// could also be done by lua_core["require"] = function () {...}
 	G.str['require'] = function (path) {
+		if (path == "socket.http") { return LoveRequireSocketHTTP(); }
+		if (path == "shaders") { return LoveRequireShaders(); }
 		if (path.substr(-4) != ".lua") path += ".lua"; // require automatically appends .lua to the filepath
 		//~ MainPrint("require "+path);
 		RunLuaFromPath(path);
@@ -115,6 +120,22 @@ function LuaBootStrap (G) {
 		//~ throw ("'require' not yet implemented ("+path+")");
 		//~ lua_require(G, path);
 	};
+}
+
+// require "shaders"  mari0 main.lua... might be shaders/init.lua ? file_exists()
+function LoveRequireShaders () {
+	NotImplemented('require("shaders")');
+	return LuaNil;
+}
+
+// http = require("socket.http")
+function LoveRequireSocketHTTP () {
+	NotImplemented('require("socket.http")');
+	var t = lua_newtable()
+	var pre = "http.";
+	t.str['request'] = function () { return NotImplemented(pre+'request'); };
+	// http.request("http://bla")
+	return [t];
 }
 
 /// synchronous ajax to get file, so code executed before function returns
@@ -132,7 +153,7 @@ function RunLuaFromPath (path, safe) {
 		var luacode = gLastLoadedLuaCode;
 		
 		// check if download worked
-		if ((typeof luacode) != "string") { throw String("RunLuaFromPath failed '"+path+"' : tyep="+(typeof luacode)+" val="+String(luacode)); }
+		if ((typeof luacode) != "string") { throw String("RunLuaFromPath failed '"+path+"' : type="+(typeof luacode)+" val="+String(luacode)); }
 	
 		// construct temporary function name containing filepath for more useful error messages
 		var temp_function_name = "luatmp_"+path.replace(/[^a-zA-Z0-9]/g,"_");

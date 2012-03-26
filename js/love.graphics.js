@@ -173,6 +173,10 @@ function Love_Graphics_CreateTable (G) {
 	t.str['setRenderTarget']	= function () { return NotImplemented(pre+'setRenderTarget'); }
 	
 	t.str['setScissor']			= function (left, top, width, height) { setScissor(left, top, width, height); }
+	
+	if (gEnableLove080) {
+		t.str['setDefaultImageFilter']	= function () { return NotImplemented(pre+'setDefaultImageFilter'); }
+	}
 
 }
 
