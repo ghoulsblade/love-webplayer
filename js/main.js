@@ -365,6 +365,10 @@ function MainRunAfterPreloadFinished () {
 				screen.vsync, screen.fsaa]);
 	}
 	call_lua_function("love.graphics.setCaption", [gLoveConf.str["title"] || "LÖVE-webplayer"]);
+	var identity = gLoveConf.str["identity"];
+	if (!identity)
+		identity = document.location.pathname; // Base it on url
+	call_lua_function("love.filesystem.setIdentity", [identity]);
 	RunLuaFromPath("main.lua"); // run main.lua
 	call_love_load(); // call love.load()
 }
