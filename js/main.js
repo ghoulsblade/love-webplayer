@@ -16,6 +16,7 @@ var gNotImplementedAlreadyPrinted = {};
 var gWebGLCanvasId = "glcanvas";
 var LuaNil = [];
 var LuaNoParam = [];
+var gEnableLove080 = false;
 
 /// output in html, for fatal error messages etc, also users that don't have webdev console open can see them
 function MainPrintToHTMLConsole () {
@@ -59,12 +60,21 @@ function NotImplemented (name) {
 	return LuaNil; 
 }
 
+/// enable experimental love 0.8.0 api support (mari0 testing)
+function Love_Enable_Experimental_080 () {
+	gEnableLove080 = true;
+}
+
 /// called after lua code has finished loading and is about to be run, where environment has already been setup
 /// when calling the result from lua_load, LuaBootStrap is exectuted between lua environment setup and the parsed code
 function LuaBootStrap (G) {
 	//~ G.bla = (G.bla ? G.bla : 0) + 1; // check if G is preserved across multiple load_chunks
 	//~ MainPrint("LuaBootStrap called "+G.bla);
 	G.str['love'] = lua_newtable();
+	
+	if (gEnableLove080) {
+		G.str['love'].str['_version_major'] = 0; // 0.8.0 ... 0? or 8?
+	}
 	
 	// callback defaults
 	// note : could maybe be done by lua_libs['love']['load'] = ...
