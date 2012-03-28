@@ -19,3 +19,4 @@ parser bug : sinescroller >> local mytext = "bla"  print(mytext:len()) <<  worka
 parser bug : >> print("\\") << workaround >> print(string.char(92)) <<
 parser bug : >> local MyClass = {} function MyClass.somefun() end << workaround : remove local ? not always possible without changing the meaning of code
 parser bug : >> string.match("a","b") << not supported! needs implementation
+TODO : table.getn obsolete but available in love, used by a few love games.
