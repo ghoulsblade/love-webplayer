@@ -397,23 +397,23 @@ case 28:
   
 break;
 case 29:
-    var tmp;
-    tmp = "G";
-    for (var i = 0; i < $$[$0-1].length; i++) {
-      tmp += ".str['" + $$[$0-1][i] + "']";
+    var tmp = getLocal($$[$0-1][0], "G.str['" + $$[$0-1][0] + "']");
+    if ($$[$0-1].length > 1) {
+      for (var i = 1; i < $$[$0-1].length - 1; i++) {
+        tmp = "lua_tableget(" + tmp + ", '" + $$[$0-1][i] + "')";
+      }
+      this.$ = {simple_form: "lua_tableset(" + tmp + ", '" + $$[$0-1][i] + "', " + $$[$0] + ")"};
+    } else {
+      this.$ = {simple_form: tmp + " = " + $$[$0]};
     }
-    tmp += " = " + $$[$0] + ";";
-    this.$ = {simple_form: tmp};
   
 break;
 case 30:
-    var tmp;
-    tmp = "G";
-    for (var i = 0; i < $$[$0-3].length; i++) {
-      tmp += ".str['" + $$[$0-3][i] + "']";
+    var tmp = getLocal($$[$0-3][0], "G.str['" + $$[$0-3][0] + "']");
+    for (var i = 1; i < $$[$0-3].length; i++) {
+      tmp = "lua_tableget(" + tmp + ", '" + $$[$0-3][i] + "')";
     }
-    tmp += ".str['" + $$[$0-1] + "'] = " + $$[$0] + ";";
-    this.$ = {simple_form: tmp};
+    this.$ = {simple_form: "lua_tableset(" + tmp + ", '" + $$[$0-1] + "', " + $$[$0] + ")"};
   
 break;
 case 31:
@@ -1779,31 +1779,31 @@ var lua_core = {
 };
 
 // coroutine
-var _coroutine = lua_libs["coroutine"] = {};
-_coroutine["resume"] = _coroutine["running"] = _coroutine["status"] = _coroutine["wrap"] = _coroutine["yield"] = _coroutine["create"] = function () {
+var _lua_coroutine = lua_libs["coroutine"] = {};
+_lua_coroutine["resume"] = _lua_coroutine["running"] = _lua_coroutine["status"] = _lua_coroutine["wrap"] = _lua_coroutine["yield"] = _lua_coroutine["create"] = function () {
   not_supported();
 };
 
 // debug
-var _debug = lua_libs["debug"] = {
+var _lua_debug = lua_libs["debug"] = {
   "getmetatable": function (obj) {
     return [obj.metatable];
   }
 };
-_debug["traceback"] = _debug["getfenv"] = _debug["gethook"] = _debug["getinfo"] = _debug["getlocal"] = _debug["getregistry"] = _debug["getupvalue"] = _debug["setfenv"] = _debug["sethook"] = _debug["setlocal"] = _debug["setupvalue"] = _debug["debug"] = function () {
+_lua_debug["traceback"] = _lua_debug["getfenv"] = _lua_debug["gethook"] = _lua_debug["getinfo"] = _lua_debug["getlocal"] = _lua_debug["getregistry"] = _lua_debug["getupvalue"] = _lua_debug["setfenv"] = _lua_debug["sethook"] = _lua_debug["setlocal"] = _lua_debug["setupvalue"] = _lua_debug["debug"] = function () {
   not_supported();
 };
 
 // io
-var lua_write_buffer = "";
-var _io = lua_libs["io"] = {
+var _lua_write_buffer = "";
+var _lua_io = lua_libs["io"] = {
   "write": function () {
-    lua_write_buffer += Array.prototype.join.call(arguments, "");
-    var lines = lua_write_buffer.split("\n");
+    _lua_write_buffer += Array.prototype.join.call(arguments, "");
+    var lines = _lua_write_buffer.split("\n");
     while (lines.length > 1) {
-      lua_print(lines.shift());
+      _lua_print(lines.shift());
     }
-    lua_write_buffer = lines[0];
+    _lua_write_buffer = lines[0];
     return [];
   },
   "flush": function () {},// no-op
@@ -1811,13 +1811,13 @@ var _io = lua_libs["io"] = {
   "stdin": null,
   "stdout": null
 };
-_io["close"] = _io["input"] = _io["lines"] = _io["output"] = _io["popen"] = _io["read"] = _io["tmpfile"] = _io["type"] = _io["open"] = function () {
+_lua_io["close"] = _lua_io["input"] = _lua_io["lines"] = _lua_io["output"] = _lua_io["popen"] = _lua_io["read"] = _lua_io["tmpfile"] = _lua_io["type"] = _lua_io["open"] = function () {
   not_supported();
 };
 
 // math
-var mherkender_luajs_max = 0x100000000;
-var mherkender_luajs_seed = (Math.random() * mherkender_luajs_max) & (mherkender_luajs_max - 1);
+var _lua_randmax = 0x100000000;
+var _lua_randseed = (Math.random() * _lua_randmax) & (_lua_randmax - 1);
 lua_libs["math"] = {
   "abs": function (x) {
     return [Math.abs(x)];
@@ -1905,18 +1905,18 @@ lua_libs["math"] = {
   "random": function (m, n) {
     // Based on the 32 bit mix function found here:
     // http://www.concentric.net/~Ttwang/tech/inthash.htm
-    mherkender_luajs_seed = ~mherkender_luajs_seed + (mherkender_luajs_seed << 15); // seed = (seed << 15) - seed - 1;
-    mherkender_luajs_seed = mherkender_luajs_seed ^ (mherkender_luajs_seed >>> 12);
-    mherkender_luajs_seed = mherkender_luajs_seed + (mherkender_luajs_seed << 2);
-    mherkender_luajs_seed = mherkender_luajs_seed ^ (mherkender_luajs_seed >>> 4);
-    mherkender_luajs_seed = mherkender_luajs_seed * 2057; // seed = (seed + (seed << 3)) + (seed << 11);
-    mherkender_luajs_seed = mherkender_luajs_seed ^ (mherkender_luajs_seed >>> 16);
+    _lua_randseed = ~_lua_randseed + (_lua_randseed << 15); // _lua_randseed = (_lua_randseed << 15) - _lua_randseed - 1;
+    _lua_randseed = _lua_randseed ^ (_lua_randseed >>> 12);
+    _lua_randseed = _lua_randseed + (_lua_randseed << 2);
+    _lua_randseed = _lua_randseed ^ (_lua_randseed >>> 4);
+    _lua_randseed = _lua_randseed * 2057; // _lua_randseed = (_lua_randseed + (_lua_randseed << 3)) + (_lua_randseed << 11);
+    _lua_randseed = _lua_randseed ^ (_lua_randseed >>> 16);
 
     var val;
-    if (mherkender_luajs_seed < 0) {
-      val = ((mherkender_luajs_seed + mherkender_luajs_max) / mherkender_luajs_max) % 1;
+    if (_lua_randseed < 0) {
+      val = ((_lua_randseed + _lua_randmax) / _lua_randmax) % 1;
     } else {
-      val = (mherkender_luajs_seed / mherkender_luajs_max) % 1;
+      val = (_lua_randseed / _lua_randmax) % 1;
     }
 
     if (arguments.length >= 2) {
@@ -1931,18 +1931,18 @@ lua_libs["math"] = {
     }
   },
   "randomseed": function (x) {
-    mherkender_luajs_seed = x & (mherkender_luajs_max - 1);
+    _lua_randseed = x & (_lua_randmax - 1);
   }
 };
 
 // os
 // TODO: this should be different for each script, I think?
-var clock_start = (new Date()).getTime() / 1000;
+var _lua_clock_start = (new Date()).getTime() / 1000;
 lua_libs["os"] = {
   "clock": function () {
     // This function is supposed to return the time the script has been executing
     // not the time since it started, but I don't know of a way to do this.
-    return [(((new Date()).getTime()) / 1000) - clock_start];
+    return [(((new Date()).getTime()) / 1000) - _lua_clock_script];
   },
   "date": function (format, time) {
     // TODO
