@@ -85,8 +85,8 @@ function Love_Graphics_CreateTable (G) {
 	t.str['draw']		= function (drawable, x, y, r, sx, sy, ox, oy ) {
 		var o = drawable._data;
 		if (o.IsImage())
-				DrawSprite(o.GetTextureID(),o.getWidth(),o.getHeight(),x,y,r || 0.0,sx || 1.0,sy || 1.0,ox || 0.0,oy || 0.0);
-		else	o.RenderSelf(x,y,r || 0.0,sx || 1.0,sy || 1.0,ox || 0.0,oy || 0.0);
+				DrawSprite(o.GetTextureID(),o.getWidth(),o.getHeight(),x || 0,y || 0,r || 0.0,sx || 1.0,sy || 1.0,ox || 0.0,oy || 0.0);
+		else	o.RenderSelf(x || 0,y || 0,r || 0.0,sx || 1.0,sy || 1.0,ox || 0.0,oy || 0.0);
 		return LuaNil;
 	}
 	
