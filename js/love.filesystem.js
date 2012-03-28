@@ -15,10 +15,13 @@ function LoveFSNormalizePath (path) {
 /// newline separated file paths, e.g. linux commandline "find . > filelist.txt"
 function LoveFileList (url) {
 	MainPrint("LoveFileList",url);
+	MyProfileStart("LoveFileList:download:"+url);
 	UtilAjaxGet(url, function (contents) {
 		if (contents) {
 			gFilesystemEnumerateList = {};
+			MyProfileStart("LoveFileList:split:"+url);
 			var paths = contents.split("\n");
+			MyProfileStart("LoveFileList:analyze:"+url);
 			for (var i in paths) {
 				var path = LoveFSNormalizePath(paths[i]);
 				if (path == "" || path == "." || path == "..") continue;
@@ -32,6 +35,7 @@ function LoveFileList (url) {
 				gFilesystemEnumerateIsDirectory[parentpath] = true;
 				gFilesystemEnumerateIsFile[parentpath] = false;
 			}
+			MyProfileEnd();
 		}
 	}, true);
 }
@@ -90,7 +94,7 @@ function Love_Filesystem_CreateTable (G) {
 	t.str['mkdir']					= function () { return NotImplemented(pre+'mkdir'); }
 	t.str['newFile']				= function () { return NotImplemented(pre+'newFile'); }
 	t.str['newFileData']			= function () { return NotImplemented(pre+'newFileData'); }
-	t.str['read']					= function () { return NotImplemented(pre+'read (no LocalStorage)'); }
+	t.str['read']					= function () { return [LoveFS_readFile(filename)]; }
 	t.str['remove']					= function () { return NotImplemented(pre+'remove (no LocalStorage)'); }
 	t.str['setIdentity']			= function () { return NotImplemented(pre+'setIdentity (no LocalStorage)'); }
 	t.str['setSource']				= function () { return NotImplemented(pre+'setSource'); }
@@ -99,37 +103,34 @@ function Love_Filesystem_CreateTable (G) {
 	
 	if (localStorage)
 	{
-		t.str['write']					= function (filename, data)
+		t.str['write']					= function (path, data)
 		{
-			localStorage[gFilesystemPrefix+filename] = data;
-		}
-		t.str['read']                                   = function (filename)
-		{
-			return [LoveFS_readFile(filename)];
+			localStorage[gFilesystemPrefix+path] = data;
 		}
 		t.str['setIdentity']                            = function (identity)
 		{
 			if (identity)
 				gFilesystemPrefix = identity + "-";
 		}
-		t.str['remove']                                 = function (name)
+		t.str['remove']                                 = function (path)
 		{
-			localStorage.removeItem(gFilesystemPrefix+name);
+			localStorage.removeItem(gFilesystemPrefix+path);
 		}
-		t.str['load']                                   = function (name)
+		t.str['load']                                   = function (path)
 		{
-			var file = LoveFS_readFile(name);
+			var file = localStorage[gFilesystemPrefix+path];
 			if (file)
 			{
 				try
 				{
-					return [lua_load(file, name)];
+					return [lua_load(file, path)]; // TODO: probably not much used, but should use the same utils like RunLuaFromPath, e.g. error reporting,profiling etc
 				}
 				catch (e)
 				{
 					return [null, e.message];
 				}
 			}
+			return [function () { return RunLuaFromPath(path); }]; // quick&dirty
 		}
 	}
 }

@@ -17,6 +17,8 @@ var gWebGLCanvasId = "glcanvas";
 var LuaNil = [];
 var LuaNoParam = [];
 var gEnableLove080 = false;
+var kProfileReportIfTimeAbove = 1*1000; ///< msec
+var kProfileReportIfTimeAbove = 0.1*1000; ///< msec
 
 /// output in html, for fatal error messages etc, also users that don't have webdev console open can see them
 function MainPrintToHTMLConsole () {
@@ -150,7 +152,9 @@ function RunLuaFromPath (path, safe) {
 	try {
 		// download code via synchronous ajax... sjax? ;)
 		gLastLoadedLuaCode = false;
+		MyProfileStart("RunLuaFromPath:download:"+path);
 		UtilAjaxGet(path,function (luacode) { gLastLoadedLuaCode = luacode; },true);
+		MyProfileEnd();
 		var luacode = gLastLoadedLuaCode;
 		
 		// check if download worked
@@ -159,9 +163,15 @@ function RunLuaFromPath (path, safe) {
 		// construct temporary function name containing filepath for more useful error messages
 		var temp_function_name = "luatmp_"+path.replace(/[^a-zA-Z0-9]/g,"_");
 		
+		MyProfileStart("RunLuaFromPath:parse:"+path);
 		var myfun = lua_load(luacode,temp_function_name); // parse code
-		return myfun(); // run code, returns _G
+		MyProfileStart("RunLuaFromPath:run:"+path);
+		var res = myfun(); // run code, returns _G
+		MyProfileEnd();
+		return res;
 	} catch (e) {
+		MyProfileEnd();
+		// error during run, display infos as good as possible, lua-stacktrace would be cool here, but hard without line numbers
 		if (!safe)
 			LoveFatalError("error during "+path+" : "+String(e)+" : "+PrepareExceptionStacktraceForOutput(e)); 
 	}
@@ -315,6 +325,26 @@ if (false) {
 	})();
 }
 
+// ***** ***** ***** ***** ***** profiling
+
+var gProfileTitle;
+var gProfileStartT;
+/// measure time and report what takes long
+function MyProfileStart (title) {
+	MyProfileEnd();
+	gProfileTitle = title;
+	gProfileStartT = MyGetTicks();
+}
+function MyProfileEnd () {
+	if (!gProfileTitle) return;
+	var dt = MyGetTicks() - gProfileStartT;
+	if (dt >= kProfileReportIfTimeAbove) MainPrint("profile:"+dt+" msec: "+gProfileTitle);
+	gProfileTitle = null;
+	gProfileStartT = null;
+}
+
+// ***** ***** ***** ***** ***** MainOnLoad etc
+
 function GetPreLoadedImage (url) { return gPreloadImages[url]; }
 
 /// called on html-body onload event
@@ -402,5 +432,7 @@ function MainRunAfterPreloadFinished () {
 		identity = document.location.pathname; // Base it on url
 	call_lua_function("love.filesystem.setIdentity", [identity]);
 	RunLuaFromPath("main.lua"); // run main.lua
+	MyProfileStart("love.load");
 	call_love_load(); // call love.load()
+	MyProfileEnd();
 }
