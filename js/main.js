@@ -92,6 +92,7 @@ function LuaBootStrap (G) {
 	G.str['love'].str['mousepressed']	= function () {};
 	G.str['love'].str['mousereleased']	= function () {};
 	G.str['love'].str['quit']	= function () {};
+	G.str['table'].str['getn']	= function (t) { return [lua_len(t)]; }; ///< table.getn for backwards compatibility
 
 	// register love api functions
 	Love_Audio_CreateTable(G);
