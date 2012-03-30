@@ -36,6 +36,8 @@ function UtilAjaxGet (sQuery,callback,bSynchronous) {
 			//~ document.getElementById("output").innerHTML += "<br>"+"MyAjaxGet status="+String(this.status)+" statusText="+escape(String(this.statusText));
 			if (this.status==200) {
 				callback(this.responseText);
+			} else {
+				callback(null,this.status);
 			}
 		}
 	}

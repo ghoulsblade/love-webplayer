@@ -54,8 +54,19 @@ function LoveFilesystemEnumerate (path) {
 }
 
 function LoveFS_isDir (path) {
-	var res = gFilesystemEnumerateIsDirectory[LoveFSNormalizePath(path)] || (localStorage && (path.substr(path.length-1) == "/")); // Directory name
+	var res = gFilesystemEnumerateIsDirectory[LoveFSNormalizePath(path)] || LoveFS_localStore_isDir(path) || 
+		(!gFilesystemEnumerateList && path.substr(path.length-1) == "/"); // Directory name
 	return res == true;
+}
+
+// just testing regexp vs the string is not enough, ajax test
+function LoveFS_localStore_isDir (path) {
+	if (!localStorage) return false;
+	if (path.substr(path.length-1) != "/") return false;
+	for (spath in localStorage) {
+		if (spath.substr(0,path.length) == path) return true; // only true if one file inside matches the path
+	}
+	return false;
 }
 
 function LoveFS_isFile (path) {
@@ -70,6 +81,16 @@ function LoveFS_readFile (path) {
 	return file;
 }
 
+function LoveFS_exists (path) {
+	if (LoveFS_isFile(path) || LoveFS_isDir(path)) return true;
+	if (!gFilesystemEnumerateList) { // if we have no filelist.txt available, try to ajax-get the file to see if it exists
+		var res = false;
+		UtilAjaxGet(path, function (contents) { if (contents) res = true; }, true);
+		return res;
+	}
+	return false;
+}
+
 /// init lua api
 function Love_Filesystem_CreateTable (G) {
 	var t = lua_newtable();
@@ -79,7 +100,7 @@ function Love_Filesystem_CreateTable (G) {
 	
 	t.str['enumerate']				= function (path) { return LoveFilesystemEnumerate(path); }
 	
-	t.str['exists']					= function (path) { return [LoveFS_isFile(path) || LoveFS_isDir(path)]; }
+	t.str['exists']					= function (path) { return [LoveFS_exists(path)]; }
 	t.str['isDirectory']			= function (path) { return [LoveFS_isDir(path)]; }
 	t.str['isFile']					= function (path) { return [LoveFS_isFile(path)]; }
 	
@@ -94,7 +115,7 @@ function Love_Filesystem_CreateTable (G) {
 	t.str['mkdir']					= function () { return NotImplemented(pre+'mkdir'); }
 	t.str['newFile']				= function () { return NotImplemented(pre+'newFile'); }
 	t.str['newFileData']			= function () { return NotImplemented(pre+'newFileData'); }
-	t.str['read']					= function () { return [LoveFS_readFile(filename)]; }
+	t.str['read']					= function (path) { return [LoveFS_readFile(path)]; }
 	t.str['remove']					= function () { return NotImplemented(pre+'remove (no LocalStorage)'); }
 	t.str['setIdentity']			= function () { return NotImplemented(pre+'setIdentity (no LocalStorage)'); }
 	t.str['setSource']				= function () { return NotImplemented(pre+'setSource'); }

@@ -69,9 +69,11 @@ function Love_Enable_Experimental_080 () {
 
 /// called after lua code has finished loading and is about to be run, where environment has already been setup
 /// when calling the result from lua_load, LuaBootStrap is exectuted between lua environment setup and the parsed code
+
 function LuaBootStrap (G) {
 	//~ G.bla = (G.bla ? G.bla : 0) + 1; // check if G is preserved across multiple load_chunks
 	//~ MainPrint("LuaBootStrap called "+G.bla);
+	if (G.str['love'] != null) return; // bootstrap already done
 	G.str['love'] = lua_newtable();
 	
 	if (gEnableLove080) {
@@ -95,7 +97,7 @@ function LuaBootStrap (G) {
 	G.str['love'].str['mousereleased']	= function () {};
 	G.str['love'].str['quit']	= function () {};
 	G.str['table'].str['getn']	= function (t) { return [lua_len(t)]; }; ///< table.getn for backwards compatibility
-
+	
 	// register love api functions
 	Love_Audio_CreateTable(G);
 	Love_Event_CreateTable(G);
@@ -114,14 +116,19 @@ function LuaBootStrap (G) {
 	// replace default lua.js require
 	// could also be done by lua_core["require"] = function () {...}
 	G.str['require'] = function (path) {
+		// builtin libs
 		if (path == "socket.http") { return LoveRequireSocketHTTP(); }
-		if (path == "shaders") { return LoveRequireShaders(); }
-		if (path.substr(-4) != ".lua") path += ".lua"; // require automatically appends .lua to the filepath
-		//~ MainPrint("require "+path);
-		RunLuaFromPath(path);
-		//~ MainPrint("require done.");
-		//~ throw ("'require' not yet implemented ("+path+")");
-		//~ lua_require(G, path);
+		
+		// path transformations
+		if (path.substr(-4) == ".lua") path = path.slice(0, -4); // require automatically appends .lua to the filepath later, remove it here
+		path = path.replace(/\./g, "/");
+		
+		var initpath = path+"init.lua"; // require("shaders") -> shaders/init.lua 
+		if (LoveFS_exists(initpath)) 
+				RunLuaFromPath(initpath);
+		else	RunLuaFromPath(path + ".lua"); // require("bla") -> bla.lua
+		
+		//~ NOTE: replaces parser lib lua_require(G, path);
 	};
 }
 
