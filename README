@@ -24,3 +24,7 @@ parser bug : >>
 	<<  workaround :  >> local a,b = myfun()    arr = {a,b}  <<
 parser NotImplemented : >> string.match("a","b") << not supported! needs implementation
 parser NotImplemented : string.match,debug.backtrace,coroutines,...
+
+parser backslash-escape : print("\\") print("bla")		WORKS
+parser backslash-escape : print("\"") print("bla")		FAILS	workaround: print(""..string.char(34).."")
+
