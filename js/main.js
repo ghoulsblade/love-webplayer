@@ -91,8 +91,8 @@ function LuaOverrideLibs () {
 	
 	//~ Returns an iterator function that, each time it is called, returns the next captures from pattern over string s.
 	//~ If pattern specifies no captures, then the whole match is produced in each call.
-	lua_libs["string"]["gmatch"] = function (s, pattern) { return NotImplemented("string.gmatch"); }
-	lua_libs["string"]["gsub"] = function (s, pattern) { return NotImplemented("string.gsub"); }
+	//~ lua_libs["string"]["gmatch"] = function (s, pattern) { return NotImplemented("string.gmatch"); }
+	//~ lua_libs["string"]["gsub"] = function (s, pattern) { return NotImplemented("string.gsub"); }
 }
 
 /// called after lua code has finished loading and is about to be run, where environment has already been setup
