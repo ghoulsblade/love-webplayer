@@ -67,8 +67,37 @@ function Love_Enable_Experimental_080 () {
 	gEnableLove080 = true;
 }
 
+
+function LuaOverrideLibs () {
+	//~ string.match (s, pattern [, init])
+	//~ Looks for the first match of pattern in the string s. If it finds one, then match returns the captures from the pattern; otherwise it returns nil. 
+	//~ If pattern specifies no captures, then the whole match is returned. 
+	//~ A third, optional numerical argument init specifies where to start the search; its default value is 1 and may be negative. 
+	//~ lua_libs["string"]["match"] = function (s,pattern,init) {} -- idea: hard to transform regexp, try porting c code? 
+
+	//~ arr=s.match(regexp) apply regexp
+	//~ s2 = s.replace(regexp,replace_txt) apply regexp and replace
+	//~ pos = s.search(regexp) search with regexp  : return -1 if not found, otherwise pos of first match
+	//~ slice() get part of a string
+	// s.indexOf(char_or_string,optional_startindex) == -1
+	// http://de.selfhtml.org/javascript/objekte/regexp.htm
+	// luanote : set : a single character class followed by `-´, which also matches 0 or more repetitions of characters in the class. Unlike `*´, these repetition items will always match the shortest possible sequence; 
+	// luanote : %bxy, where x and y are two distinct characters; such item matches strings that start with x, end with y, and where the x and y are balanced. This means that, if one reads the string from left to right, counting +1 for an x and -1 for a y, the ending y is the first y where the count reaches 0. For instance, the item %b() matches expressions with balanced parentheses. 
+	
+	// probably best to 
+	
+	
+	//~ lua_libs["string"]["find"] = function (s,pattern,init) { ... }
+	
+	//~ Returns an iterator function that, each time it is called, returns the next captures from pattern over string s.
+	//~ If pattern specifies no captures, then the whole match is produced in each call.
+	lua_libs["string"]["gmatch"] = function (s, pattern) { return NotImplemented("string.gmatch"); }
+	lua_libs["string"]["gsub"] = function (s, pattern) { return NotImplemented("string.gsub"); }
+}
+
 /// called after lua code has finished loading and is about to be run, where environment has already been setup
 /// when calling the result from lua_load, LuaBootStrap is exectuted between lua environment setup and the parsed code
+
 
 function LuaBootStrap (G) {
 	//~ G.bla = (G.bla ? G.bla : 0) + 1; // check if G is preserved across multiple load_chunks
@@ -394,7 +423,8 @@ function MainRunAfterPreloadFinished () {
 	// call MainStep() every frame
 	window.setInterval("MainStep()", gFrameWait); // TODO: http://www.khronos.org/webgl/wiki/FAQ#What_is_the_recommended_way_to_implement_a_rendering_loop.3F
 	//~ window.requestAnimFrame(MainStep); // doesn't work ?
-
+	
+	LuaOverrideLibs();
 	G = lua_load("", "stub")();
 	RunLuaFromPath("conf.lua", true); // run conf.lua
 	gLoveConf = lua_newtable2({
