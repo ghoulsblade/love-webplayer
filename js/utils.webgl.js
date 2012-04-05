@@ -247,42 +247,33 @@ function cRenderable (gl,texture,arr_vertex,arr_index) {
 
 // ***** ***** ***** ***** ***** Matrix utility functions
 
-function matrixGetIdentity() { return [ 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 ]; }
+/// returns an independent copy of the 4x4 matrix
+function matrix4Clone(m) { return m.slice(0); }
 
-function matrixGetTranslateScale(tx,ty,tz, sx,sy,sz) { return [ sx,0,0,0, 0,sy,0,0, 0,0,sz,0, tx,ty,tz,1 ]; }
+/// returns a 4x4 identity matrix
+function matrix4GetIdentity() { return [ 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 ]; }
 
-function matrixScale(m,sx,sy,sz) {
-	m[0*4+0] *= sx;
-	m[1*4+1] *= sy;
-	m[2*4+2] *= sz;
+/// returns a 4x4 matrix with scale & translate
+function matrix4GetTranslateScale(tx,ty,tz, sx,sy,sz) { return [ sx,0,0,0, 0,sy,0,0, 0,0,sz,0, tx,ty,tz,1 ]; }
+
+/// modifies m  (m x n 4x4 matrix mult)
+function matrix4Mult(m,n) {
+	var o = matrix4Clone(m); // copy of old state
+	for (i=0;i<4;++i) for (j=0;j<4;++j) { sum = 0; for (c=0;c<4;++c) sum += o[i*4+c] * n[c*4+j]; m[i*4+j] = sum; }
 }
-function matrixTranslate(m,tx,ty,tz) {
-	m[3*4+0] += tx;
-	m[3*4+1] += ty;
-	m[3*4+2] += tz;
-}
-
-/*
-function loadIdentity() {
-  mvMatrix = Matrix.I(4);
-}
-
-function multMatrix(m) {
-  mvMatrix = mvMatrix.x(m);
-}
-
-function mvTranslate(v) {
-  multMatrix(Matrix.Translation($V([v[0], v[1], v[2]])).ensure4x4());
+	
+/// modifies m
+function matrix4Scale(m,sx,sy,sz) {
+	matrix4Mult(m,matrix4GetTranslateScale(0,0,0,sx,sy,sz));
+	//~ m[0*4+0] *= sx;
+	//~ m[1*4+1] *= sy;
+	//~ m[2*4+2] *= sz;
 }
 
-function setMatrixUniforms() {
-  //~ var pUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-  //~ gl.uniformMatrix4fv(pUniform, false, new WebGLFloatArray(perspectiveMatrix.flatten()));
-
-  //~ var mvUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
-  //~ gl.uniformMatrix4fv(mvUniform, false, new WebGLFloatArray(mvMatrix.flatten()));
-  
-  var mvUniform = gl.getUniformLocation(shaderProgram, "u_modelViewProjMatrix");
-  gl.uniformMatrix4fv(mvUniform, false, new WebGLFloatArray(mvMatrix.flatten()));
+/// modifies m
+function matrix4Translate(m,tx,ty,tz) {
+	matrix4Mult(m,matrix4GetTranslateScale(tx,ty,tz,1,1,1));
+	//~ m[3*4+0] += tx;
+	//~ m[3*4+1] += ty;
+	//~ m[3*4+2] += tz;
 }
-*/

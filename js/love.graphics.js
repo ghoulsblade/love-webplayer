@@ -492,26 +492,22 @@ function mvRotate(ang, v) {
 
 var gGLMatrix_ModelView;
 var gGLMatrix_Perspective;
+var gGLMatrix_Normals;
 
 function GLModelViewScale (sx,sy,sz) {
-	matrixScale(gGLMatrix_ModelView,sx,sy,sz);
+	matrix4Scale(gGLMatrix_ModelView,sx,sy,sz);
 	setMatrixUniforms();
 }
-
-
 
 function GLModelViewTranslate (tx,ty,tz) {
-	matrixTranslate(gGLMatrix_ModelView,tx,ty,tz);
+	matrix4Translate(gGLMatrix_ModelView,tx,ty,tz);
 	setMatrixUniforms();
 }
 
-function setMatrixUniforms() {
-    //~ gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, new Float32Array(pMatrix.flatten()));
-    //~ gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, new Float32Array(mvMatrix.flatten()));
-	
+function setMatrixUniforms() {	
 	gl.uniformMatrix4fv(shaderProgram.pMatrixUniform,  false, new Float32Array(gGLMatrix_Perspective)); // perspective
 	gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, new Float32Array(gGLMatrix_ModelView)); // modelview
-	gl.uniformMatrix4fv(shaderProgram.nMatrixUniform,  false, new Float32Array(matrixGetIdentity())); // normal (unused)
+	gl.uniformMatrix4fv(shaderProgram.nMatrixUniform,  false, new Float32Array(gGLMatrix_Normals)); // normal (unused)
 }
 
 function resetTransformMatrix	() {
@@ -526,8 +522,9 @@ function resetTransformMatrix	() {
 	//~ }
 	var w = gMyCanvasWidth;
 	var h = gMyCanvasHeight;
-	gGLMatrix_ModelView = matrixGetIdentity();
-	gGLMatrix_Perspective = matrixGetTranslateScale(-1.0,1.0,0.0, 2/w,-2/h,1);
+	gGLMatrix_ModelView = matrix4GetIdentity();
+	gGLMatrix_Perspective = matrix4GetTranslateScale(-1.0,1.0,0.0, 2/w,-2/h,1);
+	gGLMatrix_Normals = matrix4GetIdentity();
 	setMatrixUniforms();
 }
 
