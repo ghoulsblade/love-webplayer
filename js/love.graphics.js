@@ -116,12 +116,22 @@ function Love_Graphics_CreateTable (G) {
 	t.str['point']				= function (x,y) { renderPoint(x, y); return LuaNil; }
 	t.str['clear']				= function () { gl.clear(gl.COLOR_BUFFER_BIT); return LuaNil; } // 	Clears the screen to background color.
 	
-	t.str['reset']				= function () { return NotImplemented(pre+'reset'); }
+	t.str['reset']				= function () { 
+		//~ Calling reset makes the 
+		setColor(255,255,255,255); // current drawing color white, 
+		gl.clearColor(0,0,0,1); // the current background color black, 
+		// the window title empty 
+		setScissor();// and removes any scissor settings. 
+		// It sets the BlendMode to alpha and ColorMode to modulate. 
+		// It also sets both the point and line drawing modes to smooth and their sizes to 1.0 . 
+		// Finally, it removes any stipple settings. 
+		return NotImplemented(pre+'reset');
+	}
 	t.str['scale']				= function (sx,sy,sz) { GLModelViewScale(sx || 1,sy || 1,sz || 1); return LuaNil; }
 	t.str['translate']			= function (tx,ty,tz) { GLModelViewTranslate(tx || 0,ty || 0,tz || 0); return LuaNil; }
 	t.str['rotate']				= function () { return NotImplemented(pre+'rotate'); }
-	t.str['pop']				= function () { return NotImplemented(pre+'pop'); }
-	t.str['push']				= function () { return NotImplemented(pre+'push'); }
+	t.str['pop']				= function () { GLModelViewPop(); }
+	t.str['push']				= function () { GLModelViewPush(); }
 	
 	t.str['getWidth']			= function () { return [gMyCanvasWidth]; }
 	t.str['getHeight']			= function () { return [gMyCanvasHeight]; }
@@ -496,18 +506,31 @@ var gGLMatrix_Normals;
 
 function GLModelViewScale (sx,sy,sz) {
 	matrix4Scale(gGLMatrix_ModelView,sx,sy,sz);
-	setMatrixUniforms();
+	setMatrixUniforms_MV();
 }
 
 function GLModelViewTranslate (tx,ty,tz) {
 	matrix4Translate(gGLMatrix_ModelView,tx,ty,tz);
-	setMatrixUniforms();
+	setMatrixUniforms_MV();
+}
+
+var gLoveMatrix_Stack = [];
+function GLModelViewPush () { gLoveMatrix_Stack.push(gGLMatrix_ModelView); }
+function GLModelViewPop () {
+	if (gLoveMatrix_Stack.length <= 0) { MainPrint("ERROR: GLModelViewPop: stack empty"); return; }
+	var m = gLoveMatrix_Stack.pop();
+	matrixSet(gGLMatrix_ModelView,m);
+	setMatrixUniforms_MV();
+}
+
+function setMatrixUniforms_MV() {	
+	gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, new Float32Array(gGLMatrix_ModelView)); // modelview
 }
 
 function setMatrixUniforms() {	
+	setMatrixUniforms_MV();
 	gl.uniformMatrix4fv(shaderProgram.pMatrixUniform,  false, new Float32Array(gGLMatrix_Perspective)); // perspective
-	gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, new Float32Array(gGLMatrix_ModelView)); // modelview
-	gl.uniformMatrix4fv(shaderProgram.nMatrixUniform,  false, new Float32Array(gGLMatrix_Normals)); // normal (unused)
+	gl.uniformMatrix4fv(shaderProgram.nMatrixUniform,  false, new Float32Array(gGLMatrix_Normals)); // normal (unused) also when modelview?
 }
 
 function resetTransformMatrix	() {

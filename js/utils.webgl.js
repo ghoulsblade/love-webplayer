@@ -263,6 +263,12 @@ function matrix4Mult(m,n) {
 }
 
 /// modifies m
+function matrixSet(m,n) { for (var i=0;i<4*4;++i) m[i] = n[i]; }
+
+/// modifies m
+function matrix4SetIdentity(m) { for (var i=0;i<4;++i) for (var j=0;j<4;++j) m[i*4+j] = (i==j)?1:0; }
+
+/// modifies m
 function matrix4Scale(m,sx,sy,sz) {
 	// optimized version of: matrix4Mult(m,matrix4GetTranslateScale(0,0,0,sx,sy,sz));
 	m[0*4+0] *= sx; m[0*4+1] *= sy; m[0*4+2] *= sz;
