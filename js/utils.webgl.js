@@ -261,19 +261,55 @@ function matrix4Mult(m,n) {
 	var o = matrix4Clone(m); // copy of old state
 	for (var i=0;i<4;++i) for (var j=0;j<4;++j) { var sum = 0; for (var c=0;c<4;++c) sum += o[i*4+c] * n[c*4+j]; m[i*4+j] = sum; }
 }
-	
+
 /// modifies m
 function matrix4Scale(m,sx,sy,sz) {
-	matrix4Mult(m,matrix4GetTranslateScale(0,0,0,sx,sy,sz));
-	//~ m[0*4+0] *= sx;
-	//~ m[1*4+1] *= sy;
-	//~ m[2*4+2] *= sz;
+	// optimized version of: matrix4Mult(m,matrix4GetTranslateScale(0,0,0,sx,sy,sz));
+	m[0*4+0] *= sx; m[0*4+1] *= sy; m[0*4+2] *= sz;
+	m[1*4+0] *= sx; m[1*4+1] *= sy; m[1*4+2] *= sz;
+	m[2*4+0] *= sx; m[2*4+1] *= sy; m[2*4+2] *= sz;
+	m[3*4+0] *= sx; m[3*4+1] *= sy; m[3*4+2] *= sz;
 }
 
 /// modifies m
 function matrix4Translate(m,tx,ty,tz) {
-	matrix4Mult(m,matrix4GetTranslateScale(tx,ty,tz,1,1,1));
-	//~ m[3*4+0] += tx;
-	//~ m[3*4+1] += ty;
-	//~ m[3*4+2] += tz;
+	// optimized version of: matrix4Mult(m,matrix4GetTranslateScale(tx,ty,tz,1,1,1));
+	m[0*4+0] += tx; m[0*4+1] += ty; m[0*4+2] += tz;
+	m[1*4+0] += tx; m[1*4+1] += ty; m[1*4+2] += tz;
+	m[2*4+0] += tx; m[2*4+1] += ty; m[2*4+2] += tz;
+	m[3*4+0] += tx; m[3*4+1] += ty; m[3*4+2] += tz;
 }
+
+//	m[i*4+j]      	[  1, 0, 0, 0 ]  ---> j+
+//	              	[  0, 1, 0, 0 ]
+//	              	[  0, 0, 1, 0 ]
+//	              	[ tx,ty,tz, 1 ]
+//	[ o, o, o, o ] 
+//	[ o, o, o, o ]	
+//	[ o, o, o, o ]	
+//	[ o, o, o, o ]	
+//    |
+//   \|/ i		
+
+//~ m[0*4+0] = sum(c=0,4) o[0*4+c] * n[c*4+0]; // i=0 j=0
+//~ m[0*4+1] = sum(c=0,4) o[0*4+c] * n[c*4+1]; // i=0 j=1
+//~ m[0*4+2] = sum(c=0,4) o[0*4+c] * n[c*4+2]; // i=0 j=2
+//~ m[0*4+3] = sum(c=0,4) o[0*4+c] * n[c*4+3]; // i=0 j=3_
+									   
+//~ m[1*4+0] = sum(c=0,4) o[1*4+c] * n[c*4+0]; // i=1 j=0
+//~ m[1*4+1] = sum(c=0,4) o[1*4+c] * n[c*4+1]; // i=1 j=1
+//~ m[1*4+2] = sum(c=0,4) o[1*4+c] * n[c*4+2]; // i=1 j=2
+//~ m[1*4+3] = sum(c=0,4) o[1*4+c] * n[c*4+3]; // i=1 j=3_
+									   
+//~ m[2*4+0] = sum(c=0,4) o[2*4+c] * n[c*4+0]; // i=2 j=0
+//~ m[2*4+1] = sum(c=0,4) o[2*4+c] * n[c*4+1]; // i=2 j=1
+//~ m[2*4+2] = sum(c=0,4) o[2*4+c] * n[c*4+2]; // i=2 j=2
+//~ m[2*4+3] = sum(c=0,4) o[2*4+c] * n[c*4+3]; // i=2 j=3_
+									   
+//~ m[3*4+0] = sum(c=0,4) o[3*4+c] * n[c*4+0]; // i=3 j=0
+//~ m[3*4+1] = sum(c=0,4) o[3*4+c] * n[c*4+1]; // i=3 j=1
+//~ m[3*4+2] = sum(c=0,4) o[3*4+c] * n[c*4+2]; // i=3 j=2
+//~ m[3*4+3] = sum(c=0,4) o[3*4+c] * n[c*4+3]; // i=3 j=3
+
+
+
