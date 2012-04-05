@@ -15,16 +15,4 @@ lua-parser.js is a lua interpreter/converter in javascript from https://github.c
 known issues : 
 ticket/issue at lua.js github : https://github.com/mherkender/lua.js/issues/5
 parser bug : clouds demo : parse error in keypressed :  >> love.filesystem.load("main.lua")() <<   workaround : >> (love.filesystem.load("main.lua"))() <<
-parser bug : sinescroller >> local mytext = "bla"  print(mytext:len()) <<  workaround >> print(string.len(mytext)) << 
-parser bug : >> print("\\") << workaround >> print(string.char(92)) <<
-parser bug : >> 
-	function myfun () return "aa","bb" end
-	local arr = {myfun()}
-	print(arr[1],arr[2]) -- prints: aa null
-	<<  workaround :  >> local a,b = myfun()    arr = {a,b}  <<
-parser NotImplemented : >> string.match("a","b") << not supported! needs implementation
-parser NotImplemented : string.match,debug.backtrace,coroutines,...
-
-parser backslash-escape : print("\\") print("bla")		WORKS
-parser backslash-escape : print("\"") print("bla")		FAILS	workaround: print(""..string.char(34).."")
-
+parser NotImplemented : debug.backtrace,coroutines,...
