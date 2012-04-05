@@ -492,19 +492,16 @@ function mvRotate(ang, v) {
 
 var gGLMatrix_ModelView;
 var gGLMatrix_Perspective;
-function matrixGetIdentity() { return [ 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 ]; }
-function matrixGetSimple(tx,ty,tz, sx,sy,sz) { return [ sx,0,0,0, 0,sy,0,0, 0,0,sz,0, tx,ty,tz,1 ]; }
 
 function GLModelViewScale (sx,sy,sz) {
-	gGLMatrix_ModelView[0*4+0] *= sx;
-	gGLMatrix_ModelView[1*4+1] *= sy;
-	gGLMatrix_ModelView[2*4+2] *= sz;
+	matrixScale(gGLMatrix_ModelView,sx,sy,sz);
 	setMatrixUniforms();
 }
+
+
+
 function GLModelViewTranslate (tx,ty,tz) {
-	gGLMatrix_ModelView[3*4+0] += tx;
-	gGLMatrix_ModelView[3*4+1] += ty;
-	gGLMatrix_ModelView[3*4+2] += tz;
+	matrixTranslate(gGLMatrix_ModelView,tx,ty,tz);
 	setMatrixUniforms();
 }
 
@@ -530,8 +527,7 @@ function resetTransformMatrix	() {
 	var w = gMyCanvasWidth;
 	var h = gMyCanvasHeight;
 	gGLMatrix_ModelView = matrixGetIdentity();
-	//~ gGLMatrix_Perspective = matrixGetIdentity();
-	gGLMatrix_Perspective = matrixGetSimple(-1.0,1.0,0.0, 2/w,-2/h,1);
+	gGLMatrix_Perspective = matrixGetTranslateScale(-1.0,1.0,0.0, 2/w,-2/h,1);
 	setMatrixUniforms();
 }
 

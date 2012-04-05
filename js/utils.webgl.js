@@ -247,6 +247,21 @@ function cRenderable (gl,texture,arr_vertex,arr_index) {
 
 // ***** ***** ***** ***** ***** Matrix utility functions
 
+function matrixGetIdentity() { return [ 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 ]; }
+
+function matrixGetTranslateScale(tx,ty,tz, sx,sy,sz) { return [ sx,0,0,0, 0,sy,0,0, 0,0,sz,0, tx,ty,tz,1 ]; }
+
+function matrixScale(m,sx,sy,sz) {
+	m[0*4+0] *= sx;
+	m[1*4+1] *= sy;
+	m[2*4+2] *= sz;
+}
+function matrixTranslate(m,tx,ty,tz) {
+	m[3*4+0] += tx;
+	m[3*4+1] += ty;
+	m[3*4+2] += tz;
+}
+
 /*
 function loadIdentity() {
   mvMatrix = Matrix.I(4);
