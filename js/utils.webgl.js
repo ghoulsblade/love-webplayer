@@ -259,7 +259,7 @@ function matrix4GetTranslateScale(tx,ty,tz, sx,sy,sz) { return [ sx,0,0,0, 0,sy,
 /// modifies m  (m x n 4x4 matrix mult)
 function matrix4Mult(m,n) {
 	var o = matrix4Clone(m); // copy of old state
-	for (i=0;i<4;++i) for (j=0;j<4;++j) { sum = 0; for (c=0;c<4;++c) sum += o[i*4+c] * n[c*4+j]; m[i*4+j] = sum; }
+	for (var i=0;i<4;++i) for (var j=0;j<4;++j) { var sum = 0; for (var c=0;c<4;++c) sum += o[i*4+c] * n[c*4+j]; m[i*4+j] = sum; }
 }
 	
 /// modifies m
