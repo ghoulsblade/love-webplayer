@@ -46,7 +46,7 @@ do
 		-- to replace
 		s = string.gsub( s,"\\\n","\\n" )
 		s = string.gsub( s,"\r","\\r" )
-		s = string.gsub( s,string.char(26),'"'.."..string.char(26).."..'"' )
+		s = string.gsub( s,string.char(26),"\"..string.char(26)..\"" )
 		return s
 	end
 --// The Save Function
@@ -152,7 +152,7 @@ function table.load( sfile )
 	else
 		tables,err = loadfile( sfile )
 	end
-	if err then return _,err
+	if err then print("talo04err",err) return _,err
 	end
 	tables = tables()
 	for idx = 1,#tables do

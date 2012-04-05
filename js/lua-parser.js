@@ -1088,7 +1088,7 @@ case 57:return 7;
 break;
 }
 };
-lexer.rules = [/^\s+/,/^--\[\[(.|\n|\r)*?\]\]/,/^--.*/,/^0x[0-9a-fA-f]+/,/^\d+(\.\d*)?([eE]-?\d+)?/,/^\.\d+([eE]-?\d+)?/,/^"(\\\.|[^"])*"/,/^'(\\\.|[^'])*'/,/^\[\[(.|\n|\r)*?\]\]/,/^:/,/^;/,/^\(/,/^\)/,/^\[/,/^\]/,/^\{/,/^\}/,/^\+/,/^-/,/^\*/,/^\//,/^%/,/^\^/,/^==/,/^=/,/^~=/,/^<=/,/^>=/,/^</,/^>/,/^#/,/^,/,/^\.\.\./,/^\.\./,/^\./,/^not\b/,/^and\b/,/^or\b/,/^true\b/,/^false\b/,/^nil\b/,/^function\b/,/^until\b/,/^do\b/,/^end\b/,/^while\b/,/^if\b/,/^then\b/,/^elseif\b/,/^else\b/,/^for\b/,/^local\b/,/^repeat\b/,/^in\b/,/^return\b/,/^break\b/,/^[a-zA-Z_][a-zA-Z0-9_]*/,/^$/];
+lexer.rules = [/^\s+/,/^--\[\[(.|\n|\r)*?\]\]/,/^--.*/,/^0x[0-9a-fA-f]+/,/^\d+(\.\d*)?([eE]-?\d+)?/,/^\.\d+([eE]-?\d+)?/,/^"(\\.|[^"])*"/,/^'(\\.|[^'])*'/,/^\[\[(.|\n|\r)*?\]\]/,/^:/,/^;/,/^\(/,/^\)/,/^\[/,/^\]/,/^\{/,/^\}/,/^\+/,/^-/,/^\*/,/^\//,/^%/,/^\^/,/^==/,/^=/,/^~=/,/^<=/,/^>=/,/^</,/^>/,/^#/,/^,/,/^\.\.\./,/^\.\./,/^\./,/^not\b/,/^and\b/,/^or\b/,/^true\b/,/^false\b/,/^nil\b/,/^function\b/,/^until\b/,/^do\b/,/^end\b/,/^while\b/,/^if\b/,/^then\b/,/^elseif\b/,/^else\b/,/^for\b/,/^local\b/,/^repeat\b/,/^in\b/,/^return\b/,/^break\b/,/^[a-zA-Z_][a-zA-Z0-9_]*/,/^$/];
 lexer.conditions = {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57],"inclusive":true}};return lexer;})()
 parser.lexer = lexer;
 return parser;
@@ -2222,6 +2222,9 @@ lua_libs["string"] = {
     }
   }
 };
+
+// add string functions to every string
+String.prototype["metatable"] = lua_newtable(null, "__index", lua_newtable2(lua_libs["string"]));
 
 // table
 lua_libs["table"] = {

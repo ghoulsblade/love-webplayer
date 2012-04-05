@@ -337,8 +337,12 @@ function loadHighscore()
 		local data = love.filesystem.read("highscore")
 		if data ~=nil then
 			local datatable = table.load(data)
-			if #datatable == #highscore then
-				highscore = datatable
+			if (not datatable) then 
+				print("broken hiscore data=",data)
+			else 
+				if #datatable == #highscore then
+					highscore = datatable
+				end
 			end
 		end
 	end
