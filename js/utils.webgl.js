@@ -97,6 +97,15 @@ function doLoadImageTexture(gl, image, texture, bPixelArt)
     gl.bindTexture(gl.TEXTURE_2D, null);
 }
 
+function updateTextureParams (gl, iTexID, fmin,fmag,wraph,wrapv) {
+    gl.bindTexture(gl.TEXTURE_2D, iTexID);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, fmin);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, fmag);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wraph);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapv);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+}
+
 
 // ***** ***** ***** ***** ***** canvas resize 
 
@@ -280,7 +289,7 @@ function matrix4Scale(m,sx,sy,sz) {
 /// modifies m
 function matrix4Translate(m,tx,ty,tz) {
 	//~ matrix4Mult(m,matrix4GetTranslateScale(tx,ty,tz,1,1,1)); // optimized version below
-	//~ if (matrixPrintOptimizeMultOnce == null) { matrixPrintOptimizeMultOnce = true; matrixPrintOptimizeMult(matrix4GetTranslateScale("tx","ty","tz",1,1,1)); }
+	//~ matrixPrintOptimizeMult(matrix4GetTranslateScale("tx","ty","tz",1,1,1));
 	m[0*4+0] += m[0*4+3] * tx;
 	m[0*4+1] += m[0*4+3] * ty;
 	m[0*4+2] += m[0*4+3] * tz;

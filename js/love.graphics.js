@@ -264,7 +264,6 @@ gl.uniform1i(shaderProgram.useLightingUniform, lighting);
 
 // ***** ***** ***** ***** ***** cLoveImage
 
-
 function Love_Graphics_MakeImageHandle (o) {
 	var t = lua_newtable();
 	var pre = "love.graphics.image.";
@@ -273,10 +272,10 @@ function Love_Graphics_MakeImageHandle (o) {
 	t.str['getHeight']			= function (t) { return [t._data.getHeight		()]; }	// Returns the height of the Image.
 	t.str['getWidth']			= function (t) { return [t._data.getWidth		()]; }	// Returns the width of the Image.
 	
-	t.str['getFilter']			= function (t) { return NotImplemented(pre+'getFilter'); }	// Gets the filter mode for an image.
-	t.str['getWrap']			= function (t) { return NotImplemented(pre+'getWrap'); }	// Gets the wrapping properties of an Image.
-	t.str['setFilter']			= function (t) { return NotImplemented(pre+'setFilter'); }	// Sets the filter mode for an image.
-	t.str['setWrap']			= function (t) { return NotImplemented(pre+'setWrap'); }	// Sets the wrapping properties of an Image.
+	t.str['getFilter']			= function (t) { return [t._data.mode_filter_min,t._data.mode_filter_mag]; }	// Gets the filter mode for an image.
+	t.str['getWrap']			= function (t) { return [t._data.mode_warp_h,t._data.mode_warp_v]; }	// Gets the wrapping properties of an Image.
+	t.str['setFilter']			= function (t,smin,smag) { t._data.setFilter(smin,smag); }	// Sets the filter mode for an image.
+	t.str['setWrap']			= function (t,h,v) { t._data.setWrap(h,v); }	// Sets the wrapping properties of an Image.
 	
 	t.str['type']				= function (t) { return ["Image"]; 					}	// Gets the type of the object as a string.  // TODO: lowercase ???
 	t.str['typeOf']				= function (t) { return NotImplemented(pre+'typeOf'); }	// Checks whether an object is of a certain type.
@@ -286,10 +285,31 @@ function Love_Graphics_MakeImageHandle (o) {
 
 function cLoveImage (path) {
 	var bPixelArt = false;
-	//~ var bPixelArt = true;
 	this.path = path;
 	this.tex = loadImageTexture(gl, path, bPixelArt);
 	this.bPreLoadWarningPrinted = false;
+	this.mode_filter_min = "linear"; // linear,nearest
+	this.mode_filter_mag = "linear"; // linear,nearest
+	this.mode_warp_h = "clamp"; // clamp,repeat
+	this.mode_warp_v = "clamp"; // clamp,repeat
+	
+	this.setFilter		= function (smin,smag) {
+		this.mode_filter_min = smin;
+		this.mode_filter_mag = smag;
+		this.UpdateTexParams();
+	}
+	this.setWrap		= function (h,v) {
+		this.mode_warp_h = h;
+		this.mode_warp_v = v;
+		this.UpdateTexParams();
+	}
+	this.UpdateTexParams		= function () {
+		updateTextureParams(gl,this.tex,
+			(this.mode_filter_min == "linear")?gl.LINEAR:gl.NEAREST,
+			(this.mode_filter_mag == "linear")?gl.LINEAR:gl.NEAREST,
+			(this.mode_warp_h == "clamp")?gl.CLAMP_TO_EDGE:gl.REPEAT,
+			(this.mode_warp_v == "clamp")?gl.CLAMP_TO_EDGE:gl.REPEAT );
+	}
 	
 	this.GetTextureID	= function () { return this.tex; }
 	this.IsImage		= function () { return true; }
