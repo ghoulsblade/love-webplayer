@@ -141,6 +141,7 @@ function LuaBootStrap (G) {
 	Love_Sound_CreateTable(G);
 	Love_Thread_CreateTable(G);
 	Love_Timer_CreateTable(G);
+	Love_Web_CreateTable(G); // web api
 	
 	// replace default lua.js require
 	// could also be done by lua_core["require"] = function () {...}
@@ -160,6 +161,14 @@ function LuaBootStrap (G) {
 		//~ NOTE: replaces parser lib lua_require(G, path);
 	};
 }
+
+/// init lua api
+function Love_Web_CreateTable (G) {
+	var t = lua_newtable();
+	G.str['love'].str['web'] = t;
+	t.str['javascript']		= function (code) { return [eval(code)]; }
+}
+
 
 // require "shaders"  mari0 main.lua... might be shaders/init.lua ? file_exists()
 function LoveRequireShaders () {
