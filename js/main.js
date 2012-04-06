@@ -155,8 +155,8 @@ function LuaBootStrap (G) {
 		
 		var initpath = path+"init.lua"; // require("shaders") -> shaders/init.lua 
 		if (LoveFS_exists(initpath)) 
-				RunLuaFromPath(initpath);
-		else	RunLuaFromPath(path + ".lua"); // require("bla") -> bla.lua
+				return RunLuaFromPath(initpath);
+		else	return RunLuaFromPath(path + ".lua"); // require("bla") -> bla.lua
 		
 		//~ NOTE: replaces parser lib lua_require(G, path);
 	};

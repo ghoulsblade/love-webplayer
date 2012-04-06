@@ -15,4 +15,5 @@ lua-parser.js is a lua interpreter/converter in javascript from https://github.c
 known issues : 
 ticket/issue at lua.js github : https://github.com/mherkender/lua.js/issues/5
 parser bug : clouds demo : parse error in keypressed :  >> love.filesystem.load("main.lua")() <<   workaround : >> (love.filesystem.load("main.lua"))() <<
-parser NotImplemented : debug.backtrace,coroutines,...
+parser bug : vararg(...) >> function MyPrint (...) print("vararg1",unpack({...})) end MyPrintVarArg1(1,2,3,4) <<  prints table rather than contents, workaround : use explicit params
+parser NotImplemented : string.format("%d",5),debug.backtrace,coroutines,...
