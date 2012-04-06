@@ -17,3 +17,7 @@ ticket/issue at lua.js github : https://github.com/mherkender/lua.js/issues/5
 parser bug : clouds demo : parse error in keypressed :  >> love.filesystem.load("main.lua")() <<   workaround : >> (love.filesystem.load("main.lua"))() <<
 parser bug : vararg(...) >> function MyPrint (...) print("vararg1",unpack({...})) end MyPrintVarArg1(1,2,3,4) <<  prints table rather than contents, workaround : use explicit params
 parser NotImplemented : string.format("%d",5),debug.backtrace,coroutines,...
+
+web api available:
+* if (love.web) then ... end
+* love.web.javascript("jsfun()")
