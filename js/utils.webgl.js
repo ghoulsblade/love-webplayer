@@ -279,11 +279,52 @@ function matrix4Scale(m,sx,sy,sz) {
 
 /// modifies m
 function matrix4Translate(m,tx,ty,tz) {
-	// optimized version of: matrix4Mult(m,matrix4GetTranslateScale(tx,ty,tz,1,1,1));
-	m[0*4+0] += tx; m[0*4+1] += ty; m[0*4+2] += tz;
-	m[1*4+0] += tx; m[1*4+1] += ty; m[1*4+2] += tz;
-	m[2*4+0] += tx; m[2*4+1] += ty; m[2*4+2] += tz;
-	m[3*4+0] += tx; m[3*4+1] += ty; m[3*4+2] += tz;
+	//~ matrix4Mult(m,matrix4GetTranslateScale(tx,ty,tz,1,1,1)); // optimized version below
+	//~ if (matrixPrintOptimizeMultOnce == null) { matrixPrintOptimizeMultOnce = true; matrixPrintOptimizeMult(matrix4GetTranslateScale("tx","ty","tz",1,1,1)); }
+	m[0*4+0] += m[0*4+3] * tx;
+	m[0*4+1] += m[0*4+3] * ty;
+	m[0*4+2] += m[0*4+3] * tz;
+	m[1*4+0] += m[1*4+3] * tx;
+	m[1*4+1] += m[1*4+3] * ty;
+	m[1*4+2] += m[1*4+3] * tz;
+	m[2*4+0] += m[2*4+3] * tx;
+	m[2*4+1] += m[2*4+3] * ty;
+	m[2*4+2] += m[2*4+3] * tz;
+	m[3*4+0] += m[3*4+3] * tx;
+	m[3*4+1] += m[3*4+3] * ty;
+	m[3*4+2] += m[3*4+3] * tz;
+}
+
+
+var matrixPrintOptimizeMult_AlreadyPrinted = false; 
+function matrixPrintOptimizeMult (n) {
+	if (matrixPrintOptimizeMult_AlreadyPrinted) return;
+	matrixPrintOptimizeMult_AlreadyPrinted = true;
+	var out = "";
+	for (var i=0;i<4;++i) for (var j=0;j<4;++j) {
+		var oute = "m["+i+"*4+"+j+"] = ";
+		var first = true;
+		for (var c=0;c<4;++c) {
+			if (n[c*4+j] != 0) {
+				if (!first) oute += " + "; first = false;
+				oute += "o["+i+"*4+"+c+"]";
+				if (n[c*4+j] != 1) oute += " * "+n[c*4+j];
+			}
+		}
+		if (first) oute += "0";
+		oute += ";\n";
+		
+		// skip if just  x=x;
+		if (oute == "m["+i+"*4+"+j+"] = o["+i+"*4+"+j+"];\n") oute = ""; // unchanged
+		
+		// "x = x + bla" -> "x += bla"
+		var selfadd = "m["+i+"*4+"+j+"] = o["+i+"*4+"+j+"] + ";
+		if (oute.substr(0,selfadd.length) == selfadd) oute = "m["+i+"*4+"+j+"] += "+oute.substr(selfadd.length);
+		
+		// output
+		out += oute;
+	}
+	MainPrint(out);
 }
 
 //	m[i*4+j]      	[  1, 0, 0, 0 ]  ---> j+
@@ -296,26 +337,3 @@ function matrix4Translate(m,tx,ty,tz) {
 //	[ o, o, o, o ]	
 //    |
 //   \|/ i		
-
-//~ m[0*4+0] = sum(c=0,4) o[0*4+c] * n[c*4+0]; // i=0 j=0
-//~ m[0*4+1] = sum(c=0,4) o[0*4+c] * n[c*4+1]; // i=0 j=1
-//~ m[0*4+2] = sum(c=0,4) o[0*4+c] * n[c*4+2]; // i=0 j=2
-//~ m[0*4+3] = sum(c=0,4) o[0*4+c] * n[c*4+3]; // i=0 j=3_
-									   
-//~ m[1*4+0] = sum(c=0,4) o[1*4+c] * n[c*4+0]; // i=1 j=0
-//~ m[1*4+1] = sum(c=0,4) o[1*4+c] * n[c*4+1]; // i=1 j=1
-//~ m[1*4+2] = sum(c=0,4) o[1*4+c] * n[c*4+2]; // i=1 j=2
-//~ m[1*4+3] = sum(c=0,4) o[1*4+c] * n[c*4+3]; // i=1 j=3_
-									   
-//~ m[2*4+0] = sum(c=0,4) o[2*4+c] * n[c*4+0]; // i=2 j=0
-//~ m[2*4+1] = sum(c=0,4) o[2*4+c] * n[c*4+1]; // i=2 j=1
-//~ m[2*4+2] = sum(c=0,4) o[2*4+c] * n[c*4+2]; // i=2 j=2
-//~ m[2*4+3] = sum(c=0,4) o[2*4+c] * n[c*4+3]; // i=2 j=3_
-									   
-//~ m[3*4+0] = sum(c=0,4) o[3*4+c] * n[c*4+0]; // i=3 j=0
-//~ m[3*4+1] = sum(c=0,4) o[3*4+c] * n[c*4+1]; // i=3 j=1
-//~ m[3*4+2] = sum(c=0,4) o[3*4+c] * n[c*4+2]; // i=3 j=2
-//~ m[3*4+3] = sum(c=0,4) o[3*4+c] * n[c*4+3]; // i=3 j=3
-
-
-

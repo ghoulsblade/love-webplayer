@@ -127,11 +127,11 @@ function Love_Graphics_CreateTable (G) {
 		// Finally, it removes any stipple settings. 
 		return NotImplemented(pre+'reset');
 	}
-	t.str['scale']				= function (sx,sy,sz) { GLModelViewScale(sx || 1,sy || 1,sz || 1); return LuaNil; }
-	t.str['translate']			= function (tx,ty,tz) { GLModelViewTranslate(tx || 0,ty || 0,tz || 0); return LuaNil; }
+	t.str['scale']				= function (sx,sy) { GLModelViewScale(sx || 1,sy || 1,1); return LuaNil; }
+	t.str['translate']			= function (tx,ty) { GLModelViewTranslate(tx || 0,ty || 0,0); return LuaNil; }
 	t.str['rotate']				= function () { return NotImplemented(pre+'rotate'); }
-	t.str['pop']				= function () { GLModelViewPop(); }
 	t.str['push']				= function () { GLModelViewPush(); }
+	t.str['pop']				= function () { GLModelViewPop(); }
 	
 	t.str['getWidth']			= function () { return [gMyCanvasWidth]; }
 	t.str['getHeight']			= function () { return [gMyCanvasHeight]; }
@@ -515,7 +515,7 @@ function GLModelViewTranslate (tx,ty,tz) {
 }
 
 var gLoveMatrix_Stack = [];
-function GLModelViewPush () { gLoveMatrix_Stack.push(gGLMatrix_ModelView); }
+function GLModelViewPush () { gLoveMatrix_Stack.push(matrix4Clone(gGLMatrix_ModelView)); }
 function GLModelViewPop () {
 	if (gLoveMatrix_Stack.length <= 0) { MainPrint("ERROR: GLModelViewPop: stack empty"); return; }
 	var m = gLoveMatrix_Stack.pop();
