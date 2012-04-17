@@ -167,6 +167,9 @@ function Love_Web_CreateTable (G) {
 	var t = lua_newtable();
 	G.str['love'].str['web'] = t;
 	t.str['javascript']		= function (code) { return [eval(code)]; }
+	
+	/// e.g. if (string.find(love.web.getAgent(),"mozilla")) then ...ogg... else ...mp3 ... end
+	t.str['getAgent']		= function (code) { return [navigator.userAgent]; }
 }
 
 
