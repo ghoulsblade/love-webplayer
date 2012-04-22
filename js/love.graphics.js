@@ -32,7 +32,7 @@ function Love_Graphics_CreateTable (G) {
 	// note: pass through variable argument list ? myfun.apply(null,arguments) http://stackoverflow.com/questions/676721/calling-dynamic-function-with-dynamic-parameters-in-javascript
 	
 	// love.graphics.newImage(path)
-	t.str['newImage']			= function (path) { return [Love_Graphics_MakeImageHandle(new cLoveImage(path))]; }
+	t.str['newImage']			= function (a) { return [Love_Graphics_MakeImageHandle(new cLoveImage(a))]; }
 	
 	// font = love.graphics.newImageFont( image, glyphs )
 	// font = love.graphics.newImageFont( filename, glyphs )
@@ -283,15 +283,37 @@ function Love_Graphics_MakeImageHandle (o) {
 	return t;
 }
 
-function cLoveImage (path) {
+function cLoveImage (a) {
 	var bPixelArt = false;
-	this.path = path;
-	this.tex = loadImageTexture(gl, path, bPixelArt);
 	this.bPreLoadWarningPrinted = false;
 	this.mode_filter_min = "linear"; // linear,nearest
 	this.mode_filter_mag = "linear"; // linear,nearest
 	this.mode_warp_h = "clamp"; // clamp,repeat
 	this.mode_warp_v = "clamp"; // clamp,repeat
+	this.bIsFromCanvas = false;
+	
+	if ((typeof a) == "string") {	
+		// load image from path
+		var path = a;
+		this.path = path;
+		this.tex = loadImageTexture(gl, path, bPixelArt);
+	} else if ((typeof a) == "object") {
+		if (a._data && a._data.canvas) {
+			// load image from imagedata
+			var imgdata = a._data;
+			this.bIsFromCanvas = true;
+			this.path = "(imgdata)";
+			var texture = gl.createTexture();
+			this.tex = texture;
+			doLoadImageTexture(gl, imgdata.canvas, texture, bPixelArt);
+			MainPrint("cLoveImage from imgdata:",imgdata.canvas.width);
+			this.width = imgdata.canvas.width;
+			this.height = imgdata.canvas.height;
+		}
+		MainPrint("cLoveImage unexpcected constructor obj:",a);
+	} else {
+		MainPrint("cLoveImage unexpcected constructor param:",a);
+	}
 	
 	this.setFilter		= function (smin,smag) {
 		this.mode_filter_min = smin;
@@ -327,8 +349,8 @@ function cLoveImage (path) {
 			}
 		}
 	}
-	this.getWidth		= function () { this.ensureLoaded(); return this.tex.image.width; }
-	this.getHeight		= function () { this.ensureLoaded(); return this.tex.image.height; }
+	this.getWidth		= function () { if (this.bIsFromCanvas) return this.width; this.ensureLoaded(); return this.tex.image.width; }
+	this.getHeight		= function () { if (this.bIsFromCanvas) return this.height; this.ensureLoaded(); return this.tex.image.height; }
 
 }
 
