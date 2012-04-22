@@ -2151,8 +2151,24 @@ lua_libs["string"] = {
     return [_lua_gmatch_next, {s:s,pattern:_lua_string_translate_pattern(pattern)}, null];
   },
   "gsub": function (s, pattern, repl, n) {
-    // TODO
-    not_supported();
+	// TODO: finish implementation, this is just a rough estimate
+	// very basic version to find literal pattern hits without regexp, and simple regexp
+	// TODO: n ~= nil not yet implemented
+	
+	//~ Returns a copy of s in which all (or the first n, if given)
+	pattern = _lua_string_translate_pattern(pattern);
+	
+	// References the submatched substrings inside parenthesized expressions 
+	repl = repl.replace(/%1/g,"\\$1");
+	repl = repl.replace(/%2/g,"\\$2");
+	repl = repl.replace(/%3/g,"\\$3");
+	repl = repl.replace(/%4/g,"\\$4");
+	repl = repl.replace(/%5/g,"\\$5");
+	repl = repl.replace(/%6/g,"\\$6");
+	repl = repl.replace(/%7/g,"\\$7");
+	repl = repl.replace(/%8/g,"\\$8");
+	
+	return [s.replace(pattern,repl)];
   },
   "len": function (s) {
     if (typeof s == "string") {

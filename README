@@ -17,6 +17,12 @@ ticket/issue at lua.js github : https://github.com/mherkender/lua.js/issues/5
 parser bug : clouds demo : parse error in keypressed :  >> love.filesystem.load("main.lua")() <<   workaround : >> (love.filesystem.load("main.lua"))() <<
 parser NotImplemented : string.format("%d",5),debug.backtrace,coroutines,...
 
+bug found during ludumdare201204 :  nested metatable not supported ? 
+	fails in web : self:Register("xyz")
+	workaround   : cObjBase.Register(self,"xyz")
+	later more central workaround in lib.oop.lua of copy instead of meta-inside-meta
+	
 web api available:
 * if (love.web) then ... end
 * love.web.javascript("jsfun()")
+* if (string.find(love.web.getAgent(),"MSIE")) then ...mp3... else ...ogg... end
