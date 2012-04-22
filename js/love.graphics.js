@@ -306,11 +306,12 @@ function cLoveImage (a) {
 			var texture = gl.createTexture();
 			this.tex = texture;
 			doLoadImageTexture(gl, imgdata.canvas, texture, bPixelArt);
-			MainPrint("cLoveImage from imgdata:",imgdata.canvas.width);
+			//~ MainPrint("cLoveImage from imgdata:",imgdata.canvas.width);
 			this.width = imgdata.canvas.width;
 			this.height = imgdata.canvas.height;
+		} else {
+			MainPrint("cLoveImage unexpcected constructor obj:",a);
 		}
-		MainPrint("cLoveImage unexpcected constructor obj:",a);
 	} else {
 		MainPrint("cLoveImage unexpcected constructor param:",a);
 	}

@@ -62,12 +62,13 @@ function cImageData(a,b) {
 		// construct image from path
 		if ((typeof a) == "string") {
 			var path = a;
+			this.path = path;
 			var img = GetPreLoadedImage(path);
 			if (img) {
 			} else {
 				img = new Image();
 				img.onload = function() {}
-				img.src = url;
+				img.src = path;
 				if (!img.complete) {
 					//~ MainPrint("img:ensureLoaded() waiting for download to complete: path",this.path);
 					//~ while (!this.tex.image.complete) alert("waiting for images to load...\nplease press 'ok' =)\n(no sleep() in javascript and setTimeout doesn't block)"); // seems there's no thread.sleep() in javascript that can block execution of subsequent code. 
