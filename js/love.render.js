@@ -186,7 +186,23 @@ function renderTriangle(mode, x1, y1, x2, y2, x3, y3) {
 	}
 }
 
-function renderPolygon(mode,arr) {
+//~ gDebugBlockRenderPoly = false;
+function renderPolygon(mode,myargs) {
+	var arr;
+	//~ if (gDebugBlockRenderPoly) return;
+	if ((typeof myargs[1]) == "object") { // table
+		var t = myargs[1];
+		ensure_arraymode(t);
+		arr = [];
+		for (var i=0;t.uints[i] != null;++i) arr.push(t.uints[i]);
+		//~ MainPrint("renderPolygon arr=",arr);
+	} else {
+		arr = [];
+		for (var i=1;i<myargs.length;++i) arr.push(myargs[i]);
+	}
+	//~ MainPrint("renderPolygon mode=",mode,"numvert=",arr.length,"verts=",arr);
+	//~ LoveFatalError("polygon debug stop");
+	//~ gDebugBlockRenderPoly = true;
 	if (mode == DrawMode.FILL) {
 		BasicGeo_Prepare(arr.length/2);
 		for (var i=0;i<2*(arr.length/2);i+=2) BasicGeo_Vertex(arr[i],arr[i+1]);

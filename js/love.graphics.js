@@ -58,6 +58,7 @@ function Love_Graphics_CreateTable (G) {
 	t.str['setBackgroundColor']	= function (r,g,b,a) { 
 		if ((typeof r) != "number") {
 			var rgb = r;
+			ensure_arraymode(rgb);
 			r = rgb.uints[0];
 			g = rgb.uints[1];
 			b = rgb.uints[2];
@@ -72,6 +73,7 @@ function Love_Graphics_CreateTable (G) {
 		//  MainPrint("graphics.setColor called");
 		if ((typeof r) != "number") {
 			var rgb = r;
+			ensure_arraymode(rgb);
 			r = rgb.uints[0];
 			g = rgb.uints[1];
 			b = rgb.uints[2];
@@ -110,7 +112,7 @@ function Love_Graphics_CreateTable (G) {
 	t.str['rectangle']			= function (mode, x, y, w, h) { renderRectangle(mode, x, y, w, h); return LuaNil; }
 	t.str['circle']				= function (mode, x, y, radius, segments) { renderCircle(mode, x, y, radius, segments || 10); return LuaNil; }
 	t.str['triangle']			= function (mode, x1, y1, x2, y2, x3, y3) { renderTriangle(mode, x1, y1, x2, y2, x3, y3); return LuaNil; }
-	t.str['polygon']			= function (mode) { renderPolygon(mode,arguments.slice(1)); return LuaNil; }
+	t.str['polygon']			= function () { renderPolygon(arguments[0],arguments); return LuaNil; }
 	t.str['quad']				= function (mode, x1, y1, x2, y2, x3, y3, x4, y4) { renderQuad(mode, x1, y1, x2, y2, x3, y3, x4, y4); return LuaNil; }
 	t.str['line']				= function (x1, y1, x2, y2) { if (arguments.length > 4) renderPolyLine(arguments); else renderLine(x1, y1, x2, y2); return LuaNil; }
 	t.str['point']				= function (x,y) { renderPoint(x, y); return LuaNil; }
