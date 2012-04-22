@@ -15,8 +15,8 @@ function Love_Image_MakeImageDataHandle (o) {
 	var pre = "love.imagedata:";
 	t._data = o;
 
-	t.str['getHeight']		= function (t) { NotImplemented(pre+'getHeight'	); return [0]; } // Gets the height of the ImageData.
-	t.str['getWidth']		= function (t) { NotImplemented(pre+'getWidth'	); return [0]; } // Gets the width of the ImageData.
+	t.str['getWidth']		= function (t) { return [t._data.getWidth()]; } // Gets the width of the ImageData.
+	t.str['getHeight']		= function (t) { return [t._data.getHeight()]; } // Gets the height of the ImageData.
 	
 	t.str['getPointer']		= function (t) { return NotImplemented(pre+'getPointer'	); } // Gets a pointer to the Data.
 	t.str['getSize']		= function (t) { return NotImplemented(pre+'getSize'	); } // Gets the size of the Data.
@@ -47,6 +47,9 @@ function cImageData(a,b) {
 		var dh = sh;
 		this.context.drawImage(source.canvas, sx, sy, sw, sh, dx, dy, dw, dh);
 	}
+	
+	this.getWidth = function () { return (this.canvas)?(this.canvas.width):0; }
+	this.getHeight = function () { return (this.canvas)?(this.canvas.height):0; }
 	
 	// NOTE : http://www.w3.org/TR/2dcontext/#drawing-images-to-the-canvas
 	this.CreateCanvas = function (w,h) {
