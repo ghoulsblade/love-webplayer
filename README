@@ -22,6 +22,12 @@ bug found during ludumdare201204 :  nested metatable not supported ?
 	workaround   : cObjBase.Register(self,"xyz")
 	later more central workaround in lib.oop.lua of copy instead of meta-inside-meta
 	
+bug found during ludumdare201204 : 
+	tostring needed around number : love.graphics.print(tostring(t.hud_position+1), px-2,py-2, 0, 0.5, 0.5)
+				
+bug found during ludumdare201204 : 
+	DrawArcRing : local poly = {0,0, 0,0, 0,0, 0,0} poly[1],poly[2] = 3,4  print(unpack(poly)) -- should be 3,4 but is 0,4 ?
+
 web api available:
 * if (love.web) then ... end
 * love.web.javascript("jsfun()")
