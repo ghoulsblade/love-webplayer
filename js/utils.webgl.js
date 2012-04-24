@@ -82,7 +82,7 @@ function doLoadImageTexture(gl, image, texture, bPixelArt)
 {
 	//~ gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true); // chrome test
 
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.bindTexture(gl.TEXTURE_2D, texture); gLastGLTexture = texture;
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 	
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -94,16 +94,16 @@ function doLoadImageTexture(gl, image, texture, bPixelArt)
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 	}
-    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.bindTexture(gl.TEXTURE_2D, null); gLastGLTexture = null;
 }
 
 function updateTextureParams (gl, iTexID, fmin,fmag,wraph,wrapv) {
-    gl.bindTexture(gl.TEXTURE_2D, iTexID);
+    gl.bindTexture(gl.TEXTURE_2D, iTexID); gLastGLTexture = iTexID;
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, fmin);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, fmag);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wraph);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapv);
-    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.bindTexture(gl.TEXTURE_2D, null); gLastGLTexture = null;
 }
 
 
@@ -237,7 +237,7 @@ function cRenderable (gl,texture,arr_vertex,arr_index) {
 	}
 	
 	this.Draw = function (gl) {
-		gl.bindTexture(gl.TEXTURE_2D, this.texture);
+		gl.bindTexture(gl.TEXTURE_2D, this.texture); gLastGLTexture = this.texture;
 		//~ gl.enableVertexAttribArray(0); // TODO : removed durign chrome testung
 		//~ gl.enableVertexAttribArray(1); // TODO : removed durign chrome testung
 		// old : shaderProgram.vertexPositionAttribute = 0

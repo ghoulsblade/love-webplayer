@@ -259,7 +259,7 @@ function Love_Graphics_Step_End() {
 notes
 var lighting = false;
 gl.activeTexture(gl.TEXTURE0);
-gl.bindTexture(gl.TEXTURE_2D, crateTexture);
+gl.bindTexture(gl.TEXTURE_2D, crateTexture); gLastGLTexture = crateTexture;
 gl.uniform1i(shaderProgram.samplerUniform, 0);
 gl.uniform1i(shaderProgram.useLightingUniform, lighting);
 */

@@ -82,7 +82,7 @@ function DrawSpriteAux	(iTextureID,vb_texcoords,w,h,x,y,r,sx,sy,ox,oy) {
 	
 	UpdateGlFloatBuffer(gl,spriteVB_Pos,spritePosFloats,gl.DYNAMIC_DRAW);
 	
-	gl.bindTexture(gl.TEXTURE_2D, iTextureID);
+	if (gLastGLTexture != iTextureID) { gl.bindTexture(gl.TEXTURE_2D, iTextureID); gLastGLTexture = iTextureID; }
 	setVertexBuffers_Aux(spriteVB_Pos,vb_texcoords);
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 	
@@ -116,7 +116,7 @@ function BasicGeo_Draw (mode) {
 	//~ MainPrint(mFB_BasicGeo.slice(0,mi_BasicGeo_Vertices*2));
 	UpdateGlFloatBufferLen(gl,mVB_BasicGeo,mFB_BasicGeo,mi_BasicGeo_Vertices*2,gl.DYNAMIC_DRAW);
 	
-	gl.bindTexture(gl.TEXTURE_2D, null);
+	gl.bindTexture(gl.TEXTURE_2D, null); gLastGLTexture = null;
 	setVertexBuffersToCustom(mVB_BasicGeo,mVB_BasicGeo_TexCoord);
 	gl.uniform4f(shaderProgram.uFragOverrideAddColor,1,1,1,1);
 	gl.drawArrays(mode, 0, mi_BasicGeo_Vertices);

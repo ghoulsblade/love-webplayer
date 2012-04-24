@@ -296,7 +296,7 @@ function cLoveFont (caller_name,a,b) {
 		UpdateGlFloatBufferLen(gl,this.mVB_Pos,this.mVB_Pos2,this.mBufferVertices*2,gl.DYNAMIC_DRAW);
 		UpdateGlFloatBufferLen(gl,this.mVB_Tex,this.mVB_Tex2,this.mBufferVertices*2,gl.DYNAMIC_DRAW);
 		setVertexBuffersToCustom(this.mVB_Pos,this.mVB_Tex);
-		gl.bindTexture(gl.TEXTURE_2D, this.img.GetTextureID());
+		gl.bindTexture(gl.TEXTURE_2D, this.img.GetTextureID()); gLastGLTexture = this.img.GetTextureID();
 		gl.drawArrays(gl.TRIANGLES, 0, this.mBufferVertices);
 	}
 	
