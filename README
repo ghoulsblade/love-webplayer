@@ -32,3 +32,4 @@ web api available:
 * if (love.web) then ... end
 * love.web.javascript("jsfun()")
 * if (string.find(love.web.getAgent(),"MSIE")) then ...mp3... else ...ogg... end
+* love.web.setMaxFPS(99) -- default 60, stepper interval

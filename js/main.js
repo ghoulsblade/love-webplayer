@@ -1,6 +1,6 @@
 var kUseHTMLConsole = false; // if false, output is still visible in firefox javascript console
 var G = null; // the big lua _G containing lua global vars
-var gFrameWait = 1000/40; // TODO: adjust for performance ?
+var gFrameWait = 1000/60; // TODO: adjust for performance ?
 var gMyTicks = MyGetTicks();
 var gSecondsSinceLastFrame = 0;
 var gMaxHTMLConsoleLines = 10;
@@ -170,6 +170,7 @@ function Love_Web_CreateTable (G) {
 	
 	/// e.g. if (string.find(love.web.getAgent(),"MSIE")) then ...mp3... else ...ogg... end
 	t.str['getAgent']		= function (code) { return [navigator.userAgent]; }
+	t.str['setMaxFPS']		= function (fps) { gFrameWait = (fps && fps > 0)?(1000/fps):1; }
 }
 
 
