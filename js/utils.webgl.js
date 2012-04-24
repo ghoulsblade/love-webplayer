@@ -190,7 +190,7 @@ function UpdateGlFloatBuffer (gl,buffer,arr,mode) { // arr= [1,2,3,...] mode= gl
 	
 	gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(arr),mode); // WebGLFloatArray->Float32Array
-	MyCheckGLError("UpdateGlFloatBuffer");
+	//~ MyCheckGLError("UpdateGlFloatBuffer");
 	// TODO : using new Float32Array all the time will drain memory?
 	// usage example:
 	// gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
