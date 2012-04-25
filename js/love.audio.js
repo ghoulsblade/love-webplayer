@@ -2,6 +2,8 @@
 // NOTE: html5 audio via javascript (only ref-like thing i found for js methods): http://www.position-absolute.com/articles/introduction-to-the-html5-audio-tag-javascript-manipulation/
 // NOTE: html5 audio detailed spec including js ? : http://dev.w3.org/html5/spec/single-page.html#audio  http://dev.w3.org/html5/spec/the-audio-element.html#the-audio-element
 // NOTE: differnt w3 sound thingies http://www.w3schools.com/html/html_sounds.asp
+// http://localhost/love-webplayer/ludumdare201204/
+// http://ghoulsblade.schattenkind.net/love-webplayer/ludumdare201204/
 
 function Love_Audio_Init () {}
 
@@ -67,6 +69,23 @@ function Love_Audio_MakeSourceHandle (o) {
 	return t;
 }
 
+function ReadyState2Txt (element) {
+	if (element.readyState == element.HAVE_NOTHING) return "HAVE_NOTHING";
+	if (element.readyState == element.HAVE_METADATA) return "HAVE_METADATA";
+	if (element.readyState == element.HAVE_CURRENT_DATA) return "HAVE_CURRENT_DATA";
+	if (element.readyState == element.HAVE_FUTURE_DATA) return "HAVE_FUTURE_DATA";
+	if (element.readyState == element.HAVE_ENOUGH_DATA) return "HAVE_ENOUGH_DATA";
+	return "["+element.readyState+"]";
+}
+
+function NetState2Txt (element) {
+	if (element.networkState == element.NETWORK_EMPTY) return "NETWORK_EMPTY";
+	if (element.networkState == element.NETWORK_IDLE) return "NETWORK_IDLE";
+	if (element.networkState == element.NETWORK_LOADING) return "NETWORK_LOADING";
+	if (element.networkState == element.NETWORK_NO_SOURCE) return "NETWORK_NO_SOURCE";
+	return "["+element.networkState+"]";
+}
+
 function cLoveAudioSource (path,srctype) {
 	this.path = path;
 	var pre = "love.audio.source.";
@@ -105,17 +124,23 @@ function cLoveAudioSource (path,srctype) {
 		}
 		
 		
+		
 		// html5 element add via js
 		if (bUseJS) {
 		    var element = document.createElement('audio');
 			var myself = this;
 			this.element = element;
-			element.addEventListener("canplaythrough", function() { myself.callback_canplaythrough(); }, true);
+			element.addEventListener("loadeddata"		, function() { myself.callback_loadeddata();		}, true);
+			element.addEventListener("canplay"			, function() { myself.callback_canplay();			}, true);
+			element.addEventListener("canplaythrough"	, function() { myself.callback_canplaythrough();	}, true);
 			//~ element.setAttribute('autoplay', "autoplay");
 			//~ element.addEventListener("load", function() {
 			  //~ element.play();
 			//~ }, true);
-			element.setAttribute('src', path);
+			//~ element.setAttribute('src', path);
+			element.preload = "auto"; // http://dev.w3.org/html5/spec/single-page.html#attr-media-preload
+			element.buffered = "auto"; // http://dev.w3.org/html5/spec/single-page.html#dom-media-buffered
+			element.src = path;
 			//~ element.load();
 			//~ element.play();
 
@@ -142,8 +167,12 @@ function cLoveAudioSource (path,srctype) {
 	}
 	
 	// called on 
-	this.callback_canplaythrough = function () {} 
-	//~ this.callback_canplaythrough = function () { MainPrint("callback_canplaythrough",this.path); } 
+	this.callback_loadeddata		= function () {} // readystate = HAVE_CURRENT_DATA reached
+	this.callback_canplay			= function () {} // readystate = HAVE_FUTURE_DATA reached
+	this.callback_canplaythrough	= function () {} // readystate = HAVE_ENOUGH_DATA reached
+	//~ this.callback_loadeddata		= function () { MainPrint("callback_loadeddata",this.path); } 
+	//~ this.callback_canplay			= function () { MainPrint("callback_canplay",this.path); } 
+	//~ this.callback_canplaythrough	= function () { MainPrint("callback_canplaythrough",this.path); } 
 	
 	
 	this._play = function () {
@@ -151,15 +180,31 @@ function cLoveAudioSource (path,srctype) {
 		var element = this.element;
 		if (element.play) {
 			if (element.readyState >= element.HAVE_ENOUGH_DATA) {
-				//~ MainPrint("audio:play()",element.readyState,element.networkState,this.path);
+				element.play();
+			} else if (element.readyState >= element.HAVE_CURRENT_DATA || element.networkState == element.NETWORK_IDLE) {
+				MainPrint("audio:play()",ReadyState2Txt(element),NetState2Txt(element),this.path);
 				element.play();
 			} else {
-				//~ MainPrint("audio:play() delayed...",element.readyState,element.networkState,this.path);
+				
+				MainPrint("audio:play() delayed...",ReadyState2Txt(element),NetState2Txt(element),this.path);
+				// audio:play() delayed... 0 3 media/music/001_SiENcE_-_ANThology.ogg  3==NETWORK_NO_SOURCE
+				
 				this.callback_canplaythrough = function () {
-					//~ MainPrint("audio:play() delayed exec!!!",element.readyState,element.networkState,this.path);
+					MainPrint("audio:play() delayed exec!!!",ReadyState2Txt(element),NetState2Txt(element),this.path);
 					element.play();
 				}
-				element.load();
+				if (element.networkState == element.NETWORK_NO_SOURCE) {
+					MainPrint("audio:play() delay due to NETWORK_NO_SOURCE",ReadyState2Txt(element),NetState2Txt(element),this.path);
+					window.setTimeout(function () {
+						// try again after a few sek
+						if (element.networkState == element.NETWORK_NO_SOURCE) {
+							MainPrint("audio:play() timeout struck...",ReadyState2Txt(element),NetState2Txt(element),this.path);
+							element.load();
+						}
+						}, 5*1000);
+					element.src = this.path;
+					//~ element.setAttribute('src', this.path);
+				}
 			}
 		}
 		// loadeddata

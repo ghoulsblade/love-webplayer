@@ -13,9 +13,12 @@ love2d is a lua based 2d game engine : http://love2d.org/
 lua-parser.js is a lua interpreter/converter in javascript from https://github.com/mherkender/lua.js (added LuaBootStrap call)
 
 known issues : 
-ticket/issue at lua.js github : https://github.com/mherkender/lua.js/issues/5
-parser bug : clouds demo : parse error in keypressed :  >> love.filesystem.load("main.lua")() <<   workaround : >> (love.filesystem.load("main.lua"))() <<
-parser NotImplemented : string.format("%d",5),debug.backtrace,coroutines,...
+* 404 warning in webconsole when using "require somemodule", you can safely ignore this, this is just the only way javascript can do a file-exists check for the module loading behavior of require
+* workaround for 404 : call LoveFileList('filelist.txt') in index.html body onload to enable love.filesystem.enumerate
+* images have to be listed in index.html onLoad call for preloading, otherwise .width/.height access can return 0, and it's not possible in chrome+firefox to pause running code without changing code-structure to callback
+* ticket/issue at lua.js github : https://github.com/mherkender/lua.js/issues/5
+* parser bug : clouds demo : parse error in keypressed :  >> love.filesystem.load("main.lua")() <<   workaround : >> (love.filesystem.load("main.lua"))() <<
+* parser NotImplemented : string.format("%d",5),debug.backtrace,coroutines,...
 
 bug found during ludumdare201204 :  nested metatable not supported ? 
 	fails in web : self:Register("xyz")

@@ -1,0 +1,68 @@
+goal : make a single index.html that can run games in subdirs without adding index.htmls into the subdirs.
+problem : paths are all relative to subdir, and are treated relative to index.html in browser -> need to adjust all paths.
+CODE01 : https://github.com/josefnpat/love-webplayer/commit/8a1d169f6c5a4f31fd9e14aef9fce068b5ad1785
+
+<josefripat> ghoul, help me out a bit so I don't have to barrell thru all the code: error during main.lua : RunLuaFromPath failed 'main.lua' : type=object val=null :
+<josefripat> I've technically moved the location of main.lua
+<josefripat> Where can I modify the search param?
+<josefripat> main.js:510 it looks like
+<ghoul> so you're calling the main.lua inside a subdir from the index.html of the main dir ?
+<ghoul> that's not easy to solve i'm afraid since all paths will be relative from the subdir, but the browser will treat them as relative to the index.html
+<ghoul> and there's no such thing as  change-working-dir for browser afaik
+<ghoul> so i think you will need an index.html in the subdir
+<josefripat> this is what I am trying to avoid, lol.
+<josefripat> let me show you what I have
+<ghoul> i think i ran into the same problem and decided to just make subdirs XD
+<josefripat> Well, i'm passing the 
+<ghoul> *index.htmls in subdirs that is
+<josefripat> "folder name" via $_GET
+<josefripat> which javascript can read from
+<josefripat> https://github.com/josefnpat/love-webplayer/commit/8a1d169f6c5a4f31fd9e14aef9fce068b5ad1785
+<josefripat> Take a pull from what
+<josefripat> *that
+<ghoul> i think you'd have to adjust each-and-every path access inside the code
+<josefripat> Right
+<josefripat> but if you do it once, this thing becomes butt easy to use
+<josefripat> It's basically plug and play
+<josefripat> I was going to have a param in the index.php that allows you to make a game default
+<josefripat> so you clone, unpack, set default, play game
+<josefripat> no hassle
+<ghoul> errrr, that'd be real "work".. nah, i think i'll just wait until someone else does it *hides*
+<josefripat> Well, help me out here
+<josefripat> what am I looking for
+<ghoul> lemme check, i think i can give a few examples
+<josefripat> I see six locations in main.js that have the .lua extension
+<josefripat> ./main.js:153:  if (path.substr(-4) == ".lua") path = path.slice(0, -4); // require automatically appends .lua to the filepath later, remove it here
+<josefripat> ./main.js:156:  var initpath = path+"init.lua"; // require("shaders") -> shaders/init.lua 
+<josefripat> ./main.js:159:  else return RunLuaFromPath(path + ".lua"); // require("bla") -> bla.lua
+<josefripat> ./main.js:203:// require "shaders"  mari0 main.lua... might be shaders/init.lua ? file_exists()
+<josefripat> ./main.js:468: RunLuaFromPath("conf.lua", true); // run conf.lua
+<josefripat> just those?
+<josefripat> ./main.js:510: RunLuaFromPath("main.lua"); // run main.lua
+<josefripat> That's a recursive search on the whole project
+<ghoul> textures/sprites path would be in : js/utils.webgl.js:67:function loadImageTexture(gl, url, bPixelArt)
+<josefripat> ok
+<ghoul> lua path would be in js/main.js:227:function RunLuaFromPath (path, safe) {
+<ghoul> js/love.filesystem.js  prolly won#t affect most games
+<ghoul> but will hit stuff that does maploading or similar
+<Gnx> ghoul: are .scale and .translate already supported?
+<ghoul> gnx : yes
+<josefripat> ok, cool
+<josefripat> let me hit that up
+<DOZO> hmm, i tried to set it up with my ld entry but i'm unsure where or why the error is occuring here http://ecliss.net/compos/CEweb/
+* k3rl0u4rn1 has quit (Quit: Leaving.)
+<ghoul> josefripat,  js/love.image.js has the imagedata stuff, there's also path in the constructor
+<Gnx> ghoul: cool, then I think I can make one of my old games work :)
+<ghoul> main.js:440: var img = new Image();
+<ghoul> love.image.js:72: img = new Image();
+<ghoul> near those
+<josefripat> cheers
+<ghoul> love.audio.js      also, but i'm currently working heavily on that so better leave that for later
+<ghoul> you'll prolly run into a few more, those were just the positions i can think of
+<josefripat> cheers
+<ghoul> sadly it's tricky to debug due to lack of stacktraces and the lua code being run from one big "eval" in js
+<josefripat> got the webgj one
+<ghoul> so what i do when it crashes is littering the code (love.load,  love.update, love.draw) with stuff like    print("load01") ... print("load15").... etc to narrow down
+<ghoul> josefripat,  another "one" : search for UtilAjaxGet in all files, that's also relative path access used in  a lot of places
+<ghoul> (including RunLuaFromPath, so don't prefix the path twice ;))
+
