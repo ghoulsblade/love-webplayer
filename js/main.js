@@ -171,8 +171,34 @@ function Love_Web_CreateTable (G) {
 	/// e.g. if (string.find(love.web.getAgent(),"MSIE")) then ...mp3... else ...ogg... end
 	t.str['getAgent']		= function (code) { return [navigator.userAgent]; }
 	t.str['setMaxFPS']		= function (fps) { gFrameWait = (fps && fps > 0)?(1000/fps):1; }
+	t.str['showPreCompiledJS']	= function (path) { ShowPreCompiledJS(path); }
 }
 
+
+function ShowPreCompiledJS (path) {
+	var element = document.getElementById('output');
+	if (!element) return; // perhaps during startup
+	var areaid = "precompile_out";
+	element.innerHTML += encodeURI(path)+"<br/>";
+	element.innerHTML += "<textarea id='"+areaid+"' style='width:80%;height:100px'/>\n";
+	var element = document.getElementById(areaid);
+	if (!element) return; // perhaps during startup
+	
+	// load lua
+	gLastLoadedLuaCode = false;
+	MyProfileStart("RunLuaFromPath:download:"+path);
+	UtilAjaxGet(path,function (luacode) { gLastLoadedLuaCode = luacode; },true);
+	var luacode = gLastLoadedLuaCode;
+	
+	// parse&compile to js
+	var jscode = "function MyPreCompiledJS() {\n" +
+    lua_parser.parse(luacode) + "\n" +
+    "  return G;\n" +// thanks to deltaflux, for finding the bug that revealed that this line was missing
+    "};"
+	
+	// write to textarea
+	element.value = jscode;
+}
 
 // require "shaders"  mari0 main.lua... might be shaders/init.lua ? file_exists()
 function LoveRequireShaders () {
