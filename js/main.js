@@ -172,13 +172,15 @@ function Love_Web_CreateTable (G) {
 	t.str['getAgent']		= function (code) { return [navigator.userAgent]; }
 	t.str['setMaxFPS']		= function (fps) { gFrameWait = (fps && fps > 0)?(1000/fps):1; }
 	t.str['showPreCompiledJS']	= function (path) { ShowPreCompiledJS(path); }
+	t.str['browserIsFirefox']	= function () { return [gAgent_Firefox]; }
+	t.str['browserIsChrome']	= function () { return [gAgent_Chrome]; }
 	
 	//~ -- firefox browser= Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:11.0) Gecko/20100101 Firefox/11.0 @ http://localhost/love-webplayer/js/lua-parser.js:19
 	//~ -- chromium browser= Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.19 (KHTML, like Gecko) Ubuntu/11.04 Chromium/18.0.1025.151 Chrome/18.0.1025.151 Safari/535.19
 	
 	gAgent_Firefox = navigator.userAgent.indexOf("Firefox") != -1;
 	gAgent_Chrome = navigator.userAgent.indexOf("Chrome") != -1;
-	
+	MainPrint("browser: firefox,chrome=",gAgent_Firefox,gAgent_Chrome);
 }
 
 

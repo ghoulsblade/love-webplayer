@@ -130,13 +130,17 @@ function cLoveAudioSource (path,srctype) {
 		    var element = document.createElement('audio');
 			var myself = this;
 			this.element = element;
-			element.addEventListener("loadeddata"		, function() { myself.callback_loadeddata();		}, true);
-			element.addEventListener("canplay"			, function() { myself.callback_canplay();			}, true);
-			element.addEventListener("canplaythrough"	, function() { myself.callback_canplaythrough();	}, true);
+			element.addEventListener("loadeddata"		, function() { myself.callback_loadeddata();		});
+			element.addEventListener("canplay"			, function() { myself.callback_canplay();			});
+			element.addEventListener("canplaythrough"	, function() { myself.callback_canplaythrough();	});
+			element.addEventListener("ended"			, function() { myself.callback_ended();				});
+			element.addEventListener("abort"			, function() { myself.callback_abort();				});
+			element.addEventListener("error"			, function() { myself.callback_error();				});
+			element.addEventListener("emptied"			, function() { myself.callback_emptied();			});
 			//~ element.setAttribute('autoplay', "autoplay");
 			//~ element.addEventListener("load", function() {
 			  //~ element.play();
-			//~ }, true);
+			//~ });
 			//~ element.setAttribute('src', path);
 			element.preload = "auto"; // http://dev.w3.org/html5/spec/single-page.html#attr-media-preload
 			element.buffered = "auto"; // http://dev.w3.org/html5/spec/single-page.html#dom-media-buffered
@@ -157,7 +161,7 @@ function cLoveAudioSource (path,srctype) {
 			MainPrint("cLoveAudioSource 03");
 			element.load();
 			MainPrint("cLoveAudioSource 04");
-			element.addEventListener("load", function() { element.play(); }, true);
+			element.addEventListener("load", function() { element.play(); });
 			MainPrint("cLoveAudioSource 05");
 
 			if (srctype == "stream") ... 
@@ -170,47 +174,53 @@ function cLoveAudioSource (path,srctype) {
 	this.callback_loadeddata		= function () {} // readystate = HAVE_CURRENT_DATA reached
 	this.callback_canplay			= function () {} // readystate = HAVE_FUTURE_DATA reached
 	this.callback_canplaythrough	= function () {} // readystate = HAVE_ENOUGH_DATA reached
+	this.callback_ended				= function () {}
+	this.callback_abort				= function () {}
+	this.callback_error				= function () {}
+	this.callback_emptied			= function () {}
+	
 	//~ this.callback_loadeddata		= function () { MainPrint("callback_loadeddata",this.path); } 
 	//~ this.callback_canplay			= function () { MainPrint("callback_canplay",this.path); } 
 	//~ this.callback_canplaythrough	= function () { MainPrint("callback_canplaythrough",this.path); } 
+	//~ this.callback_abort				= function () { MainPrint("callback_abort",this.path); } 
+	//~ this.callback_error				= function () { MainPrint("callback_error",this.path); } 
+	//~ this.callback_emptied			= function () { MainPrint("callback_emptied",this.path); } 
+	//~ this.callback_ended				= function () { MainPrint("callback_ended",this.path); } 
 	
 	
 	this._play = function () {
 		if (!this.element) return;
 		var element = this.element;
-		if (element.play) {
-			if (element.readyState >= element.HAVE_ENOUGH_DATA) {
+		if (!element.play) return;
+		//~ if (element.readyState >= element.HAVE_CURRENT_DATA && !element.ended && !element.paused) {
+			//~ element.currentTime = 0; // rewind if still playing ? 
+		//~ } else 
+		if (element.readyState >= element.HAVE_ENOUGH_DATA) {
+			element.play();
+		} else if (element.readyState >= element.HAVE_CURRENT_DATA && element.networkState == element.NETWORK_IDLE) {
+			MainPrint("audio:play()",ReadyState2Txt(element),NetState2Txt(element),this.path);
+			element.play();
+			//~ element.currentTime = 0;
+		} else {
+			
+			MainPrint("audio:play() delayed...",ReadyState2Txt(element),NetState2Txt(element),this.path);
+			this.callback_canplaythrough = function () {
+				MainPrint("audio:play() delayed exec",ReadyState2Txt(element),NetState2Txt(element),this.path);
 				element.play();
-			} else if (element.readyState >= element.HAVE_CURRENT_DATA || element.networkState == element.NETWORK_IDLE) {
-				MainPrint("audio:play()",ReadyState2Txt(element),NetState2Txt(element),this.path);
-				element.play();
-			} else {
-				
-				MainPrint("audio:play() delayed...",ReadyState2Txt(element),NetState2Txt(element),this.path);
-				// audio:play() delayed... 0 3 media/music/001_SiENcE_-_ANThology.ogg  3==NETWORK_NO_SOURCE
-				
-				this.callback_canplaythrough = function () {
-					MainPrint("audio:play() delayed exec!!!",ReadyState2Txt(element),NetState2Txt(element),this.path);
-					element.play();
-				}
-				if (element.networkState == element.NETWORK_NO_SOURCE) {
-					MainPrint("audio:play() delay due to NETWORK_NO_SOURCE",ReadyState2Txt(element),NetState2Txt(element),this.path);
-					window.setTimeout(function () {
-						// try again after a few sek
-						if (element.networkState == element.NETWORK_NO_SOURCE) {
-							MainPrint("audio:play() timeout struck...",ReadyState2Txt(element),NetState2Txt(element),this.path);
-							element.load();
-						}
-						}, 5*1000);
-					element.src = this.path;
-					//~ element.setAttribute('src', this.path);
-				}
+			}
+			if (element.networkState == element.NETWORK_NO_SOURCE) {
+				MainPrint("audio:play() delay due to NETWORK_NO_SOURCE",ReadyState2Txt(element),NetState2Txt(element),this.path);
+				window.setTimeout(function () {
+					// try again after a few sek
+					if (element.networkState == element.NETWORK_NO_SOURCE) {
+						MainPrint("audio:play() timeout struck...",ReadyState2Txt(element),NetState2Txt(element),this.path);
+						element.load();
+					}
+					}, 5*1000);
+				element.src = this.path;
+				//~ element.setAttribute('src', this.path);
 			}
 		}
-		// loadeddata
-		// canplay  at least part of data loaded)
-		// canplaythrough =
-		
 	}
 	
 	this.play				= function () { // called as object method
@@ -227,30 +237,25 @@ function cLoveAudioSource (path,srctype) {
 	this.typeOf			= function () { return NotImplemented(pre+'typeOf'); }
 	this.getDirection	= function () { return NotImplemented(pre+'getDirection'); }
 	this.getPitch		= function () { return NotImplemented(pre+'getPitch'); }
-	this.getPosition	= function () { return NotImplemented(pre+'getPosition'); }
 	this.getVelocity	= function () { return NotImplemented(pre+'getVelocity'); }
-	this.getVolume		= function () { return NotImplemented(pre+'getVolume'); }
-	this.isLooping		= function () { return NotImplemented(pre+'isLooping'); }
-	this.isPaused		= function () { return NotImplemented(pre+'isPaused'); }
+	this.getPosition	= function () { return [this.element ? (this.element.setVolume) : 0]; }
+	this.getVolume		= function () { return [this.element ? (this.element.setVolume) : 0]; }
+	this.isLooping		= function () { return [this.element ? (this.element.loop) : false]; }
+	this.isPaused		= function () { return [this.element ? (this.element.paused) : false]; }
 	this.isStatic		= function () { return NotImplemented(pre+'isStatic'); }
-	this.isStopped		= function () { return NotImplemented(pre+'isStopped'); }
+	this.isStopped		= function () { return [this.element ? (this.element.ended || this.element.paused) : false]; }
 	this.pause			= function () { return NotImplemented(pre+'pause'); }
-	//~ this.play			= function () { return NotImplemented(pre+'play'); }
 	this.resume			= function () { return NotImplemented(pre+'resume'); }
 	this.rewind			= function () {
 		if (!this.element) return;
 		if (this.element.currentTime != null)
 			this.element.currentTime = 0;
-		//~ return NotImplemented(pre+'rewind');
 	}
 	this.setDirection	= function () { return NotImplemented(pre+'setDirection'); }
 	this.setLooping		= function (bLoop) { 
 		if (!this.element) return;
 		if (bLoop == null) return;
-		MainPrint("setLooping",this.path,bLoop);
 		this.element.loop = bLoop ? true : false;
-		//~ this.element.setAttribute('loop',"loop");
-		//~ return NotImplemented(pre+'setLooping');
 	}
 	this.setPitch		= function () { return NotImplemented(pre+'setPitch'); }
 	this.setPosition	= function (x,y,z) { return NotImplemented(pre+'setPosition'); }
@@ -259,14 +264,11 @@ function cLoveAudioSource (path,srctype) {
 		if (!this.element) return;
 		if (fVol == null) return; // setting volume=null turns the sound to noise on chrome 2012-04-25
 		if (this.element.volume != null)
-			this.element.volume = fVol; 
-		// html5 volume=1.0=loudest http://dev.w3.org/html5/spec/media-elements.html#dom-media-volume
-		//~ return NotImplemented(pre+'setVolume');
+			this.element.volume = fVol;  // html5 volume=1.0=loudest http://dev.w3.org/html5/spec/media-elements.html#dom-media-volume
 	}
 	this.stop			= function () {
 		if (!this.element) return;
 		if (this.element.stop) this.element.stop();
-		//~ return NotImplemented(pre+'stop');
 	}
 	this.constructor (path,srctype);	
 }
