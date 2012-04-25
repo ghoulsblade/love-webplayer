@@ -2,7 +2,6 @@
 error_reporting(-1);
 // CONFIG
 define("IMAGE_TYPES","png,jpg,gif");
-define("DEFAULT_GAME",NULL);
 
 // STOP CONFING'IN
 function glob_recursive($pattern, $flags = 0){//http://www.php.net/manual/en/function.glob.php#106595
