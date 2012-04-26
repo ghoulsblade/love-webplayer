@@ -1,6 +1,6 @@
 <?php
 // 2012-04-26 optional index.php that can be in game folder or in parent folder with multiple games in subfolders. automatically generates preload-image list
-error_reporting(-1);
+//~ error_reporting(-1);
 // CONFIG
 define("IMAGE_TYPES","png,jpg,gif");
 
@@ -16,31 +16,32 @@ function glob_recursive($pattern, $flags = 0){//http://www.php.net/manual/en/fun
 ?><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
   <head>
+  <?php $prefix = is_file("js/main.js") ? "" : "../" ?>
   <?php if(is_file("main.lua")){ ?>
-    <link rel="stylesheet" href="../style.css" type="text/css">
-    <script type="text/javascript" src="../js/lua-parser.js"></script>
-    <script type="text/javascript" src="../js/gamepad.js"></script>
-    <script type="text/javascript" src="../js/jquery.js"></script>
-    <script type="text/javascript" src="../js/jquery.hotkeys.js"></script>
-    <script type="text/javascript" src="../js/utils.js"></script>
-    <script type="text/javascript" src="../js/utils.webgl.js"></script>
-    <script type="text/javascript" src="../js/love.render.js"></script>
-    <script type="text/javascript" src="../js/main.js"></script>
-    <script type="text/javascript" src="../js/love.audio.js"></script>
-    <script type="text/javascript" src="../js/love.event.js"></script>
-    <script type="text/javascript" src="../js/love.filesystem.js"></script>
-    <script type="text/javascript" src="../js/love.font.js"></script>
-    <script type="text/javascript" src="../js/love.graphics.js"></script>
-    <script type="text/javascript" src="../js/love.image.js"></script>
-    <script type="text/javascript" src="../js/love.joystick.js"></script>
-    <script type="text/javascript" src="../js/love.keyboard.js"></script>
-    <script type="text/javascript" src="../js/love.mouse.js"></script>
-    <script type="text/javascript" src="../js/love.physics.js"></script>
-    <script type="text/javascript" src="../js/love.sound.js"></script>
-    <script type="text/javascript" src="../js/love.thread.js"></script>
-    <script type="text/javascript" src="../js/love.timer.js"></script>
-    <script type="text/javascript">gShaderCode_Fragment = LoadShaderCode("../js/fragment.shader");</script>
-    <script type="text/javascript">gShaderCode_Vertex   = LoadShaderCode("../js/vertex.shader");</script>
+    <link rel="stylesheet" href="<?php echo $prefix; ?>style.css" type="text/css">
+    <script type="text/javascript" src="<?php echo $prefix; ?>js/lua-parser.js"></script>
+    <script type="text/javascript" src="<?php echo $prefix; ?>js/gamepad.js"></script>
+    <script type="text/javascript" src="<?php echo $prefix; ?>js/jquery.js"></script>
+    <script type="text/javascript" src="<?php echo $prefix; ?>js/jquery.hotkeys.js"></script>
+    <script type="text/javascript" src="<?php echo $prefix; ?>js/utils.js"></script>
+    <script type="text/javascript" src="<?php echo $prefix; ?>js/utils.webgl.js"></script>
+    <script type="text/javascript" src="<?php echo $prefix; ?>js/love.render.js"></script>
+    <script type="text/javascript" src="<?php echo $prefix; ?>js/main.js"></script>
+    <script type="text/javascript" src="<?php echo $prefix; ?>js/love.audio.js"></script>
+    <script type="text/javascript" src="<?php echo $prefix; ?>js/love.event.js"></script>
+    <script type="text/javascript" src="<?php echo $prefix; ?>js/love.filesystem.js"></script>
+    <script type="text/javascript" src="<?php echo $prefix; ?>js/love.font.js"></script>
+    <script type="text/javascript" src="<?php echo $prefix; ?>js/love.graphics.js"></script>
+    <script type="text/javascript" src="<?php echo $prefix; ?>js/love.image.js"></script>
+    <script type="text/javascript" src="<?php echo $prefix; ?>js/love.joystick.js"></script>
+    <script type="text/javascript" src="<?php echo $prefix; ?>js/love.keyboard.js"></script>
+    <script type="text/javascript" src="<?php echo $prefix; ?>js/love.mouse.js"></script>
+    <script type="text/javascript" src="<?php echo $prefix; ?>js/love.physics.js"></script>
+    <script type="text/javascript" src="<?php echo $prefix; ?>js/love.sound.js"></script>
+    <script type="text/javascript" src="<?php echo $prefix; ?>js/love.thread.js"></script>
+    <script type="text/javascript" src="<?php echo $prefix; ?>js/love.timer.js"></script>
+    <script type="text/javascript">gShaderCode_Fragment = LoadShaderCode("<?php echo $prefix; ?>js/fragment.shader");</script>
+    <script type="text/javascript">gShaderCode_Vertex   = LoadShaderCode("<?php echo $prefix; ?>js/vertex.shader");</script>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
     <?php } ?>
     <title>Love Webplayer</title>
@@ -57,7 +58,7 @@ if(is_file("main.lua")){
     $output[].= "'".$file."'";
   }
 ?>
-  <body onload="MainOnLoad([<?php echo implode(",",$output); ?>])">
+  <body onload="LoveFileList('<?php echo isset($game)?"../filelist.php?game=$game":"filelist.php"; ?>'); MainOnLoad([<?php echo implode(",",$output); ?>])">
     <h1>Love Webplayer</h1>
       <canvas id="glcanvas" width="800" height="600">
         Your browser doesn't appear to support the HTML5 <code>&lt;canvas&gt;</code> element.  
@@ -69,15 +70,16 @@ if(is_file("main.lua")){
     <ul>
 <?php
 foreach(glob("*/main.lua") as $game){
-  $name = dirname($game)."/index.php";
-  if(is_file($name)){
-    echo "      <li><a href=\"$name\">Run ".dirname($game)."</a></li>\n";
-  } else {
-    if(is_writable($name)){
-      file_put_contents(dirname($game)."/index.php","<?php require(\"../index.php\");");  
+  $path = dirname($game)."/index.php";
+  if(!is_file($path)){
+    if(is_writable($path)){
+      file_put_contents($path,"<?php ".'$game = "'.addslashes($game).'";'."\n"."require(\"../index.php\");\n");
     } else {
-      echo "<i>Unable to write to</i> <code>$name</code>";
+      echo "<i>Unable to write to</i> <code>$path</code> <br/>";
     }
+  }
+  if(is_file($path)){
+    echo "      <li><a href=\"$name\">Run ".dirname($game)."</a></li>\n";
   }
 }
 ?>
