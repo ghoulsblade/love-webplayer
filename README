@@ -19,20 +19,13 @@ known issues :
 * ticket/issue at lua.js github : https://github.com/mherkender/lua.js/issues/5
 * parser bug : clouds demo : parse error in keypressed :  >> love.filesystem.load("main.lua")() <<   workaround : >> (love.filesystem.load("main.lua"))() <<
 * parser NotImplemented : string.format("%d",5),debug.backtrace,coroutines,...
-
-bug found during ludumdare201204 :  nested metatable not supported ? 
-	fails in web : self:Register("xyz")
-	workaround   : cObjBase.Register(self,"xyz")
-	later more central workaround in lib.oop.lua of copy instead of meta-inside-meta
-	
-bug found during ludumdare201204 : 
-	tostring needed around number : love.graphics.print(tostring(t.hud_position+1), px-2,py-2, 0, 0.5, 0.5)
-				
-bug found during ludumdare201204 : 
-	DrawArcRing : local poly = {0,0, 0,0, 0,0, 0,0} poly[1],poly[2] = 3,4  print(unpack(poly)) -- should be 3,4 but is 0,4 ?
+* parser bug : nested metatable not supported (esp. oop libs with inheritance) (see luajs issue)
+* parser bug : local poly = {1,2,3} poly[1],poly[2] = 4,5 print("unpack:",unpack(poly)) -- should print "4 5 3" but only prints "4 5" in luajs
 
 web api available:
 * if (love.web) then ... end
 * love.web.javascript("jsfun()")
 * if (string.find(love.web.getAgent(),"MSIE")) then ...mp3... else ...ogg... end
 * love.web.setMaxFPS(99) -- default 60, stepper interval
+* love.web.showPreCompiledJS("map.lua") -- shows a html textbox with the lua file converted to javascript, useful for loading big (several mb) files in firefox without parser hang, see ludumdare201204 for example
+* if (love.web.browserIsFirefox() or love.web.browserIsChrome()) then ... end

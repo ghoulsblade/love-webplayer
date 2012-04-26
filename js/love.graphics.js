@@ -138,8 +138,8 @@ function Love_Graphics_CreateTable (G) {
 	t.str['getWidth']			= function () { return [gMyCanvasWidth]; }
 	t.str['getHeight']			= function () { return [gMyCanvasHeight]; }
 	
-	t.str['print']				= function (s, x, y, r, sx, sy)		{ if (mFont != null) mFont.print(s, x, y, r||0, sx||1, (sy||sx)||1 ); return LuaNil; }
-	t.str['printf']				= function (s, x, y, limit, align )	{ if (mFont != null) mFont.printf(s, x, y, limit, align || "left"); return LuaNil; }
+	t.str['print']				= function (s, x, y, r, sx, sy)		{ if (mFont != null) mFont.print(String(s), x, y, r||0, sx||1, (sy||sx)||1 ); return LuaNil; }
+	t.str['printf']				= function (s, x, y, limit, align )	{ if (mFont != null) mFont.printf(String(s), x, y, limit, align || "left"); return LuaNil; }
 	t.str['setFont']			= function (x) { mFont = (x == undefined) ? mDefaultFont : x._data; return LuaNil; }
 	//~ t.str['setFont']			= function (x) { mFont = mDefaultFont; return LuaNil; }
 	
