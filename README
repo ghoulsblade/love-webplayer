@@ -20,7 +20,6 @@ known issues :
 * parser bug : clouds demo : parse error in keypressed :  >> love.filesystem.load("main.lua")() <<   workaround : >> (love.filesystem.load("main.lua"))() <<
 * parser NotImplemented : string.format("%d",5),debug.backtrace,coroutines,...
 * parser bug : nested metatable not supported (esp. oop libs with inheritance) (see luajs issue)
-* parser bug : local poly = {1,2,3} poly[1],poly[2] = 4,5 print("unpack:",unpack(poly)) -- should print "4 5 3" but only prints "4 5" in luajs
 
 web api available:
 * if (love.web) then ... end
