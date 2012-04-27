@@ -20,6 +20,18 @@ var gEnableLove080 = false;
 var kProfileReportIfTimeAbove = 1*1000; ///< msec
 var kProfileReportIfTimeAbove = 0.1*1000; ///< msec
 
+function lua_precompile (code) { 
+	// >>> love.filesystem.load("test.print.myvar.lua")() <<< ->  >>> (love.filesystem.load("test.print.myvar.lua"))() <<<
+	code = code.replace(/(love.filesystem.load)\(([^\)]*)\)\(\)/g,"($1($2))()");
+	//~ code = code.replace(/([\w\.]+)\(([^\)]*)\)\(\)/g,"($1($2))()");
+	return code;
+}
+
+_lua_load_orig = lua_load; 
+// overwrite original lua_load for precompile fixes
+lua_load = function (chunk, chunkname) { return _lua_load_orig(lua_precompile(chunk), chunkname); }
+
+
 /// output in html, for fatal error messages etc, also users that don't have webdev console open can see them
 function MainPrintToHTMLConsole () {
 	if (gMaxHTMLConsoleLines == 0) return;
@@ -160,6 +172,9 @@ function LuaBootStrap (G) {
 		
 		//~ NOTE: replaces parser lib lua_require(G, path);
 	};
+	G.str['dofile'] = function (path) {
+		return RunLuaFromPath(path);
+	};
 }
 
 /// init lua api
@@ -200,13 +215,16 @@ function showPreCompiledJS (path) {
 	var luacode = gLastLoadedLuaCode;
 	
 	// parse&compile to js
-	var jscode = "function MyPreCompiledJS() {\n" +
-    lua_parser.parse(luacode) + "\n" +
-    "  return G;\n" +// thanks to deltaflux, for finding the bug that revealed that this line was missing
-    "};"
-	
-	// write to textarea
-	element.value = jscode;
+	if (luacode != null) {
+		luacode = lua_precompile(luacode);
+		var jscode = "function MyPreCompiledJS() {\n" +
+		lua_parser.parse(luacode) + "\n" +
+		"  return G;\n" +// thanks to deltaflux, for finding the bug that revealed that this line was missing
+		"};"
+		
+		// write to textarea
+		element.value = jscode;
+	}
 	//~ MainPrint("showPreCompiledJS: code written");
 }
 
