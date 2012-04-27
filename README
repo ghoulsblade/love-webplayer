@@ -13,22 +13,26 @@ love2d is a lua based 2d game engine : http://love2d.org/
 lua-parser.js is a lua interpreter/converter in javascript from https://github.com/mherkender/lua.js (added LuaBootStrap call)
 
 not-yet-implemented (incomplete list) 
+* love 0.8 api (currently webplayer is mostly for 0.7, to test some 0.8 stuff add to index.html : <body onload="Love_Enable_Experimental_080(); ...>
 * spritebatch,framebuf
 * love.physics/box2d 
-* font truetype/ttf loading
+* font truetype/ttf loading (rasterizer), pixelfonts should work  (except a few special cases in text formatting/wrapping)
 * network/luasocket
 * love.thread
+* love.sound sounddata/decoder stuff. audio itself should work, but is troublesome in some browsers, notably firefox (html5 audio)
+* love.timer.sleep : not possible in js, would lead to browser hang in most browsers
+* love.imagedata (load-from-file + imgdata.paste + graphics.newImage(imgdata) works, but not decoding, etc)
+* love.filesystem stuff (some of it already works, but only if "localstorage" is available in the browser, stored in cookies or sth)
 * debug.stacktrace and useful stacktraces on error in general (i recommend testing in native love first and if the problem is webplayer only litter the code with lots of print("pos01") to narrow it down)
 * complex string matching pattern, especially balanced braces
 
 known issues : 
 * 404 warning in webconsole when using "require somemodule", you can safely ignore this, this is just the only way javascript can do a file-exists check for the module loading behavior of require
-* workaround for 404 : call LoveFileList('filelist.txt') in index.html body onload to enable love.filesystem.enumerate
+* (TODO) workaround for 404 : call LoveFileList('filelist.txt') in index.html body onload to enable love.filesystem.enumerate
 * images have to be listed in index.html onLoad call for preloading, otherwise .width/.height access can return 0, and it's not possible in chrome+firefox to pause running code without changing code-structure to callback
 * ticket/issue at lua.js github : https://github.com/mherkender/lua.js/issues/5
-* parser bug : clouds demo : parse error in keypressed :  >> love.filesystem.load("main.lua")() <<   workaround : >> (love.filesystem.load("main.lua"))() <<
+* parser bug : clouds demo : parse error in keypressed :  >> love.filesystem.load("main.lua")() << (already fixed for some generic cases) workaround : >> (love.filesystem.load("main.lua"))() <<
 * parser NotImplemented : string.format("%d",5),debug.backtrace,coroutines,...
-* parser bug : nested metatable not supported (esp. oop libs with inheritance) (see luajs issue)
 * firefox(11) is known to have issues with sound: lag,delay..   chrome (18.0.1025.151) works better for me on ubuntu 11.04 (2012-04)
 
 web api available:
