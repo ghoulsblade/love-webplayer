@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
+var gPrintParserDebug;
 var lua_print = function () {
   try {
     console.log.apply(console, arguments);
@@ -626,7 +626,17 @@ case 89: this.$ = {prefixexp: $$[$0-3].single, access: $$[$0-1].single};
 break;
 case 90: this.$ = {prefixexp: $$[$0-2].single, access: "'" + $$[$0] + "'"}; 
 break;
-case 91: this.$ = "lua_call(" + $$[$0-1].single + ", " + getTempDecl($$[$0]) + ")"; 
+case 91: this.$ = "lua_call( /*bla!*/ " + $$[$0-1].single + ", " + getTempDecl($$[$0]) + ", "+longStringToString($$[$0-1].single)+")";
+	//~ NOTE : encodeURI->longStringToString
+	//~ if (gPrintParserDebug != null) {   
+	//~ MainPrint("---------------");
+	//~ MainPrint("create table.field call called=",$$[$0-1]);
+	//~ MainPrint("create table.field call params",[yytext,yyleng,yylineno,yy,yystate]);
+	//~ MainPrint("create table.field call yy.lexer.showPosition=",yy.lexer.showPosition());
+	//~ MainPrint("create table.field call $0=",$0);
+	//~ MainPrint("create table.field call $$=",$$);
+	//~ MainPrint("create table.field call _$=",_$);
+	//~ }
 break;
 case 92: this.$ = "lua_mcall(" + $$[$0-3].single + ", '" + $$[$0-1] + "', " + getTempDecl($$[$0]) + ")"; 
 break;
@@ -1279,11 +1289,11 @@ function lua_rawcall(func, args) {
     throw e;
   }
 }
-function lua_call(func, args) {
+function lua_call(func, args, origin) {
   if (typeof func == "function") {
     return lua_rawcall(func, args);
   } else {
-    if (func == null) throw new Error("attempt to call nil");
+    if (func == null) throw new Error("attempt to call nil ("+String(origin)+")");
     var h = func.metatable && func.metatable.str["__call"];
     if (h != null) {
       return lua_rawcall(h, [func].concat(args));
