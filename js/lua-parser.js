@@ -1283,6 +1283,7 @@ function lua_call(func, args) {
   if (typeof func == "function") {
     return lua_rawcall(func, args);
   } else {
+    if (func == null) throw new Error("attempt to call nil");
     var h = func.metatable && func.metatable.str["__call"];
     if (h != null) {
       return lua_rawcall(h, [func].concat(args));
@@ -1292,7 +1293,9 @@ function lua_call(func, args) {
   }
 }
 function lua_mcall(obj, methodname, args) {
-  return lua_call(lua_tableget(obj, methodname), [obj].concat(args));
+  var fun = lua_tableget(obj, methodname);
+  if (fun == null) throw new Error("attempt to call method '"+String(methodname)+"' (a nil value)");
+  return lua_call(fun, [obj].concat(args));
 }
 function lua_eq(op1, op2) {
   if (typeof op1 != typeof op2) {

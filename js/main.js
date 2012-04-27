@@ -171,7 +171,7 @@ function Love_Web_CreateTable (G) {
 	/// e.g. if (string.find(love.web.getAgent(),"MSIE")) then ...mp3... else ...ogg... end
 	t.str['getAgent']		= function (code) { return [navigator.userAgent]; }
 	t.str['setMaxFPS']		= function (fps) { gFrameWait = (fps && fps > 0)?(1000/fps):1; }
-	t.str['showPreCompiledJS']	= function (path) { ShowPreCompiledJS(path); }
+	t.str['showPreCompiledJS']	= function (path) { showPreCompiledJS(path); }
 	t.str['browserIsFirefox']	= function () { return [gAgent_Firefox]; }
 	t.str['browserIsChrome']	= function () { return [gAgent_Chrome]; }
 	
@@ -184,14 +184,14 @@ function Love_Web_CreateTable (G) {
 }
 
 
-function ShowPreCompiledJS (path) {
+function showPreCompiledJS (path) {
 	var element = document.getElementById('output');
-	if (!element) return; // perhaps during startup
+	if (!element) { MainPrint("showPreCompiledJS: output not found"); return; } // perhaps during startup
 	var areaid = "precompile_out";
 	element.innerHTML += encodeURI(path)+"<br/>";
 	element.innerHTML += "<textarea id='"+areaid+"' style='width:80%;height:100px'/>\n";
 	var element = document.getElementById(areaid);
-	if (!element) return; // perhaps during startup
+	if (!element) { MainPrint("showPreCompiledJS: textarea not found"); return; } // perhaps during startup
 	
 	// load lua
 	gLastLoadedLuaCode = false;
@@ -207,6 +207,7 @@ function ShowPreCompiledJS (path) {
 	
 	// write to textarea
 	element.value = jscode;
+	//~ MainPrint("showPreCompiledJS: code written");
 }
 
 // require "shaders"  mari0 main.lua... might be shaders/init.lua ? file_exists()
