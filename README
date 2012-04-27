@@ -12,6 +12,15 @@ tech : webgl for display, github.com/mherkender/lua.js to run lua code in javasc
 love2d is a lua based 2d game engine : http://love2d.org/ 
 lua-parser.js is a lua interpreter/converter in javascript from https://github.com/mherkender/lua.js (added LuaBootStrap call)
 
+not-yet-implemented (incomplete list) 
+* spritebatch,framebuf
+* love.physics/box2d 
+* font truetype/ttf loading
+* network/luasocket
+* love.thread
+* debug.stacktrace and useful stacktraces on error in general (i recommend testing in native love first and if the problem is webplayer only litter the code with lots of print("pos01") to narrow it down)
+* complex string matching pattern, especially balanced braces
+
 known issues : 
 * 404 warning in webconsole when using "require somemodule", you can safely ignore this, this is just the only way javascript can do a file-exists check for the module loading behavior of require
 * workaround for 404 : call LoveFileList('filelist.txt') in index.html body onload to enable love.filesystem.enumerate
@@ -20,6 +29,7 @@ known issues :
 * parser bug : clouds demo : parse error in keypressed :  >> love.filesystem.load("main.lua")() <<   workaround : >> (love.filesystem.load("main.lua"))() <<
 * parser NotImplemented : string.format("%d",5),debug.backtrace,coroutines,...
 * parser bug : nested metatable not supported (esp. oop libs with inheritance) (see luajs issue)
+* firefox(11) is known to have issues with sound: lag,delay..   chrome (18.0.1025.151) works better for me on ubuntu 11.04 (2012-04)
 
 web api available:
 * if (love.web) then ... end
