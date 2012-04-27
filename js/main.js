@@ -217,10 +217,15 @@ function showPreCompiledJS (path) {
 	// parse&compile to js
 	if (luacode != null) {
 		luacode = lua_precompile(luacode);
-		var jscode = "function MyPreCompiledJS() {\n" +
+		var jscode = "";
+		
+		jscode += "// precompiled lua-js code for "+path+", run with:\n";
+		jscode += "// if (MyPreCompiledJS) MyPreCompiledJS();\n";
+		jscode += "// or similar\n";
+		jscode += "function MyPreCompiledJS() {\n" +
 		lua_parser.parse(luacode) + "\n" +
-		"  return G;\n" +// thanks to deltaflux, for finding the bug that revealed that this line was missing
-		"};"
+		"  return G;\n" +
+		"};\n"
 		
 		// write to textarea
 		element.value = jscode;
