@@ -20,6 +20,7 @@ function glob_recursive($pattern, $flags = 0){//http://www.php.net/manual/en/fun
   <?php if(is_file("main.lua")){ ?>
     <link rel="stylesheet" href="<?php echo $prefix; ?>style.css" type="text/css">
     <script type="text/javascript" src="<?php echo $prefix; ?>js/lua-parser.js"></script>
+    <script type="text/javascript" src="<?php echo $prefix; ?>js/lua-parser-utils.js"></script>
     <script type="text/javascript" src="<?php echo $prefix; ?>js/gamepad.js"></script>
     <script type="text/javascript" src="<?php echo $prefix; ?>js/jquery.js"></script>
     <script type="text/javascript" src="<?php echo $prefix; ?>js/jquery.hotkeys.js"></script>
