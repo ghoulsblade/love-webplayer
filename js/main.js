@@ -258,7 +258,7 @@ function RunLuaFromPath (path, safe) {
 		MyProfileEnd();
 		// error during run, display infos as good as possible, lua-stacktrace would be cool here, but hard without line numbers
 		if (!safe)
-			LoveFatalError("error during "+path+" : "+String(e)+" : "+PrepareExceptionStacktraceForOutput(e)); 
+			LoveFatalError("error during "+path+" : "+String(e)+" :\n"+PrepareExceptionStacktraceForOutput(e)); 
 	}
 }
 
@@ -282,7 +282,7 @@ function call_love_callback_guarded (callbackname,fargs) {
 	try {
 		return lua_call(G.str['love'].str[callbackname],fargs);
 	} catch (e) {
-		LoveFatalError("error during love."+callbackname+"("+String(fargs)+") : "+String(e)+" : "+PrepareExceptionStacktraceForOutput(e));
+		LoveFatalError("error during love."+callbackname+"("+String(fargs)+") : "+String(e)+" :\n"+PrepareExceptionStacktraceForOutput(e));
 	}
 }
 
@@ -307,7 +307,7 @@ function call_lua_function(name, fargs)
 	}
 	catch (e)
 	{
-		LoveFatalError("Error during "+name+"("+String(fargs)+") : "+String(e)+" : "+PrepareExceptionStacktraceForOutput(e));
+		LoveFatalError("Error during "+name+"("+String(fargs)+") : "+String(e)+" :\n"+PrepareExceptionStacktraceForOutput(e));
 	}
 }
 
@@ -332,7 +332,7 @@ function call_lua_function_safe(name, fargs)
 	}
 	catch (e)
 	{
-		LoveFatalError("Error during "+name+"("+String(fargs)+") : "+String(e)+" : "+PrepareExceptionStacktraceForOutput(e));
+		LoveFatalError("Error during "+name+"("+String(fargs)+") : "+String(e)+" :\n"+PrepareExceptionStacktraceForOutput(e));
 	}
 }
 
