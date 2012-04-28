@@ -95,17 +95,3 @@ lua_libs["string"]["match"] = function (s,pattern,init) {
 	if (results.length > 1) results = results.slice(1); // remove first result entry which is the whole match
 	return results;
 }
-
-lua_libs["table"]["concat"] = function (table, sep, i, j) {
-	var uints = table.uints;
-	if (uints.join == null) { // uints= object rather than array, convert (arraymode?)
-		uints = [];
-		for (var k in table.uints) uints.push(table.uints[k]);
-	}
-	if (i) {
-		if (j == null) j = uints.length;
-		uints = uints.slice(i-1,j);
-	}
-	return [uints.join(sep)];
-}
-

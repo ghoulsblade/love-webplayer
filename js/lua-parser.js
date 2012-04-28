@@ -1918,7 +1918,7 @@ lua_libs["math"] = {
     return [(Math.exp(x) + Math.exp(-x)) / 2];
   },
   "deg": function (x) {
-    return [x * (Math.PI / 180)];
+    return [x * (180 / Math.PI)];
   },
   "exp": function (x) {
     return [Math.exp(x)];
@@ -1957,7 +1957,7 @@ lua_libs["math"] = {
     return [Math.pow(x, y)];
   },
   "rad": function (x) {
-    return [x * (180 / Math.PI)];
+    return [x * (Math.PI / 180)];
   },
   "sin": function (x) {
     return [Math.sin(x)];
@@ -2207,8 +2207,18 @@ String.prototype["metatable"] = lua_newtable(null, "__index", lua_newtable2(lua_
 // table
 lua_libs["table"] = {
   "concat": function (table, sep, i, j) {
-    // TODO
-    not_supported();
+    ensure_arraymode(table);
+    if (sep == null) {
+      sep = "";
+    }
+    if (i != null) {
+      if (j == null) {
+        j = table.uints.length;
+      }
+      return [table.uints.slice(i - 1, j).join(sep)];
+    } else {
+      return [table.uints.join(sep)];
+    }
   },
   "insert": function (table, pos, value) {
     ensure_arraymode(table);
