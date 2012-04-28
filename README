@@ -34,6 +34,8 @@ known issues :
 * parser bug : clouds demo : parse error in keypressed :  >> love.filesystem.load("main.lua")() << (already fixed for some generic cases) workaround : >> (love.filesystem.load("main.lua"))() <<
 * parser NotImplemented : string.format("%d",5),debug.backtrace,coroutines,...
 * firefox(11) is known to have issues with sound: lag,delay..   chrome (18.0.1025.151) works better for me on ubuntu 11.04 (2012-04)
+* doesn't work with file:// url for some reason. so you need to upload stuff to a webserver to try, php and similar isn't needed.
+* when changing lua files, be sure to clear browser cache to see your changes, pressing f5 is not enough since it doesn't refresh dynamically loaded files like the .lua ones
 
 web api available:
 * if (love.web) then ... end
