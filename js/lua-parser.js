@@ -220,7 +220,7 @@ case 12:
 break;
 case 13:
     if ($$[$0].access) {
-      this.$ = {single: "lua_tableget(" + $$[$0].prefixexp + ", " + $$[$0].access + ")"};
+      this.$ = {single: "lua_tableget(" + $$[$0].prefixexp + ", " + $$[$0].access + ")", single_tableget: $$[$0]};
     } else {
       this.$ = {single: $$[$0].prefixexp};
     }
@@ -626,7 +626,14 @@ case 89: this.$ = {prefixexp: $$[$0-3].single, access: $$[$0-1].single};
 break;
 case 90: this.$ = {prefixexp: $$[$0-2].single, access: "'" + $$[$0] + "'"}; 
 break;
-case 91: this.$ = "lua_call( /*bla!*/ " + $$[$0-1].single + ", " + getTempDecl($$[$0]) + ", "+longStringToString($$[$0-1].single)+")";
+case 91:
+    if ($$[$0-1].single_tableget) {
+      this.$ = "lua_tablegetcall(" + $$[$0-1].single_tableget.prefixexp + ", " + $$[$0-1].single_tableget.access + ", " + getTempDecl($$[$0]) + ")";
+    } else {
+      //~ this.$ = "lua_call(" + $$[$0-1].single + ", " + getTempDecl($$[$0]) + ")";
+      this.$ = "lua_call(" + $$[$0-1].single + ", " + getTempDecl($$[$0]) + ", "+longStringToString($$[$0-1].single)+")";
+    }
+  
 	//~ NOTE : encodeURI->longStringToString
 	//~ if (gPrintParserDebug != null) {   
 	//~ MainPrint("---------------");
@@ -1289,11 +1296,32 @@ function lua_rawcall(func, args) {
     throw e;
   }
 }
+
+// could be replaced by lua_call(lua_tableget(table, key), args)
+// but this gives better error messages
+function lua_tablegetcall(table, key, args) {
+  var func = lua_tableget(table, key);
+  if (typeof func == "function") {
+    return lua_rawcall(func, args);
+  } else {
+    if (func == null) {
+      throw new Error("attempt to call field '" + key + "' (a nil value)");
+    }
+    var h = func.metatable && func.metatable.str["__call"];
+    if (h != null) {
+      return lua_rawcall(h, [func].concat(args));
+    } else {
+      throw new Error("Could not call " + func + " as function");
+    }
+  }
+}
 function lua_call(func, args, origin) {
   if (typeof func == "function") {
     return lua_rawcall(func, args);
   } else {
-    if (func == null) throw new Error("attempt to call nil ("+String(origin)+")");
+    if (func == null) {
+      throw new Error("attempt to call function (a nil value) ("+String(origin)+")");
+    }
     var h = func.metatable && func.metatable.str["__call"];
     if (h != null) {
       return lua_rawcall(h, [func].concat(args));
@@ -1303,9 +1331,11 @@ function lua_call(func, args, origin) {
   }
 }
 function lua_mcall(obj, methodname, args) {
-  var fun = lua_tableget(obj, methodname);
-  if (fun == null) throw new Error("attempt to call method '"+String(methodname)+"' (a nil value)");
-  return lua_call(fun, [obj].concat(args));
+  var func = lua_tableget(obj, methodname);
+  if (func == null) {
+    throw new Error("attempt to call method '" + methodname + "' (a nil value)");
+  }
+  return lua_call(func, [obj].concat(args));
 }
 function lua_eq(op1, op2) {
   if (typeof op1 != typeof op2) {
@@ -1560,7 +1590,7 @@ function lua_rawset(table, key, value) {
 }
 function lua_tableget(table, key) {
   if (table == null) {
-    throw new Error("Table is null");
+    throw new Error("attempt to index field '" + key + "' in a nil value");
   }
   if (typeof table == "object") {
     var v = lua_rawget(table, key);
@@ -1585,7 +1615,7 @@ function lua_tableget(table, key) {
 }
 function lua_tableset(table, key, value) {
   if (table == null) {
-    throw new Error("Table is null");
+    throw new Error("attempt to set field '" + key + "' in a nil value");
   }
   if (typeof table == "object") {
     var v = lua_rawget(table, key);

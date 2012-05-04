@@ -27,6 +27,7 @@ not-yet-implemented (incomplete list)
 * complex string matching pattern, especially balanced braces
 
 known issues : 
+* audio : music formats .xm and .mod not supported by browsers usually
 * 404 warning in webconsole when using "require somemodule", you can safely ignore this, this is just the only way javascript can do a file-exists check for the module loading behavior of require
 * (TODO) workaround for 404 : call LoveFileList('filelist.txt') in index.html body onload to enable love.filesystem.enumerate
 * images have to be listed in index.html onLoad call for preloading, otherwise .width/.height access can return 0, and it's not possible in chrome+firefox to pause running code without changing code-structure to callback
