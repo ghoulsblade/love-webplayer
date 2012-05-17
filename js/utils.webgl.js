@@ -38,7 +38,7 @@ function initWebGL(canvas) {
 	} catch(e) { }
 
 	// If we don't have a GL context, give up now
-	if (!gl) alert("Unable to initialize WebGL. Your browser may not support it.");
+	if (!gl) LoveFatalError("Unable to initialize WebGL. Your browser may not support it.");
 }  
 
 // Loads a shader program by scouring the current document, looking for a script with the specified ID.
