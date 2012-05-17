@@ -1,16 +1,44 @@
 var kFloatSize = 4; // 4; // sizeof(GLfloat) doesn't seem to work...
 var gGLErrorAlertsStopped = false;
+var gl;
 
 // ***** ***** ***** ***** ***** gl init
 
+
+// from https://cvs.khronos.org/svn/repos/registry/trunk/public/webgl/sdk/demos/common/webgl-utils.js
+function create3DContext (canvas, opt_attribs) {
+  var names = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
+  var context = null;
+  for (var ii = 0; ii < names.length; ++ii) {
+    try {
+      context = canvas.getContext(names[ii], opt_attribs);
+    } catch(e) {}
+    if (context) {
+      break;
+    }
+  }
+  return context;
+}
+
 // Initialize WebGL, returning the GL context or null if WebGL isn't available or could not be initialized.
-function initWebGL(canvas) {  
-	gl = null;  
-	try {  
-		gl = canvas.getContext("experimental-webgl");  
+function initWebGL(canvas) {
+	gl = null;
+	// http://www.khronos.org/webgl/wiki/FAQ#What_is_the_recommended_way_to_initialize_WebGL.3F
+	try {
+		if (!window.WebGLRenderingContext) {
+			// the browser doesn't even know what WebGL is
+			window.location = "http://get.webgl.org";
+		} else {
+			gl = create3DContext(canvas);
+			if (!gl) {
+				// browser supports WebGL but initialization failed.
+				window.location = "http://get.webgl.org/troubleshooting";
+			}
+		}
 	} catch(e) { }
-	// If we don't have a GL context, give up now  
-	if (!gl) alert("Unable to initialize WebGL. Your browser may not support it.");  
+
+	// If we don't have a GL context, give up now
+	if (!gl) alert("Unable to initialize WebGL. Your browser may not support it.");
 }  
 
 // Loads a shader program by scouring the current document, looking for a script with the specified ID.
