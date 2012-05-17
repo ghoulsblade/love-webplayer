@@ -1,6 +1,5 @@
 var kUseHTMLConsole = false; // if false, output is still visible in firefox javascript console
 var G = null; // the big lua _G containing lua global vars
-var gFrameWait = 1000/60; // TODO: adjust for performance ?
 var gMyTicks = MyGetTicks();
 var gSecondsSinceLastFrame = 0;
 var gMaxHTMLConsoleLines = 10;
@@ -19,6 +18,7 @@ var LuaNoParam = [];
 var gEnableLove080 = false;
 var kProfileReportIfTimeAbove = 1*1000; ///< msec
 var kProfileReportIfTimeAbove = 0.1*1000; ///< msec
+var gCanvasElement;
 
 function lua_precompile (code) { 
 	// >>> love.filesystem.load("test.print.myvar.lua")() <<< ->  >>> (love.filesystem.load("test.print.myvar.lua"))() <<<
@@ -185,7 +185,7 @@ function Love_Web_CreateTable (G) {
 	
 	/// e.g. if (string.find(love.web.getAgent(),"MSIE")) then ...mp3... else ...ogg... end
 	t.str['getAgent']		= function (code) { return [navigator.userAgent]; }
-	t.str['setMaxFPS']		= function (fps) { gFrameWait = (fps && fps > 0)?(1000/fps):1; }
+	t.str['setMaxFPS']		= function (fps) { MainPrint("obsolete: love.web.setMaxFPS"); }
 	t.str['showPreCompiledJS']	= function (path) { showPreCompiledJS(path); }
 	t.str['browserIsFirefox']	= function () { return [gAgent_Firefox]; }
 	t.str['browserIsChrome']	= function () { return [gAgent_Chrome]; }
@@ -389,8 +389,9 @@ function MainButton () {
 
 /// called every frame
 function MainStep () {
-	if (gLoveExecutionHalted)
-		return;
+	if (gLoveExecutionHalted) return;
+	window.requestAnimFrame(MainStep, gCanvasElement);
+	
 //	var t = MyGetTicks();
 //	gSecondsSinceLastFrame = min(1,(t - gMyTicks) / 1000.0);
 //	gMyTicks = t;
@@ -420,18 +421,16 @@ function MainStep () {
 }
 
 /// http://www.khronos.org/webgl/wiki/FAQ#What_is_the_recommended_way_to_implement_a_rendering_loop.3F
-if (false) {
-	window.requestAnimFrame = (function() {
-	  return window.requestAnimationFrame ||
-			 window.webkitRequestAnimationFrame ||
-			 window.mozRequestAnimationFrame ||
-			 window.oRequestAnimationFrame ||
-			 window.msRequestAnimationFrame ||
-			 function(/* function FrameRequestCallback */ callback, /* DOMElement Element */ element) {
-			   return window.setTimeout(callback, 1000/60);
-			 };
-	})();
-}
+window.requestAnimFrame = (function() {
+  return window.requestAnimationFrame ||
+         window.webkitRequestAnimationFrame ||
+         window.mozRequestAnimationFrame ||
+         window.oRequestAnimationFrame ||
+         window.msRequestAnimationFrame ||
+         function(/* function FrameRequestCallback */ callback, /* DOMElement Element */ element) {
+           return window.setTimeout(callback, 1000/60);
+         };
+})();
 
 // ***** ***** ***** ***** ***** profiling
 
@@ -492,10 +491,6 @@ function MainRunAfterPreloadFinished () {
 	Love_Mouse_Init();
 	// additional init functions should be called here
 	
-	// call MainStep() every frame
-	window.setInterval("MainStep()", gFrameWait); // TODO: http://www.khronos.org/webgl/wiki/FAQ#What_is_the_recommended_way_to_implement_a_rendering_loop.3F
-	//~ window.requestAnimFrame(MainStep); // doesn't work ?
-	
 	LuaOverrideLibs();
 	G = lua_load("", "stub")();
 	RunLuaFromPath("conf.lua", true); // run conf.lua
@@ -544,4 +539,8 @@ function MainRunAfterPreloadFinished () {
 	MyProfileStart("love.load");
 	call_love_load(); // call love.load()
 	MyProfileEnd();
+	
+	// call MainStep() every frame, see: http://www.khronos.org/webgl/wiki/FAQ#What_is_the_recommended_way_to_implement_a_rendering_loop.3F
+	gCanvasElement = document.getElementById(gWebGLCanvasId);
+	MainStep(); // draw first frame, will use requestAnimFrame for further frames
 }
