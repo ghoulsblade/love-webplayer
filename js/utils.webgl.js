@@ -25,7 +25,7 @@ function initWebGL(canvas) {
 	gl = null;
 	// http://www.khronos.org/webgl/wiki/FAQ#What_is_the_recommended_way_to_initialize_WebGL.3F
 	try {
-		if (!window.WebGLRenderingContext) {
+		if (!window["WebGLRenderingContext"]) {
 			// the browser doesn't even know what WebGL is
 			window.location = "http://get.webgl.org";
 		} else {
