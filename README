@@ -11,11 +11,12 @@ tech : webgl for display, github.com/mherkender/lua.js to run lua code in javasc
 
 love2d is a lua based 2d game engine : http://love2d.org/ 
 lua-parser.js is a lua interpreter/converter in javascript from https://github.com/mherkender/lua.js (added LuaBootStrap call)
+Box2dWeb-2.1.a.3.min.js is a javascript port of the Box2D engine from http://code.google.com/p/box2dweb/
 
 not-yet-implemented (incomplete list) 
 * love 0.8 api (currently webplayer is mostly for 0.7, to test some 0.8 stuff add to index.html : <body onload="Love_Enable_Experimental_080(); ...>
 * spritebatch,framebuf
-* love.physics/box2d 
+* love.physics/box2d  (started usign Box2dWeb)
 * font truetype/ttf loading (rasterizer), pixelfonts should work  (except a few special cases in text formatting/wrapping)
 * network/luasocket
 * love.thread

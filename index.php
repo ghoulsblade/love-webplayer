@@ -37,6 +37,7 @@ function glob_recursive($pattern, $flags = 0){//http://www.php.net/manual/en/fun
     <script type="text/javascript" src="<?php echo $prefix; ?>js/love.joystick.js"></script>
     <script type="text/javascript" src="<?php echo $prefix; ?>js/love.keyboard.js"></script>
     <script type="text/javascript" src="<?php echo $prefix; ?>js/love.mouse.js"></script>
+    <script type="text/javascript" src="<?php echo $prefix; ?>js/Box2dWeb-2.1.a.3.min.js"></script>
     <script type="text/javascript" src="<?php echo $prefix; ?>js/love.physics.js"></script>
     <script type="text/javascript" src="<?php echo $prefix; ?>js/love.sound.js"></script>
     <script type="text/javascript" src="<?php echo $prefix; ?>js/love.thread.js"></script>
