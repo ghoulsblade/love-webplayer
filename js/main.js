@@ -22,7 +22,7 @@ var gCanvasElement;
 
 function lua_precompile (code) { 
 	// >>> love.filesystem.load("test.print.myvar.lua")() <<< ->  >>> (love.filesystem.load("test.print.myvar.lua"))() <<<
-	code = code.replace(/(love.filesystem.load)\(([^\)]*)\)\(\)/g,"($1($2))()");
+	code = code.replace(/(love.filesystem.load)\(([^\)]*)\)[ \t]*\(\)/g,"($1($2))()");
 	//~ code = code.replace(/([\w\.]+)\(([^\)]*)\)\(\)/g,"($1($2))()");
 	return code;
 }
