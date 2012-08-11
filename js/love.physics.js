@@ -52,9 +52,11 @@ function cLovePhysicsFixture (body, shape, density) {
 	var pre = "love.physics.Fixture.";
 	
 	this.constructor = function (body, shape, density) {
-		if (density == null) density = 1;
+		if (density == null) density = 1.0;
 		var fixDef = new b2FixtureDef;
 		fixDef.density = density;
+		//~ fixDef.friction = 0.5;
+		//~ fixDef.restitution = 0.2;
 		fixDef.shape = shape._data._shape;
 		this._fixture = body._data._body.CreateFixture(fixDef);
 	}
@@ -129,6 +131,7 @@ function cLovePhysicsWorld (xg, yg, sleep) {
 			new b2Vec2(	(xg != null) ? xg : 0, 
 						(yg != null) ? yg : 0 ),    // gravity
 			(bsleep != null) ? bsleep : true );		//allow sleep
+		MainPrint("world grav = ",(xg != null) ? xg : 0,(yg != null) ? yg : 0 , (bsleep != null) ? bsleep : true );
 	}
 	this.GetLuaHandle = function () {
 		var t = lua_newtable();
@@ -145,11 +148,10 @@ function cLovePhysicsWorld (xg, yg, sleep) {
 	this.setMeter		= function () { return NotImplemented(pre+'setMeter'); }		
 	this.setCallbacks	= function () { return NotImplemented(pre+'setCallbacks'); }		
 	this.update			= function (dt) {
-		this._world.Step(
-             dt   //frame-rate
-            ,  8       //velocity iterations
-            ,  6       //position iterations
-         );
+		//~ MainPrint("world.update(dt=",dt);
+		this._world.Step( dt  ,  8  ,  6 ); // frame-rate,velocity iterations,position iterations
+		//~ this._world.DrawDebugData();
+		this._world.ClearForces();
 	}		
 	this.getBodyCount	= function () { NotImplemented(pre+'getBodyCount'); return [0]; }	
 	this.constructor(xg, yg, sleep);
@@ -159,25 +161,27 @@ function cLovePhysicsWorld (xg, yg, sleep) {
 // ***** ***** ***** ***** ***** cLovePhysicsBody
 
 function Love2BodyType (txt) {
-    if (txt == "static"		) return b2Body.b2_staticBody	;
-    if (txt == "dynamic"	) return b2Body.b2_kinematicBody;
-    if (txt == "kinematic"	) return b2Body.b2_dynamicBody	;
+	if (txt == "static"		) return b2Body.b2_staticBody	; // = 0;
+	if (txt == "kinematic"	) return b2Body.b2_kinematicBody; // = 1;
+	if (txt == "dynamic"	) return b2Body.b2_dynamicBody	; // = 2;		
 	return null;
 }
+
 function BodyType2Love (v) {
     if (txt == b2Body.b2_staticBody		) return "static"	;
-    if (txt == b2Body.b2_kinematicBody	) return "dynamic"	;
-    if (txt == b2Body.b2_dynamicBody	) return "kinematic";
+    if (txt == b2Body.b2_kinematicBody	) return "kinematic";
+    if (txt == b2Body.b2_dynamicBody	) return "dynamic"	;
 	return null;
 }
 	
 
-function cLovePhysicsBody (world, x, y, type) {
+function cLovePhysicsBody (world, x, y, btype) {
 	var pre = "love.physics.Body.";
 	
 	this.constructor = function (world, x, y, btype) {
 		var bodyDef = new b2BodyDef;
 		bodyDef.type = Love2BodyType(btype);
+		//~ MainPrint(pre+"new:","'"+btype+"'",bodyDef.type);
 		bodyDef.position.x = (x != null) ? x : 0;
 		bodyDef.position.y = (y != null) ? y : 0;
 		this._body = world._data._world.CreateBody(bodyDef);
@@ -252,8 +256,8 @@ function cLovePhysicsBody (world, x, y, type) {
 		return t;
 	}
 	
-	this.getX								= function () { 	   NotImplemented(pre+'getX'							); return [0]; }
-	this.getY								= function () { 	   NotImplemented(pre+'getY'							); return [0]; }
+	this.getX								= function () { return [this._body.GetPosition().x]; }
+	this.getY								= function () { return [this._body.GetPosition().y]; }
 	this.getAngle							= function () { 	   NotImplemented(pre+'getAngle'						); return [0]; }
 	this.getMass							= function () { 	   NotImplemented(pre+'getMass'							); return [0]; }
 	this.getInertia							= function () { 	   NotImplemented(pre+'getInertia'						); return [0]; }
@@ -342,7 +346,7 @@ function cLovePhysicsBody (world, x, y, type) {
 	
 	*/
 	
-	this.constructor(world, x, y, type);
+	this.constructor(world, x, y, btype);
 }
 
 
@@ -437,9 +441,10 @@ function cLovePhysicsCircleShape (a,b,c) {
 	Shape_Stubs(this,pre);
 	this.getPoints				= function () { 	   NotImplemented(pre+'getPoints'		); return [0,0,0,0]; }
 	this.getLocalCenter			= function () { 	   NotImplemented(pre+'getLocalCenter'	); return [0,0]; }
-	this.getRadius				= function () { 	   NotImplemented(pre+'getRadius'		); return [0]; }
 	this.getWorldCenter			= function () { 	   NotImplemented(pre+'getWorldCenter'	); return [0,0]; }
 	this.setRadius				= function () { return NotImplemented(pre+'setRadius'		); }
+	
+	this.getRadius				= function () { return [this._shape.GetRadius()]; }
 	
 	this.constructor(a,b,c);
 }
