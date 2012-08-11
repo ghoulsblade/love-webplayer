@@ -1,5 +1,18 @@
 // physics/box2d api, see also js/Box2dWeb-2.1.a.3.min.js from http://code.google.com/p/box2dweb/
+// first implementation is 0.8 api, maybe later implement 0.7.2 api ? or solve with adult lib
 
+var		b2Vec2			= Box2D.Common.Math.b2Vec2
+	,	b2BodyDef		= Box2D.Dynamics.b2BodyDef
+	,	b2Body			= Box2D.Dynamics.b2Body
+	,	b2FixtureDef	= Box2D.Dynamics.b2FixtureDef
+	,	b2Fixture		= Box2D.Dynamics.b2Fixture
+	,	b2World			= Box2D.Dynamics.b2World
+	,	b2MassData		= Box2D.Collision.Shapes.b2MassData
+	,	b2PolygonShape	= Box2D.Collision.Shapes.b2PolygonShape
+	,	b2CircleShape	= Box2D.Collision.Shapes.b2CircleShape
+	,	b2DebugDraw		= Box2D.Dynamics.b2DebugDraw
+	;
+	
 /// init lua api
 function Love_Physics_CreateTable (G) {
 	var t = lua_newtable();
@@ -7,11 +20,11 @@ function Love_Physics_CreateTable (G) {
 
 	G.str['love'].str['physics'] = t;
 	
-	t.str['newWorld'			] = function () { return [(new cLovePhysicsWorld()			).GetLuaHandle()]; } //	Creates a new World.
-	t.str['newBody'				] = function () { return [(new cLovePhysicsBody()			).GetLuaHandle()]; } //	Creates a new body.
-	t.str['newCircleShape'		] = function () { return [(new cLovePhysicsCircleShape()	).GetLuaHandle()]; } //	Creates a circle shape.
-	t.str['newRectangleShape'	] = function () { return [(new cLovePhysicsRectangleShape()	).GetLuaHandle()]; } //	Shorthand for creating rectangluar PolygonShapes.
-	t.str['newFixture'			] = function () { return [(new cLovePhysicsFixture()		).GetLuaHandle()]; } //	Creates and attaches a fixture.
+	t.str['newWorld'			] = function (xg, yg, sleep					) { return [(new cLovePhysicsWorld(xg, yg, sleep)						).GetLuaHandle()]; } //	Creates a new World.
+	t.str['newBody'				] = function (world, x, y, type				) { return [(new cLovePhysicsBody(world, x, y, type)					).GetLuaHandle()]; } //	Creates a new body.
+	t.str['newFixture'			] = function (body, shape, density			) { return [(new cLovePhysicsFixture(body, shape, density)				).GetLuaHandle()]; } //	Creates and attaches a fixture.
+	t.str['newCircleShape'		] = function (a,b,c							) { return [(new cLovePhysicsCircleShape(a,b,c)							).GetLuaHandle()]; } //	Creates a circle shape.
+	t.str['newRectangleShape'	] = function (x, y, width, height, angle	) { return [(new cLovePhysicsRectangleShape(x, y, width, height, angle)	).GetLuaHandle()]; } //	Shorthand for creating rectangluar PolygonShapes.
 	
 	
 	t.str['getDistance'			] = function () { return NotImplemented(pre+'getDistance'		); } //	Returns the two closest points between two fixtures and their distance.
@@ -38,7 +51,13 @@ function Love_Physics_CreateTable (G) {
 function cLovePhysicsFixture (body, shape, density) {
 	var pre = "love.physics.Fixture.";
 	
-	this.constructor = function (body, shape, density) {}
+	this.constructor = function (body, shape, density) {
+		if (density == null) density = 1;
+		var fixDef = new b2FixtureDef;
+		fixDef.density = density;
+		fixDef.shape = shape._data._shape;
+		this._fixture = body._data._body.CreateFixture(fixDef);
+	}
 	this.GetLuaHandle = function () {
 		var t = lua_newtable();
 		t._data = this;
@@ -102,10 +121,15 @@ function cLovePhysicsFixture (body, shape, density) {
 
 // ***** ***** ***** ***** ***** cLovePhysicsWorld
 
-function cLovePhysicsWorld () {
+function cLovePhysicsWorld (xg, yg, sleep) {
 	var pre = "love.physics.World.";
 	
-	this.constructor = function () {}
+	this.constructor = function (xg, yg, bsleep) {
+		this._world = new b2World(
+			new b2Vec2(	(xg != null) ? xg : 0, 
+						(yg != null) ? yg : 0 ),    // gravity
+			(bsleep != null) ? bsleep : true );		//allow sleep
+	}
 	this.GetLuaHandle = function () {
 		var t = lua_newtable();
 		t._data = this;
@@ -113,25 +137,52 @@ function cLovePhysicsWorld () {
 		t.str['setGravity']				= function (t) { return t._data.setGravity(); }
 		t.str['setMeter']				= function (t) { return t._data.setMeter(); }
 		t.str['setCallbacks']			= function (t) { return t._data.setCallbacks(); }
-		t.str['update']					= function (t) { return t._data.update(); }
+		t.str['update']					= function (t,dt) { return t._data.update(dt); }
 		t.str['getBodyCount']			= function (t) { return t._data.getBodyCount(); }
 		return t;
 	}
 	this.setGravity		= function () { return NotImplemented(pre+'setGravity'); }		
 	this.setMeter		= function () { return NotImplemented(pre+'setMeter'); }		
 	this.setCallbacks	= function () { return NotImplemented(pre+'setCallbacks'); }		
-	this.update			= function () { return NotImplemented(pre+'update'); }		
+	this.update			= function (dt) {
+		this._world.Step(
+             dt   //frame-rate
+            ,  8       //velocity iterations
+            ,  6       //position iterations
+         );
+	}		
 	this.getBodyCount	= function () { NotImplemented(pre+'getBodyCount'); return [0]; }	
-	this.constructor();
+	this.constructor(xg, yg, sleep);
 }
 
 
 // ***** ***** ***** ***** ***** cLovePhysicsBody
 
-function cLovePhysicsBody () {
+function Love2BodyType (txt) {
+    if (txt == "static"		) return b2Body.b2_staticBody	;
+    if (txt == "dynamic"	) return b2Body.b2_kinematicBody;
+    if (txt == "kinematic"	) return b2Body.b2_dynamicBody	;
+	return null;
+}
+function BodyType2Love (v) {
+    if (txt == b2Body.b2_staticBody		) return "static"	;
+    if (txt == b2Body.b2_kinematicBody	) return "dynamic"	;
+    if (txt == b2Body.b2_dynamicBody	) return "kinematic";
+	return null;
+}
+	
+
+function cLovePhysicsBody (world, x, y, type) {
 	var pre = "love.physics.Body.";
 	
-	this.constructor = function () {}
+	this.constructor = function (world, x, y, btype) {
+		var bodyDef = new b2BodyDef;
+		bodyDef.type = Love2BodyType(btype);
+		bodyDef.position.x = (x != null) ? x : 0;
+		bodyDef.position.y = (y != null) ? y : 0;
+		this._body = world._data._world.CreateBody(bodyDef);
+	}
+	
 	this.GetLuaHandle = function () {
 		var t = lua_newtable();
 		t._data = this;
@@ -254,7 +305,6 @@ function cLovePhysicsBody () {
 	this.setInertia							= function () { return NotImplemented(pre+'setInertia'						); }
 	this.setLinearDamping					= function () { return NotImplemented(pre+'setLinearDamping'				); }
 	this.setLinearVelocity					= function () { return NotImplemented(pre+'setLinearVelocity'				); }
-	this.setMass							= function () { return NotImplemented(pre+'setMass'							); }
 	this.setMassData						= function () { return NotImplemented(pre+'setMassData'						); }
 	this.setMassFromShapes					= function () { return NotImplemented(pre+'setMassFromShapes'				); }
 	this.setPosition						= function () { return NotImplemented(pre+'setPosition'						); }
@@ -264,6 +314,7 @@ function cLovePhysicsBody () {
 	this.setY								= function () { return NotImplemented(pre+'setY'							); }
 	this.wakeUp								= function () { return NotImplemented(pre+'wakeUp'							); }
 	
+	this.setMass							= function () { return NotImplemented(pre+'setMass'							); }
 	
 	/*
 	local x = body:getX()
@@ -291,7 +342,7 @@ function cLovePhysicsBody () {
 	
 	*/
 	
-	this.constructor();
+	this.constructor(world, x, y, type);
 }
 
 
@@ -360,10 +411,17 @@ function Shape_LuaMethods (t) {
 
 // ***** ***** ***** ***** ***** cLovePhysicsCircleShape
 
-function cLovePhysicsCircleShape () {
+function cLovePhysicsCircleShape (a,b,c) {
 	var pre = "love.physics.CircleShape.";
 	
-	this.constructor = function () {}
+	/// (x,y,radius)  or  (radius)
+	this.constructor = function (a,b,c) {
+		var x		= (c != null) ? a : 0;
+		var y		= (c != null) ? b : 0;
+		var radius	= (c != null) ? c : a;
+		this._shape = new b2CircleShape(radius);
+		this._shape.SetLocalPosition(new b2Vec2(x, y));
+	}
 	this.GetLuaHandle = function () {
 		var t = lua_newtable();
 		t._data = this;
@@ -383,15 +441,27 @@ function cLovePhysicsCircleShape () {
 	this.getWorldCenter			= function () { 	   NotImplemented(pre+'getWorldCenter'	); return [0,0]; }
 	this.setRadius				= function () { return NotImplemented(pre+'setRadius'		); }
 	
-	this.constructor();
+	this.constructor(a,b,c);
 }
 
 // ***** ***** ***** ***** ***** cLovePhysicsRectangleShape
 
-function cLovePhysicsRectangleShape () {
+function cLovePhysicsRectangleShape (x, y, width, height, angle) {
 	var pre = "love.physics.RectangleShape.";
 	
-	this.constructor = function () {}
+	/// (width, height) or (x, y, width, height, angle)
+	this.constructor = function (x, y, width, height, angle) {
+		if (height == null) {
+			width = x;
+			height = y;
+			x = 0;
+			y = 0;
+		}
+		if (angle == null) angle = 0;
+		this._shape = new b2PolygonShape;
+		//~ this._shape.SetAsBox(width, height);
+		this._shape.SetAsOrientedBox(width, height,new b2Vec2(x, y),angle);
+	}
 	this.GetLuaHandle = function () {
 		var t = lua_newtable();
 		t._data = this;
@@ -402,6 +472,6 @@ function cLovePhysicsRectangleShape () {
 	Shape_Stubs(this,pre);
 	this.getPoints			= function () { NotImplemented(pre+'getPoints'			); return [0,0,0,0]; }
 	
-	this.constructor();
+	this.constructor(x, y, width, height, angle);
 }
 
