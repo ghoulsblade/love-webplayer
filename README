@@ -25,7 +25,8 @@ not-yet-implemented (incomplete list)
 * love.imagedata (load-from-file + imgdata.paste + graphics.newImage(imgdata) works, but not decoding, etc)
 * love.filesystem stuff (some of it already works, but only if "localstorage" is available in the browser, stored in cookies or sth)
 * debug.stacktrace and useful stacktraces on error in general (i recommend testing in native love first and if the problem is webplayer only litter the code with lots of print("pos01") to narrow it down)
-* complex string matching pattern, especially balanced braces
+* complex string matching pattern, especially balanced braces (e.g. xml parsers, see below)
+* screensize wrong (-1,-1) during love.load : love.graphics.getWidth()/getHeight()
 
 known issues : 
 * audio : music formats .xm and .mod not supported by browsers usually
@@ -38,6 +39,8 @@ known issues :
 * firefox(11) is known to have issues with sound: lag,delay..   chrome (18.0.1025.151) works better for me on ubuntu 11.04 (2012-04)
 * doesn't work with file:// url for some reason. so you need to upload stuff to a webserver to try, php and similar isn't needed.
 * when changing lua files, be sure to clear browser cache to see your changes, pressing f5 is not enough since it doesn't refresh dynamically loaded files like the .lua ones
+* lua string patterns aren't fully convertible to javascript regexp, so while most string patterns should work, more complex ones (like xml parsers) might fail
+** if you need this for maploading or similar i'd recommend working around that by serialize the loaded table as .lua file
 
 web api available:
 * if (love.web) then ... end

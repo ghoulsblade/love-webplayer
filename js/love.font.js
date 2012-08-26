@@ -314,14 +314,14 @@ function cLoveFont (caller_name,a,b) {
 			var draw_x = x;
 			var draw_y = y;
 			if (!this.isWhiteSpace(c)) {
-				var mx = this.getGlyphMoveX(c);
+				var mx = this.getGlyphMoveX(c)*sx;
 				x += mx;
 			} else {
-				if (c == ' ' ) x += this.getGlyphMoveX(c);
-				if (c == '\t') x += this.getGlyphMoveX(c);
+				if (c == ' ' ) x += this.getGlyphMoveX(c)*sx;
+				if (c == '\t') x += this.getGlyphMoveX(c)*sx;
 				if (c == '\n') {
 					x = param_x;
-					y += this.line_h*this.font_h;
+					y += this.line_h*this.font_h*sy;
 				}
 			}
 			this.addCharToBufferS(c,draw_x,draw_y,sx,sy);
