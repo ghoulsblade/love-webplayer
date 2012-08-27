@@ -198,22 +198,22 @@ function cLoveAudioSource (path,srctype) {
 		if (element.readyState >= element.HAVE_ENOUGH_DATA) {
 			element.play();
 		} else if (element.readyState >= element.HAVE_CURRENT_DATA && element.networkState == element.NETWORK_IDLE) {
-			MainPrint("audio:play()",ReadyState2Txt(element),NetState2Txt(element),this.path);
+			//~ MainPrint("audio:play()",ReadyState2Txt(element),NetState2Txt(element),this.path);
 			element.play();
 			//~ element.currentTime = 0;
 		} else {
 			
-			MainPrint("audio:play() delayed...",ReadyState2Txt(element),NetState2Txt(element),this.path);
+			//~ MainPrint("audio:play() delayed...",ReadyState2Txt(element),NetState2Txt(element),this.path);
 			this.callback_canplaythrough = function () {
-				MainPrint("audio:play() delayed exec",ReadyState2Txt(element),NetState2Txt(element),this.path);
+				//~ MainPrint("audio:play() delayed exec",ReadyState2Txt(element),NetState2Txt(element),this.path);
 				element.play();
 			}
 			if (element.networkState == element.NETWORK_NO_SOURCE) {
-				MainPrint("audio:play() delay due to NETWORK_NO_SOURCE",ReadyState2Txt(element),NetState2Txt(element),this.path);
+				//~ MainPrint("audio:play() delay due to NETWORK_NO_SOURCE",ReadyState2Txt(element),NetState2Txt(element),this.path);
 				window.setTimeout(function () {
 					// try again after a few sek
 					if (element.networkState == element.NETWORK_NO_SOURCE) {
-						MainPrint("audio:play() timeout struck...",ReadyState2Txt(element),NetState2Txt(element),this.path);
+						//~ MainPrint("audio:play() timeout struck...",ReadyState2Txt(element),NetState2Txt(element),this.path);
 						element.load();
 					}
 					}, 5*1000);
