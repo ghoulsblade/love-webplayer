@@ -27,6 +27,7 @@ not-yet-implemented (incomplete list)
 * debug.stacktrace and useful stacktraces on error in general (i recommend testing in native love first and if the problem is webplayer only litter the code with lots of print("pos01") to narrow it down)
 * complex string matching pattern, especially balanced braces (e.g. xml parsers, see below)
 * screensize wrong (-1,-1) during love.load : love.graphics.getWidth()/getHeight()
+* raw sound/audio editing : love.sound.newSoundData etc
 
 known issues : 
 * audio : music formats .xm and .mod not supported by browsers usually
