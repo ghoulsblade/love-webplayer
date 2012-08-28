@@ -4,6 +4,7 @@ var shaderProgram;
 var gMaterialColor = [1,1,1,1];
 var mFont;
 var mDefaultFont;
+var gLineWidth = 1; // or mLineWidth?
 
 /// called on startup after pageload
 function Love_Graphics_Init () {
@@ -154,21 +155,21 @@ function Love_Graphics_CreateTable (G) {
 	t.str['toggleFullscreen']	= function () { return NotImplemented(pre+'toggleFullscreen'); }
 	
 	t.str['getBackgroundColor']	= function () { return NotImplemented(pre+'getBackgroundColor'); }
-	t.str['getBlendMode']		= function () { return NotImplemented(pre+'getBlendMode'); }
+	t.str['getBlendMode']		= function () { return [gBlendMode]; }
 	t.str['getCaption']			= function () { return NotImplemented(pre+'getCaption'); }
 	t.str['getColor']			= function () { return NotImplemented(pre+'getColor'); }
 	t.str['getColorMode']		= function () { return NotImplemented(pre+'getColorMode'); }
 	t.str['getFont']			= function () { return NotImplemented(pre+'getFont'); }
 	t.str['getLineStipple']		= function () { return NotImplemented(pre+'getLineStipple'); }
 	t.str['getLineStyle']		= function () { return NotImplemented(pre+'getLineStyle'); }
-	t.str['getLineWidth']		= function () { return NotImplemented(pre+'getLineWidth'); }
+	t.str['getLineWidth']		= function () { return [gLineWidth]; }
 	t.str['getMaxPointSize']	= function () { return NotImplemented(pre+'getMaxPointSize'); }
 	t.str['getModes']			= function () { return NotImplemented(pre+'getModes'); }
 	t.str['getPointSize']		= function () { return NotImplemented(pre+'getPointSize'); }
 	t.str['getPointStyle']		= function () { return NotImplemented(pre+'getPointStyle'); }
 	t.str['getScissor']			= function () { return NotImplemented(pre+'getScissor'); }
 	
-	t.str['setBlendMode']		= function () { return NotImplemented(pre+'setBlendMode'); }
+	t.str['setBlendMode']		= function (mode) { setBlendMode(mode); return LuaNil; }
 	t.str['setCaption']			= function (caption)
 	{
 		document.title = caption;
@@ -178,7 +179,7 @@ function Love_Graphics_CreateTable (G) {
 	t.str['setLine']			= function () { return NotImplemented(pre+'setLine'); }
 	t.str['setLineStipple']		= function () { return NotImplemented(pre+'setLineStipple'); }
 	t.str['setLineStyle']		= function () { return NotImplemented(pre+'setLineStyle'); }
-	t.str['setLineWidth']		= function () { return NotImplemented(pre+'setLineWidth'); }
+	t.str['setLineWidth']		= function (width) { gLineWidth = width; gl.lineWidth(width); return LuaNil; }
 	t.str['setPoint']			= function () { return NotImplemented(pre+'setPoint'); }
 	t.str['setPointSize']		= function () { return NotImplemented(pre+'setPointSize'); }
 	t.str['setPointStyle']		= function () { return NotImplemented(pre+'setPointStyle'); }
@@ -566,6 +567,31 @@ function GLModelViewPop () {
 	var m = gLoveMatrix_Stack.pop();
 	matrixSet(gGLMatrix_ModelView,m);
 	setMatrixUniforms_MV();
+}
+
+var gBlendMode = 'alpha';
+function setBlendMode(mode) {
+	gBlendMode = mode;
+	if(mode == 'additive') {
+		gl.blendEquation(gl.FUNC_ADD);
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+	}
+	else if(mode == 'alpha') {
+		gl.blendEquation(gl.FUNC_ADD);
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+	}
+	else if(mode == 'multiplicative') {
+		gl.blendEquation(gl.FUNC_ADD);
+		gl.blendFunc(gl.DST_COLOR, gl.ONE_MINUS_SRC_ALPHA);
+	}
+	else if(mode == 'premultiplied') {
+		gl.blendEquation(gl.FUNC_ADD);
+		gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+	}
+	else if(mode == 'subtractive') {
+		gl.blendEquation(gl.FUNC_REVERSE_SUBTRACT); // or FUNC_SUBTRACT? (this is per the LoVE sources)
+		gl.blendFunc(gl.ONE, gl.SRC_ALPHA);
+	}
 }
 
 function setMatrixUniforms_MV() {	
