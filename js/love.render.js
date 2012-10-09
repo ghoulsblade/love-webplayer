@@ -169,6 +169,17 @@ function renderCircle(mode, x, y, radius, segments ) {
 	BasicGeo_Draw((mode == DrawMode.FILL) ? gl.TRIANGLE_FAN : gl.LINE_LOOP);
 }
 
+function renderArc(mode, x, y, radius, angle1, angle2, segments ) {
+	BasicGeo_Prepare(segments);
+	for (var i=0;i<segments;++i) {
+		var ang = angle1 + (angle2 - angle1) * (i) / (segments); // TODO : not yet tested
+		var x1 = x + radius * sin(ang);
+		var y1 = y + radius * cos(ang);
+		BasicGeo_Vertex(x1,y1);
+	}
+	BasicGeo_Draw((mode == DrawMode.FILL) ? gl.TRIANGLE_FAN : gl.LINE_LOOP);
+}
+
 function renderTriangle(mode, x1, y1, x2, y2, x3, y3) {
 	if (mode == DrawMode.FILL) {
 		BasicGeo_Prepare(3);

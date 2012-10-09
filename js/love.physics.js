@@ -25,6 +25,7 @@ function Love_Physics_CreateTable (G) {
 	t.str['newFixture'			] = function (body, shape, density			) { return [(new cLovePhysicsFixture(body, shape, density)				).GetLuaHandle()]; } //	Creates and attaches a fixture.
 	t.str['newCircleShape'		] = function (a,b,c							) { return [(new cLovePhysicsCircleShape(a,b,c)							).GetLuaHandle()]; } //	Creates a circle shape.
 	t.str['newRectangleShape'	] = function (x, y, width, height, angle	) { return [(new cLovePhysicsRectangleShape(x, y, width, height, angle)	).GetLuaHandle()]; } //	Shorthand for creating rectangluar PolygonShapes.
+	t.str['newPolygonShape'		] = function (								) { return [(new cLovePhysicsPolygonShape(arguments)					).GetLuaHandle()]; } //	Creates a new PolygonShape.
 	
 	
 	t.str['getDistance'			] = function () { return NotImplemented(pre+'getDistance'		); } //	Returns the two closest points between two fixtures and their distance.
@@ -35,7 +36,6 @@ function Love_Physics_CreateTable (G) {
 	t.str['newFrictionJoint'	] = function () { return NotImplemented(pre+'newFrictionJoint'	); } //	A FrictionJoint applies friction to a body.
 	t.str['newGearJoint'		] = function () { return NotImplemented(pre+'newGearJoint'		); } //	Create a gear joint connecting two joints.
 	t.str['newMouseJoint'		] = function () { return NotImplemented(pre+'newMouseJoint'		); } //	Create a joint between a body and the mouse.
-	t.str['newPolygonShape'		] = function () { return NotImplemented(pre+'newPolygonShape'	); } //	Creates a new PolygonShape.
 	t.str['newPrismaticJoint'	] = function () { return NotImplemented(pre+'newPrismaticJoint'	); } //	Creates a prismatic joints between two bodies.
 	t.str['newPulleyJoint'		] = function () { return NotImplemented(pre+'newPulleyJoint'	); } //	Creates a pulley joint to join two bodies to each other and the ground.
 	t.str['newRevoluteJoint'	] = function () { return NotImplemented(pre+'newRevoluteJoint'	); } //	Creates a pivot joint between two bodies.
@@ -131,7 +131,7 @@ function cLovePhysicsWorld (xg, yg, sleep) {
 			new b2Vec2(	(xg != null) ? xg : 0, 
 						(yg != null) ? yg : 0 ),    // gravity
 			(bsleep != null) ? bsleep : true );		//allow sleep
-		MainPrint("world grav = ",(xg != null) ? xg : 0,(yg != null) ? yg : 0 , (bsleep != null) ? bsleep : true );
+		//~ MainPrint("world grav = ",(xg != null) ? xg : 0,(yg != null) ? yg : 0 , (bsleep != null) ? bsleep : true );
 	}
 	this.GetLuaHandle = function () {
 		var t = lua_newtable();
@@ -149,9 +149,11 @@ function cLovePhysicsWorld (xg, yg, sleep) {
 	this.setCallbacks	= function () { return NotImplemented(pre+'setCallbacks'); }		
 	this.update			= function (dt) {
 		//~ MainPrint("world.update(dt=",dt);
-		this._world.Step( dt  ,  8  ,  6 ); // frame-rate,velocity iterations,position iterations
-		//~ this._world.DrawDebugData();
-		this._world.ClearForces();
+		try {
+			this._world.Step( dt  ,  8  ,  6 ); // frame-rate,velocity iterations,position iterations
+			//~ this._world.DrawDebugData();
+			this._world.ClearForces();
+		} catch (e) { MainPrint("exception during World.update:"+e); }
 	}		
 	this.getBodyCount	= function () { NotImplemented(pre+'getBodyCount'); return [0]; }	
 	this.constructor(xg, yg, sleep);
@@ -246,18 +248,31 @@ function cLovePhysicsBody (world, x, y, btype) {
 		t.str['setMass'							]		= function (t) { return t._data.setMass								(); }
 		t.str['setMassData'						]		= function (t) { return t._data.setMassData							(); }
 		t.str['setMassFromShapes'				]		= function (t) { return t._data.setMassFromShapes						(); }
-		t.str['setPosition'						]		= function (t) { return t._data.setPosition							(); }
 		t.str['setSleepingAllowed'				]		= function (t) { return t._data.setSleepingAllowed						(); }
-		t.str['setType'							]		= function (t) { return t._data.setType								(); }
 		t.str['setX'							]		= function (t) { return t._data.setX									(); }
 		t.str['setY'							]		= function (t) { return t._data.setY									(); }
 		t.str['wakeUp'							]		= function (t) { return t._data.wakeUp									(); }
 		
+		t.str['setPosition'						]		= function (t,x,y) { return t._data._body.SetPosition(new b2Vec2(x,y)); return LuaNil; }
+		t.str['setType'							]		= function (t,btype) { return t._data._body.SetType(Love2BodyType(btype)); return LuaNil; }
+		
+		/*
+		[21:35:23.243] NotImplemented:love.physics.Body.getAngle @ http://localhost/love-webplayer/js/main.js:61
+		[21:35:23.251] NotImplemented:love.physics.Body.setLinearVelocity @ http://localhost/love-webplayer/js/main.js:61
+		[21:35:23.499] NotImplemented:love.physics.Body.applyForce @ http://localhost/love-webplayer/js/main.js:61
+		[21:35:23.513] NotImplemented:love.physics.Body.getLinearVelocity @ http://localhost/love-webplayer/js/main.js:61
+		[21:35:23.596] NotImplemented:love.physics.Body.destroy @ http://localhost/love-webplayer/js/main.js:61
+		[21:35:24.649] NotImplemented:love.physics.Body.resetMassData @ http://localhost/love-webplayer/js/main.js:61
+		[21:35:24.649] NotImplemented:love.physics.Fixture.setDensity @ http://localhost/love-webplayer/js/main.js:61
+		[21:35:24.642] NotImplemented:love.physics.newRevoluteJoint @ http://localhost/love-webplayer/js/main.js:61
+		[21:35:24.653] NotImplemented:love.physics.newWeldJoint @ http://localhost/love-webplayer/js/main.js:61
+		*/
 		return t;
 	}
 	
 	this.getX								= function () { return [this._body.GetPosition().x]; }
 	this.getY								= function () { return [this._body.GetPosition().y]; }
+	this.getPosition						= function () { var p = this._body.GetPosition(); return [p.x,p.y]; }
 	this.getAngle							= function () { 	   NotImplemented(pre+'getAngle'						); return [0]; }
 	this.getMass							= function () { 	   NotImplemented(pre+'getMass'							); return [0]; }
 	this.getInertia							= function () { 	   NotImplemented(pre+'getInertia'						); return [0]; }
@@ -282,7 +297,6 @@ function cLovePhysicsBody (world, x, y, btype) {
 	this.getLocalPoint						= function () { return NotImplemented(pre+'getLocalPoint'					); }
 	this.getLocalVector						= function () { return NotImplemented(pre+'getLocalVector'					); }
 	this.getMassData						= function () { return NotImplemented(pre+'getMassData'						); }
-	this.getPosition						= function () { return NotImplemented(pre+'getPosition'						); }
 	this.getType							= function () { return NotImplemented(pre+'getType'							); }
 	this.getWorldPoints						= function () { return NotImplemented(pre+'getWorldPoints'					); }
 	this.getWorldVector						= function () { return NotImplemented(pre+'getWorldVector'					); }
@@ -311,9 +325,7 @@ function cLovePhysicsBody (world, x, y, btype) {
 	this.setLinearVelocity					= function () { return NotImplemented(pre+'setLinearVelocity'				); }
 	this.setMassData						= function () { return NotImplemented(pre+'setMassData'						); }
 	this.setMassFromShapes					= function () { return NotImplemented(pre+'setMassFromShapes'				); }
-	this.setPosition						= function () { return NotImplemented(pre+'setPosition'						); }
 	this.setSleepingAllowed					= function () { return NotImplemented(pre+'setSleepingAllowed'				); }
-	this.setType							= function () { return NotImplemented(pre+'setType'							); }
 	this.setX								= function () { return NotImplemented(pre+'setX'							); }
 	this.setY								= function () { return NotImplemented(pre+'setY'							); }
 	this.wakeUp								= function () { return NotImplemented(pre+'wakeUp'							); }
@@ -429,7 +441,6 @@ function cLovePhysicsCircleShape (a,b,c) {
 	this.GetLuaHandle = function () {
 		var t = lua_newtable();
 		t._data = this;
-		t.str['getPoints'		] = function (t) { return t._data.getPoints			(); }
 		t.str['getLocalCenter'	] = function (t) { return t._data.getLocalCenter	(); }
 		t.str['getRadius'		] = function (t) { return t._data.getRadius			(); }
 		t.str['getWorldCenter'	] = function (t) { return t._data.getWorldCenter	(); }
@@ -439,7 +450,6 @@ function cLovePhysicsCircleShape (a,b,c) {
 		return t;
 	}
 	Shape_Stubs(this,pre);
-	this.getPoints				= function () { 	   NotImplemented(pre+'getPoints'		); return [0,0,0,0]; }
 	this.getLocalCenter			= function () { 	   NotImplemented(pre+'getLocalCenter'	); return [0,0]; }
 	this.getWorldCenter			= function () { 	   NotImplemented(pre+'getWorldCenter'	); return [0,0]; }
 	this.setRadius				= function () { return NotImplemented(pre+'setRadius'		); }
@@ -470,13 +480,50 @@ function cLovePhysicsRectangleShape (x, y, width, height, angle) {
 	this.GetLuaHandle = function () {
 		var t = lua_newtable();
 		t._data = this;
-		t.str['getPoints'] = function (t) { return t._data.getPoints	(); }
+		t.str['getPoints'] = function (t) { var o = t._data._shape; return Box2D_VertexList_ToLua(o.GetVertices(),o.GetVertexCount()); }
 		Shape_LuaMethods(t);
 		return t;
 	}
 	Shape_Stubs(this,pre);
-	this.getPoints			= function () { NotImplemented(pre+'getPoints'			); return [0,0,0,0]; }
 	
 	this.constructor(x, y, width, height, angle);
 }
+
+
+// ***** ***** ***** ***** ***** cLovePhysicsPolygonShape
+
+
+function Box2D_VertexList_ToLua (vlist,len) { 
+	var res = [];
+	for (var i=0;i<len;++i) { res.push(vlist[i].x); res.push(vlist[i].y); } // e.g. m_vertices
+	return res;
+}
+
+
+function cLovePhysicsPolygonShape (arr) {
+	var pre = "love.physics.PolygonShape.";
+	
+	/// ( x1, y1, x2, y2, x3, y3, ... )
+	this.constructor = function (myfloats) {
+		this._shape = new b2PolygonShape;
+		
+		var vertices = [];
+		for (var i=0;i<myfloats.length-1;i+=2) vertices.push(new b2Vec2(myfloats[i],myfloats[i+1]));
+		
+		
+		this._shape.SetAsArray(vertices);
+	}
+	this.GetLuaHandle = function () {
+		var t = lua_newtable();
+		t._data = this;
+		t.str['getPoints'] = function (t) { var o = t._data._shape; return Box2D_VertexList_ToLua(o.GetVertices(),o.GetVertexCount()); }
+		Shape_LuaMethods(t);
+		return t;
+	}
+	Shape_Stubs(this,pre);
+	
+	this.constructor(arr);
+}
+
+// ***** ***** ***** ***** ***** rest
 

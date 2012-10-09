@@ -112,6 +112,7 @@ function Love_Graphics_CreateTable (G) {
 	
 	t.str['rectangle']			= function (mode, x, y, w, h) { renderRectangle(mode, x, y, w, h); return LuaNil; }
 	t.str['circle']				= function (mode, x, y, radius, segments) { renderCircle(mode, x, y, radius, segments || 10); return LuaNil; }
+	t.str['arc']				= function (mode, x, y, radius, angle1, angle2, segments) { renderArc(mode, x, y, radius, angle1, angle2, segments || 10); return LuaNil; }
 	t.str['triangle']			= function (mode, x1, y1, x2, y2, x3, y3) { renderTriangle(mode, x1, y1, x2, y2, x3, y3); return LuaNil; }
 	t.str['polygon']			= function () { renderPolygon(arguments[0],arguments); return LuaNil; }
 	t.str['quad']				= function (mode, x1, y1, x2, y2, x3, y3, x4, y4) { renderQuad(mode, x1, y1, x2, y2, x3, y3, x4, y4); return LuaNil; }
