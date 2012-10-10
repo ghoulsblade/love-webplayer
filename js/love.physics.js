@@ -83,6 +83,8 @@ cLovePhysicsFixture.prototype.constructor = function (body, shape, density) {
 	this._fixture = body._data._body.CreateFixture(fixDef);
 	this._fixture.loveHandle = this;
 	this._loveUserData = null;
+	body._data._fixtureHandle = this;
+	body._data._shapeHandle = shape;
 }
 
 
@@ -250,9 +252,22 @@ cLovePhysicsBody.prototype.constructor = function (world, x, y, btype) {
 }
 
 cLovePhysicsBody.prototype.Destroy = function () {
+	if (this._shapeHandle) {
+		this._shapeHandle._shape = null;
+		this._shapeHandle = null;
+	}
+	if (this._fixtureHandle) {
+		var box2DFix = this._fixtureHandle._fixture;
+		this._fixtureHandle._fixture.loveHandle = null;
+		this._fixtureHandle._fixture = null;
+		this._fixtureHandle._loveUserData = null;
+		this._fixtureHandle = null;
+		this._body.DestroyFixture(box2DFix);
+	}
 	this._world.DestroyBody(this._body); 
-	delete this._body;
 	this._body = null; 
+	this._world = null; 
+	//~ delete this._body;
 }
 
 var t = lua_newtable();
