@@ -219,194 +219,219 @@ function BodyType2Love (v) {
     if (txt == b2Body.b2_dynamicBody	) return "dynamic"	;
 	return null;
 }
-	
+
+
 
 function cLovePhysicsBody (world, x, y, btype) {
-	var pre = "love.physics.Body.";
-	
-	this.constructor = function (world, x, y, btype) {
-		var bodyDef = new b2BodyDef;
-		bodyDef.type = Love2BodyType(btype);
-		//~ bodyDef.linearDamping = 0.0;
-		//~ MainPrint(pre+"new:","'"+btype+"'",bodyDef.type);
-		bodyDef.position.x = (x != null) ? (gPhysPosScaleI*x) : 0;
-		bodyDef.position.y = (y != null) ? (gPhysPosScaleI*y) : 0;
-		this._body = world._data._world.CreateBody(bodyDef);
-		//~ MainPrint("body linearDamping",this._body.GetLinearDamping());
-		this._world = world._data._world;
-	}
-	
-	this.GetLuaHandle = function () {
-		var t = lua_newtable();
-		t._data = this;
-		t.str['getX'							]		= function (t) { return t._data.getX									(); }
-		t.str['getY'							]		= function (t) { return t._data.getY									(); }
-		t.str['getAngle'						]		= function (t) { return t._data.getAngle								(); }
-		t.str['getInertia'						]		= function (t) { return t._data.getInertia								(); }
-		t.str['getLinearDamping'				]		= function (t) { return t._data.getLinearDamping						(); }
-		t.str['getWorldPoint'					]		= function (t) { return t._data.getWorldPoint							(); }
-		t.str['getLocalCenter'					]		= function (t) { return t._data.getLocalCenter							(); }
-		t.str['getWorldCenter'					]		= function (t) { return t._data.getWorldCenter							(); }
-		t.str['getLinearVelocity'				]		= function (t) { return t._data.getLinearVelocity						(); }
-		t.str['applyAngularImpulse'				]		= function (t) { return t._data.applyAngularImpulse					(); }
-		t.str['applyTorque'						]		= function (t) { return t._data.applyTorque							(); }
-		
-		
-		t.str['getAllowSleeping'				]		= function (t) { return t._data.getAllowSleeping						(); }
-		t.str['getAngularDamping'				]		= function (t) { return t._data.getAngularDamping						(); }
-		t.str['getAngularVelocity'				]		= function (t) { return t._data.getAngularVelocity						(); }
-		t.str['getFixtureList'					]		= function (t) { return t._data.getFixtureList							(); }
-		t.str['getGravityScale'					]		= function (t) { return t._data.getGravityScale						(); }
-		t.str['getLinearVelocityFromLocalPoint'	]		= function (t) { return t._data.getLinearVelocityFromLocalPoint		(); }
-		t.str['getLinearVelocityFromWorldPoint'	]		= function (t) { return t._data.getLinearVelocityFromWorldPoint		(); }
-		t.str['getLocalPoint'					]		= function (t) { return t._data.getLocalPoint							(); }
-		t.str['getLocalVector'					]		= function (t) { return t._data.getLocalVector							(); }
-		t.str['getMassData'						]		= function (t) { return t._data.getMassData							(); }
-		t.str['getPosition'						]		= function (t) { return t._data.getPosition							(); }
-		t.str['getType'							]		= function (t) { return t._data.getType								(); }
-		t.str['getWorldPoints'					]		= function (t) { return t._data.getWorldPoints							(); }
-		t.str['getWorldVector'					]		= function (t) { return t._data.getWorldVector							(); }
-		t.str['isActive'						]		= function (t) { return t._data.isActive								(); }
-		t.str['isAwake'							]		= function (t) { return t._data.isAwake								(); }
-		t.str['isBullet'						]		= function (t) { return t._data.isBullet								(); }
-		t.str['isDynamic'						]		= function (t) { return t._data.isDynamic								(); }
-		t.str['isFixedRotation'					]		= function (t) { return t._data.isFixedRotation						(); }
-		t.str['isFrozen'						]		= function (t) { return t._data.isFrozen								(); }
-		t.str['isSleeping'						]		= function (t) { return t._data.isSleeping								(); }
-		t.str['isSleepingAllowed'				]		= function (t) { return t._data.isSleepingAllowed						(); }
-		t.str['isStatic'						]		= function (t) { return t._data.isStatic								(); }
-		t.str['putToSleep'						]		= function (t) { return t._data.putToSleep								(); }
-		t.str['resetMassData'					]		= function (t) { return t._data.resetMassData							(); }
-		t.str['setActive'						]		= function (t) { return t._data.setActive								(); }
-		t.str['setAllowSleeping'				]		= function (t) { return t._data.setAllowSleeping						(); }
-		t.str['setAngle'						]		= function (t) { return t._data.setAngle								(); }
-		t.str['setAngularDamping'				]		= function (t) { return t._data.setAngularDamping						(); }
-		t.str['setAngularVelocity'				]		= function (t) { return t._data.setAngularVelocity						(); }
-		t.str['setAwake'						]		= function (t) { return t._data.setAwake								(); }
-		t.str['setBullet'						]		= function (t) { return t._data.setBullet								(); }
-		t.str['setFixedRotation'				]		= function (t) { return t._data.setFixedRotation						(); }
-		t.str['setGravityScale'					]		= function (t) { return t._data.setGravityScale						(); }
-		t.str['setInertia'						]		= function (t) { return t._data.setInertia								(); }
-		t.str['setLinearDamping'				]		= function (t) { return t._data.setLinearDamping						(); }
-		t.str['setMass'							]		= function (t) { return t._data.setMass								(); }
-		t.str['setMassData'						]		= function (t) { return t._data.setMassData							(); }
-		t.str['setMassFromShapes'				]		= function (t) { return t._data.setMassFromShapes						(); }
-		t.str['setSleepingAllowed'				]		= function (t) { return t._data.setSleepingAllowed						(); }
-		t.str['setX'							]		= function (t) { return t._data.setX									(); }
-		t.str['setY'							]		= function (t) { return t._data.setY									(); }
-		t.str['wakeUp'							]		= function (t) { return t._data.wakeUp									(); }
-		
-		t.str['destroy'							]		= function (t			) { t._data._world.DestroyBody(t._data._body); return LuaNil; }
-		t.str['setPosition'						]		= function (t,x,y		) { return t._data._body.SetPosition(new b2Vec2(gPhysPosScaleI*x,gPhysPosScaleI*y)); return LuaNil; }
-		t.str['getMass'							]		= function (t			) { return [t._data._body.GetMass()]; }
-		t.str['setType'							]		= function (t,btype		) { return t._data._body.SetType(Love2BodyType(btype)); return LuaNil; }
-		t.str['setLinearVelocity'				]		= function (t,x,y		) { return t._data._body.SetLinearVelocity(new b2Vec2(gPhysPosScaleI*x,gPhysPosScaleI*y)); return LuaNil; }
-		t.str['applyForce'						]		= function (t,fx,fy,x,y	) { var o = t._data._body; return o.ApplyForce(new b2Vec2(gPhysForceScale*fx,gPhysForceScale*fy),(x != null) ? (new b2Vec2(gPhysPosScaleI*x,gPhysPosScaleI*y)) : (o.GetWorldCenter())); }
-		t.str['applyLinearImpulse'				]		= function (t,ix,iy,x,y	) { var o = t._data._body; MainPrint("impulse",gPhysImpulseScale*ix,gPhysImpulseScale*iy); return o.ApplyImpulse(new b2Vec2(gPhysImpulseScale*ix,gPhysImpulseScale*iy),(x != null) ? (new b2Vec2(gPhysPosScaleI*x,gPhysPosScaleI*y)) : (o.GetWorldCenter())); }
-		t.str['applyImpulse'					]		= function (t) { return t._data.applyImpulse							(); }
-		//~ t.str['applyLinearImpulse'				]		= function (t) { return t._data.applyLinearImpulse						(); }
-		// TODO: applyForce/applyLinearImpulse : which is right :  GetWorldCenter, not GetLocalCenter : http://lib.ivank.net/?p=demos&d=box2D
-		/*
-		[21:35:23.243] NotImplemented:love.physics.Body.getAngle @ http://localhost/love-webplayer/js/main.js:61
-		[21:35:23.499] NotImplemented:love.physics.Body.applyForce @ http://localhost/love-webplayer/js/main.js:61
-		[21:35:23.513] NotImplemented:love.physics.Body.getLinearVelocity @ http://localhost/love-webplayer/js/main.js:61
-		[21:35:23.596] NotImplemented:love.physics.Body.destroy @ http://localhost/love-webplayer/js/main.js:61
-		[21:35:24.649] NotImplemented:love.physics.Body.resetMassData @ http://localhost/love-webplayer/js/main.js:61
-		[21:35:24.649] NotImplemented:love.physics.Fixture.setDensity @ http://localhost/love-webplayer/js/main.js:61
-		[21:35:24.642] NotImplemented:love.physics.newRevoluteJoint @ http://localhost/love-webplayer/js/main.js:61
-		[21:35:24.653] NotImplemented:love.physics.newWeldJoint @ http://localhost/love-webplayer/js/main.js:61
-		*/
-		return t;
-	}
-	
-	this.getX								= function () { return [this._body.GetPosition().x*gPhysPosScale]; }
-	this.getY								= function () { return [this._body.GetPosition().y*gPhysPosScale]; }
-	this.getPosition						= function () { var p = this._body.GetPosition(); return [p.x*gPhysPosScale,p.y*gPhysPosScale]; }
-	this.getAngle							= function () { return [this._body.GetAngle()]; }
-	this.getMass							= function () { return [this._body.GetMass()]; }
-	this.getInertia							= function () { 	   NotImplemented(pre+'getInertia'						); return [0]; }
-	this.getLinearDamping					= function () { 	   NotImplemented(pre+'getLinearDamping'				); return [0]; }
-	this.getWorldPoint						= function () { 	   NotImplemented(pre+'getWorldPoint'					); return [0,0]; }
-	this.getLocalCenter						= function () { 	   NotImplemented(pre+'getLocalCenter'					); return [0,0]; }
-	this.getWorldCenter						= function () { 	   NotImplemented(pre+'getWorldCenter'					); return [0,0]; }
-	this.getLinearVelocity					= function () { 	   NotImplemented(pre+'getLinearVelocity'				); return [0,0]; }
-	this.applyAngularImpulse				= function () { return NotImplemented(pre+'applyAngularImpulse'				); }
-	this.applyImpulse						= function () { return NotImplemented(pre+'applyImpulse'					); }
-	this.applyLinearImpulse					= function () { return NotImplemented(pre+'applyLinearImpulse'				); }
-	this.applyTorque						= function () { return NotImplemented(pre+'applyTorque'						); }
-	this.destroy							= function () { return NotImplemented(pre+'destroy'							); }
-	this.getAllowSleeping					= function () { return NotImplemented(pre+'getAllowSleeping'				); }
-	this.getAngularDamping					= function () { return NotImplemented(pre+'getAngularDamping'				); }
-	this.getAngularVelocity					= function () { return NotImplemented(pre+'getAngularVelocity'				); }
-	this.getFixtureList						= function () { return NotImplemented(pre+'getFixtureList'					); }
-	this.getGravityScale					= function () { return NotImplemented(pre+'getGravityScale'					); }
-	this.getLinearVelocityFromLocalPoint	= function () { return NotImplemented(pre+'getLinearVelocityFromLocalPoint'	); }
-	this.getLinearVelocityFromWorldPoint	= function () { return NotImplemented(pre+'getLinearVelocityFromWorldPoint'	); }
-	this.getLocalPoint						= function () { return NotImplemented(pre+'getLocalPoint'					); }
-	this.getLocalVector						= function () { return NotImplemented(pre+'getLocalVector'					); }
-	this.getMassData						= function () { return NotImplemented(pre+'getMassData'						); }
-	this.getType							= function () { return NotImplemented(pre+'getType'							); }
-	this.getWorldPoints						= function () { return NotImplemented(pre+'getWorldPoints'					); }
-	this.getWorldVector						= function () { return NotImplemented(pre+'getWorldVector'					); }
-	this.isActive							= function () { return NotImplemented(pre+'isActive'						); }
-	this.isAwake							= function () { return NotImplemented(pre+'isAwake'							); }
-	this.isBullet							= function () { return NotImplemented(pre+'isBullet'						); }
-	this.isDynamic							= function () { return NotImplemented(pre+'isDynamic'						); }
-	this.isFixedRotation					= function () { return NotImplemented(pre+'isFixedRotation'					); }
-	this.isFrozen							= function () { return NotImplemented(pre+'isFrozen'						); }
-	this.isSleeping							= function () { return NotImplemented(pre+'isSleeping'						); }
-	this.isSleepingAllowed					= function () { return NotImplemented(pre+'isSleepingAllowed'				); }
-	this.isStatic							= function () { return NotImplemented(pre+'isStatic'						); }
-	this.putToSleep							= function () { return NotImplemented(pre+'putToSleep'						); }
-	this.resetMassData						= function () { return NotImplemented(pre+'resetMassData'					); }
-	this.setActive							= function () { return NotImplemented(pre+'setActive'						); }
-	this.setAllowSleeping					= function () { return NotImplemented(pre+'setAllowSleeping'				); }
-	this.setAngle							= function () { return NotImplemented(pre+'setAngle'						); }
-	this.setAngularDamping					= function () { return NotImplemented(pre+'setAngularDamping'				); }
-	this.setAngularVelocity					= function () { return NotImplemented(pre+'setAngularVelocity'				); }
-	this.setAwake							= function () { return NotImplemented(pre+'setAwake'						); }
-	this.setBullet							= function () { return NotImplemented(pre+'setBullet'						); }
-	this.setFixedRotation					= function () { return NotImplemented(pre+'setFixedRotation'				); }
-	this.setGravityScale					= function () { return NotImplemented(pre+'setGravityScale'					); }
-	this.setInertia							= function () { return NotImplemented(pre+'setInertia'						); }
-	this.setLinearDamping					= function () { return NotImplemented(pre+'setLinearDamping'				); }
-	this.setMassData						= function () { return NotImplemented(pre+'setMassData'						); }
-	this.setMassFromShapes					= function () { return NotImplemented(pre+'setMassFromShapes'				); }
-	this.setSleepingAllowed					= function () { return NotImplemented(pre+'setSleepingAllowed'				); }
-	this.setX								= function () { return NotImplemented(pre+'setX'							); }
-	this.setY								= function () { return NotImplemented(pre+'setY'							); }
-	this.wakeUp								= function () { return NotImplemented(pre+'wakeUp'							); }
-	
-	this.setMass							= function () { return NotImplemented(pre+'setMass'							); }
-	
-	/*
-	local x = body:getX()
-	local y = body:getY()
-	local r = body:getAngle()
-	local m = body:getMass() * factor
-	local i = body:getInertia( )
-	local d = body:getLinearDamping(0.1)
-	local x,y = bodyA:getWorldPoint( self.chain_anchor_x,self.chain_anchor_y )
-	local x,y = body:getLocalCenter()
-	local x,y = body:getWorldCenter( )
-	local x,y = body:getLinearVelocity()
-	
-	body:setMassFromShapes()
-	body:setMass(x,y,m,i)
-	body:setFixedRotation(true)
-	body:setAngularDamping(gPlayerAngularDamp) end
-	body:setLinearDamping(gPlayerLinearDamping) end
-	body:setLinearVelocity(vxn,vyn)
-	body:applyImpulse(dx*f,dy*f)
-	body:applyForce( fx, fy)
-	body:applyForce(0, -gGravityY * body:getMass() * pdt * gPlayerCounterGravFactor, x,y)
-	body:setAngle(0)
-	body:destroy()
-	
-	*/
-	
 	this.constructor(world, x, y, btype);
 }
+
+cLovePhysicsBody.prototype.constructor = function (world, x, y, btype) {
+	var pre = "love.physics.Body.";
+	var bodyDef = new b2BodyDef;
+	bodyDef.type = Love2BodyType(btype);
+	//~ bodyDef.linearDamping = 0.0;
+	//~ MainPrint(pre+"new:","'"+btype+"'",bodyDef.type);
+	bodyDef.position.x = (x != null) ? (gPhysPosScaleI*x) : 0;
+	bodyDef.position.y = (y != null) ? (gPhysPosScaleI*y) : 0;
+	this._body = world._data._world.CreateBody(bodyDef);
+	//~ MainPrint("body linearDamping",this._body.GetLinearDamping());
+	this._world = world._data._world;
+}
+
+cLovePhysicsBody.prototype.Destroy = function () {
+	this._world.DestroyBody(this._body); 
+	delete this._body;
+	this._body = null; 
+}
+
+cLovePhysicsBody.Metatable = null;
+
+cLovePhysicsBody.prototype.GetLuaHandle = function () {
+	var pre = "love.physics.Body.";
+	var t = lua_newtable();
+	t._data = this;
+	
+	if (cLovePhysicsBody.Metatable == null) {
+		cLovePhysicsBody.Metatable = lua_newtable();
+		var mi = lua_newtable();
+		cLovePhysicsBody.Metatable.str['__index'] = mi;
+		
+		mi.str['getX'							]		= function (t) { return t._data.getX									(); }
+		mi.str['getY'							]		= function (t) { return t._data.getY									(); }
+		mi.str['getAngle'						]		= function (t) { return t._data.getAngle								(); }
+		mi.str['getInertia'						]		= function (t) { return t._data.getInertia								(); }
+		mi.str['getLinearDamping'				]		= function (t) { return t._data.getLinearDamping						(); }
+		mi.str['getWorldPoint'					]		= function (t) { return t._data.getWorldPoint							(); }
+		mi.str['getLocalCenter'					]		= function (t) { return t._data.getLocalCenter							(); }
+		mi.str['getWorldCenter'					]		= function (t) { return t._data.getWorldCenter							(); }
+		mi.str['applyAngularImpulse'				]		= function (t) { return t._data.applyAngularImpulse					(); }
+		mi.str['applyTorque'						]		= function (t) { return t._data.applyTorque							(); }
+		mi.str['getAllowSleeping'				]		= function (t) { return t._data.getAllowSleeping						(); }
+		mi.str['getAngularDamping'				]		= function (t) { return t._data.getAngularDamping						(); }
+		mi.str['getAngularVelocity'				]		= function (t) { return t._data.getAngularVelocity						(); }
+		mi.str['getFixtureList'					]		= function (t) { return t._data.getFixtureList							(); }
+		mi.str['getGravityScale'					]		= function (t) { return t._data.getGravityScale						(); }
+		mi.str['getLinearVelocityFromLocalPoint'	]		= function (t) { return t._data.getLinearVelocityFromLocalPoint		(); }
+		mi.str['getLinearVelocityFromWorldPoint'	]		= function (t) { return t._data.getLinearVelocityFromWorldPoint		(); }
+		mi.str['getLocalPoint'					]		= function (t) { return t._data.getLocalPoint							(); }
+		mi.str['getLocalVector'					]		= function (t) { return t._data.getLocalVector							(); }
+		mi.str['getMassData'						]		= function (t) { return t._data.getMassData							(); }
+		mi.str['getPosition'						]		= function (t) { return t._data.getPosition							(); }
+		mi.str['getType'							]		= function (t) { return t._data.getType								(); }
+		mi.str['getWorldPoints'					]		= function (t) { return t._data.getWorldPoints							(); }
+		mi.str['getWorldVector'					]		= function (t) { return t._data.getWorldVector							(); }
+		mi.str['isActive'						]		= function (t) { return t._data.isActive								(); }
+		mi.str['isAwake'							]		= function (t) { return t._data.isAwake								(); }
+		mi.str['isBullet'						]		= function (t) { return t._data.isBullet								(); }
+		mi.str['isDynamic'						]		= function (t) { return t._data.isDynamic								(); }
+		mi.str['isFixedRotation'					]		= function (t) { return t._data.isFixedRotation						(); }
+		mi.str['isFrozen'						]		= function (t) { return t._data.isFrozen								(); }
+		mi.str['isSleeping'						]		= function (t) { return t._data.isSleeping								(); }
+		mi.str['isSleepingAllowed'				]		= function (t) { return t._data.isSleepingAllowed						(); }
+		mi.str['isStatic'						]		= function (t) { return t._data.isStatic								(); }
+		mi.str['putToSleep'						]		= function (t) { return t._data.putToSleep								(); }
+		mi.str['resetMassData'					]		= function (t) { return t._data.resetMassData							(); }
+		mi.str['setActive'						]		= function (t) { return t._data.setActive								(); }
+		mi.str['setAllowSleeping'				]		= function (t) { return t._data.setAllowSleeping						(); }
+		mi.str['setAngle'						]		= function (t) { return t._data.setAngle								(); }
+		mi.str['setAngularDamping'				]		= function (t) { return t._data.setAngularDamping						(); }
+		mi.str['setAngularVelocity'				]		= function (t) { return t._data.setAngularVelocity						(); }
+		mi.str['setAwake'						]		= function (t) { return t._data.setAwake								(); }
+		mi.str['setBullet'						]		= function (t) { return t._data.setBullet								(); }
+		mi.str['setFixedRotation'				]		= function (t) { return t._data.setFixedRotation						(); }
+		mi.str['setGravityScale'					]		= function (t) { return t._data.setGravityScale						(); }
+		mi.str['setInertia'						]		= function (t) { return t._data.setInertia								(); }
+		mi.str['setLinearDamping'				]		= function (t) { return t._data.setLinearDamping						(); }
+		mi.str['setMass'							]		= function (t) { return t._data.setMass								(); }
+		mi.str['setMassData'						]		= function (t) { return t._data.setMassData							(); }
+		mi.str['setMassFromShapes'				]		= function (t) { return t._data.setMassFromShapes						(); }
+		mi.str['setSleepingAllowed'				]		= function (t) { return t._data.setSleepingAllowed						(); }
+		mi.str['setX'							]		= function (t) { return t._data.setX									(); }
+		mi.str['setY'							]		= function (t) { return t._data.setY									(); }
+		mi.str['wakeUp'							]		= function (t) { return t._data.wakeUp									(); }
+		
+		mi.str['destroy'							]		= function (t			) { t._data.Destroy(); t.str = null; return LuaNil; }
+		mi.str['setPosition'						]		= function (t,x,y		) { return t._data._body.SetPosition(new b2Vec2(gPhysPosScaleI*x,gPhysPosScaleI*y)); return LuaNil; }
+		mi.str['getMass'							]		= function (t			) { return [t._data._body.GetMass()]; }
+		mi.str['setType'							]		= function (t,btype		) { return t._data._body.SetType(Love2BodyType(btype)); return LuaNil; }
+		mi.str['setLinearVelocity'				]		= function (t,x,y		) { return t._data._body.SetLinearVelocity(new b2Vec2(gPhysPosScaleI*x,gPhysPosScaleI*y)); return LuaNil; }
+		mi.str['applyForce'						]		= function (t,fx,fy,x,y	) { var o = t._data._body; return o.ApplyForce(new b2Vec2(gPhysForceScale*fx,gPhysForceScale*fy),(x != null) ? (new b2Vec2(gPhysPosScaleI*x,gPhysPosScaleI*y)) : (o.GetWorldCenter())); }
+		mi.str['applyLinearImpulse'				]		= function (t,ix,iy,x,y	) { var o = t._data._body; return o.ApplyImpulse(new b2Vec2(gPhysImpulseScale*ix,gPhysImpulseScale*iy),(x != null) ? (new b2Vec2(gPhysPosScaleI*x,gPhysPosScaleI*y)) : (o.GetWorldCenter())); }
+		mi.str['getLinearVelocity'				]		= function (t) { var v = t._data._body.GetLinearVelocity(); return [v.x,v.y]; }
+		mi.str['applyImpulse'					]		= function (t) { return t._data.applyImpulse							(); }
+	}
+	t.metatable = cLovePhysicsBody.Metatable;
+	
+	//~ t.str['applyLinearImpulse'				]		= function (t) { return t._data.applyLinearImpulse						(); }
+	// TODO: applyForce/applyLinearImpulse : which is right :  GetWorldCenter, not GetLocalCenter : http://lib.ivank.net/?p=demos&d=box2D
+	/*
+	[21:35:23.243] NotImplemented:love.physics.Body.getAngle @ http://localhost/love-webplayer/js/main.js:61
+	[21:35:23.499] NotImplemented:love.physics.Body.applyForce @ http://localhost/love-webplayer/js/main.js:61
+	[21:35:23.513] NotImplemented:love.physics.Body.getLinearVelocity @ http://localhost/love-webplayer/js/main.js:61
+	[21:35:23.596] NotImplemented:love.physics.Body.destroy @ http://localhost/love-webplayer/js/main.js:61
+	[21:35:24.649] NotImplemented:love.physics.Body.resetMassData @ http://localhost/love-webplayer/js/main.js:61
+	[21:35:24.649] NotImplemented:love.physics.Fixture.setDensity @ http://localhost/love-webplayer/js/main.js:61
+	[21:35:24.642] NotImplemented:love.physics.newRevoluteJoint @ http://localhost/love-webplayer/js/main.js:61
+	[21:35:24.653] NotImplemented:love.physics.newWeldJoint @ http://localhost/love-webplayer/js/main.js:61
+	*/
+	return t;
+}
+
+{
+var pre = "love.physics.Body.";
+cLovePhysicsBody.prototype.getX								= function () { return [this._body.GetPosition().x*gPhysPosScale]; }
+cLovePhysicsBody.prototype.getY								= function () { return [this._body.GetPosition().y*gPhysPosScale]; }
+cLovePhysicsBody.prototype.getPosition						= function () { var p = this._body.GetPosition(); return [p.x*gPhysPosScale,p.y*gPhysPosScale]; }
+cLovePhysicsBody.prototype.getAngle							= function () { return [this._body.GetAngle()]; }
+cLovePhysicsBody.prototype.getMass							= function () { return [this._body.GetMass()]; }
+cLovePhysicsBody.prototype.getInertia							= function () { 	   NotImplemented(pre+'getInertia'						); return [0]; }
+cLovePhysicsBody.prototype.getLinearDamping					= function () { 	   NotImplemented(pre+'getLinearDamping'				); return [0]; }
+cLovePhysicsBody.prototype.getWorldPoint						= function () { 	   NotImplemented(pre+'getWorldPoint'					); return [0,0]; }
+cLovePhysicsBody.prototype.getLocalCenter						= function () { 	   NotImplemented(pre+'getLocalCenter'					); return [0,0]; }
+cLovePhysicsBody.prototype.getWorldCenter						= function () { 	   NotImplemented(pre+'getWorldCenter'					); return [0,0]; }
+cLovePhysicsBody.prototype.getLinearVelocity					= function () { 	   NotImplemented(pre+'getLinearVelocity'				); return [0,0]; }
+cLovePhysicsBody.prototype.applyAngularImpulse				= function () { return NotImplemented(pre+'applyAngularImpulse'				); }
+cLovePhysicsBody.prototype.applyImpulse						= function () { return NotImplemented(pre+'applyImpulse'					); }
+cLovePhysicsBody.prototype.applyLinearImpulse					= function () { return NotImplemented(pre+'applyLinearImpulse'				); }
+cLovePhysicsBody.prototype.applyTorque						= function () { return NotImplemented(pre+'applyTorque'						); }
+cLovePhysicsBody.prototype.destroy							= function () { return NotImplemented(pre+'destroy'							); }
+cLovePhysicsBody.prototype.getAllowSleeping					= function () { return NotImplemented(pre+'getAllowSleeping'				); }
+cLovePhysicsBody.prototype.getAngularDamping					= function () { return NotImplemented(pre+'getAngularDamping'				); }
+cLovePhysicsBody.prototype.getAngularVelocity					= function () { return NotImplemented(pre+'getAngularVelocity'				); }
+cLovePhysicsBody.prototype.getFixtureList						= function () { return NotImplemented(pre+'getFixtureList'					); }
+cLovePhysicsBody.prototype.getGravityScale					= function () { return NotImplemented(pre+'getGravityScale'					); }
+cLovePhysicsBody.prototype.getLinearVelocityFromLocalPoint	= function () { return NotImplemented(pre+'getLinearVelocityFromLocalPoint'	); }
+cLovePhysicsBody.prototype.getLinearVelocityFromWorldPoint	= function () { return NotImplemented(pre+'getLinearVelocityFromWorldPoint'	); }
+cLovePhysicsBody.prototype.getLocalPoint						= function () { return NotImplemented(pre+'getLocalPoint'					); }
+cLovePhysicsBody.prototype.getLocalVector						= function () { return NotImplemented(pre+'getLocalVector'					); }
+cLovePhysicsBody.prototype.getMassData						= function () { return NotImplemented(pre+'getMassData'						); }
+cLovePhysicsBody.prototype.getType							= function () { return NotImplemented(pre+'getType'							); }
+cLovePhysicsBody.prototype.getWorldPoints						= function () { return NotImplemented(pre+'getWorldPoints'					); }
+cLovePhysicsBody.prototype.getWorldVector						= function () { return NotImplemented(pre+'getWorldVector'					); }
+cLovePhysicsBody.prototype.isActive							= function () { return NotImplemented(pre+'isActive'						); }
+cLovePhysicsBody.prototype.isAwake							= function () { return NotImplemented(pre+'isAwake'							); }
+cLovePhysicsBody.prototype.isBullet							= function () { return NotImplemented(pre+'isBullet'						); }
+cLovePhysicsBody.prototype.isDynamic							= function () { return NotImplemented(pre+'isDynamic'						); }
+cLovePhysicsBody.prototype.isFixedRotation					= function () { return NotImplemented(pre+'isFixedRotation'					); }
+cLovePhysicsBody.prototype.isFrozen							= function () { return NotImplemented(pre+'isFrozen'						); }
+cLovePhysicsBody.prototype.isSleeping							= function () { return NotImplemented(pre+'isSleeping'						); }
+cLovePhysicsBody.prototype.isSleepingAllowed					= function () { return NotImplemented(pre+'isSleepingAllowed'				); }
+cLovePhysicsBody.prototype.isStatic							= function () { return NotImplemented(pre+'isStatic'						); }
+cLovePhysicsBody.prototype.putToSleep							= function () { return NotImplemented(pre+'putToSleep'						); }
+cLovePhysicsBody.prototype.resetMassData						= function () { return NotImplemented(pre+'resetMassData'					); }
+cLovePhysicsBody.prototype.setActive							= function () { return NotImplemented(pre+'setActive'						); }
+cLovePhysicsBody.prototype.setAllowSleeping					= function () { return NotImplemented(pre+'setAllowSleeping'				); }
+cLovePhysicsBody.prototype.setAngle							= function () { return NotImplemented(pre+'setAngle'						); }
+cLovePhysicsBody.prototype.setAngularDamping					= function () { return NotImplemented(pre+'setAngularDamping'				); }
+cLovePhysicsBody.prototype.setAngularVelocity					= function () { return NotImplemented(pre+'setAngularVelocity'				); }
+cLovePhysicsBody.prototype.setAwake							= function () { return NotImplemented(pre+'setAwake'						); }
+cLovePhysicsBody.prototype.setBullet							= function () { return NotImplemented(pre+'setBullet'						); }
+cLovePhysicsBody.prototype.setFixedRotation					= function () { return NotImplemented(pre+'setFixedRotation'				); }
+cLovePhysicsBody.prototype.setGravityScale					= function () { return NotImplemented(pre+'setGravityScale'					); }
+cLovePhysicsBody.prototype.setInertia							= function () { return NotImplemented(pre+'setInertia'						); }
+cLovePhysicsBody.prototype.setLinearDamping					= function () { return NotImplemented(pre+'setLinearDamping'				); }
+cLovePhysicsBody.prototype.setMassData						= function () { return NotImplemented(pre+'setMassData'						); }
+cLovePhysicsBody.prototype.setMassFromShapes					= function () { return NotImplemented(pre+'setMassFromShapes'				); }
+cLovePhysicsBody.prototype.setSleepingAllowed					= function () { return NotImplemented(pre+'setSleepingAllowed'				); }
+cLovePhysicsBody.prototype.setX								= function () { return NotImplemented(pre+'setX'							); }
+cLovePhysicsBody.prototype.setY								= function () { return NotImplemented(pre+'setY'							); }
+cLovePhysicsBody.prototype.wakeUp								= function () { return NotImplemented(pre+'wakeUp'							); }
+cLovePhysicsBody.prototype.setMass							= function () { return NotImplemented(pre+'setMass'							); }
+}
+
+
+
+
+
+
+
+/*
+local x = body:getX()
+local y = body:getY()
+local r = body:getAngle()
+local m = body:getMass() * factor
+local i = body:getInertia( )
+local d = body:getLinearDamping(0.1)
+local x,y = bodyA:getWorldPoint( self.chain_anchor_x,self.chain_anchor_y )
+local x,y = body:getLocalCenter()
+local x,y = body:getWorldCenter( )
+local x,y = body:getLinearVelocity()
+
+body:setMassFromShapes()
+body:setMass(x,y,m,i)
+body:setFixedRotation(true)
+body:setAngularDamping(gPlayerAngularDamp) end
+body:setLinearDamping(gPlayerLinearDamping) end
+body:setLinearVelocity(vxn,vyn)
+body:applyImpulse(dx*f,dy*f)
+body:applyForce( fx, fy)
+body:applyForce(0, -gGravityY * body:getMass() * pdt * gPlayerCounterGravFactor, x,y)
+body:setAngle(0)
+body:destroy()
+
+*/
+
 
 
 
