@@ -83,7 +83,6 @@ cLovePhysicsFixture.prototype.constructor = function (body, shape, density) {
 	this._fixture = body._data._body.CreateFixture(fixDef);
 	this._fixture.loveHandle = this;
 	this._loveUserData = null;
-	this._t = null;
 }
 
 
@@ -119,9 +118,7 @@ t.str['setUserData']			= function (t,v) { t._data._loveUserData = v; return LuaN
 
 
 cLovePhysicsFixture.prototype.GetLuaHandle = function () {
-	if (this._t != null) return this._t;
 	var t = lua_newtable();
-	this._t = t;
 	t._data = this;
 	t.metatable = this.Metatable;
 	return t;
@@ -515,6 +512,16 @@ function cLovePhysicsCircleShape (a,b,c) {
 {
 var pre = "love.physics.CircleShape.";
 	
+var t = lua_newtable();
+cLovePhysicsCircleShape.prototype.Metatable = lua_newtable();
+cLovePhysicsCircleShape.prototype.Metatable.str['__index'] = t;
+Shape_LuaMethods(t);
+t.str['getLocalCenter'	] = function (t) { return t._data.getLocalCenter	(); }
+t.str['getRadius'		] = function (t) { return t._data.getRadius			(); }
+t.str['getWorldCenter'	] = function (t) { return t._data.getWorldCenter	(); }
+t.str['setRadius'		] = function (t) { return t._data.setRadius			(); }
+	
+
 /// (x,y,radius)  or  (radius)
 cLovePhysicsCircleShape.prototype.constructor = function (a,b,c) {
 	var x		= (c != null) ? a : 0;
@@ -527,12 +534,7 @@ cLovePhysicsCircleShape.prototype.constructor = function (a,b,c) {
 cLovePhysicsCircleShape.prototype.GetLuaHandle = function () {
 	var t = lua_newtable();
 	t._data = this;
-	t.str['getLocalCenter'	] = function (t) { return t._data.getLocalCenter	(); }
-	t.str['getRadius'		] = function (t) { return t._data.getRadius			(); }
-	t.str['getWorldCenter'	] = function (t) { return t._data.getWorldCenter	(); }
-	t.str['setRadius'		] = function (t) { return t._data.setRadius			(); }
-	
-	Shape_LuaMethods(t);
+	t.metatable = this.Metatable;
 	return t;
 }
 cLovePhysicsCircleShape.prototype.getLocalCenter			= function () { 	   NotImplemented(pre+'getLocalCenter'	); return [0,0]; }
@@ -555,6 +557,12 @@ function cLovePhysicsRectangleShape (x, y, width, height, angle) {
 {
 var pre = "love.physics.RectangleShape.";
 	
+var t = lua_newtable();
+cLovePhysicsRectangleShape.prototype.Metatable = lua_newtable();
+cLovePhysicsRectangleShape.prototype.Metatable.str['__index'] = t;
+Shape_LuaMethods(t);
+t.str['getPoints'] = function (t) { var o = t._data._shape; return Box2D_VertexList_ToLua(o.GetVertices(),o.GetVertexCount()); }
+
 /// (width, height) or (x, y, width, height, angle)
 cLovePhysicsRectangleShape.prototype.constructor = function (x, y, width, height, angle) {
 	if (height == null) {
@@ -572,8 +580,7 @@ cLovePhysicsRectangleShape.prototype.constructor = function (x, y, width, height
 cLovePhysicsRectangleShape.prototype.GetLuaHandle = function () {
 	var t = lua_newtable();
 	t._data = this;
-	t.str['getPoints'] = function (t) { var o = t._data._shape; return Box2D_VertexList_ToLua(o.GetVertices(),o.GetVertexCount()); }
-	Shape_LuaMethods(t);
+	t.metatable = this.Metatable;
 	return t;
 }
 	
@@ -597,6 +604,12 @@ function cLovePhysicsPolygonShape (arr) {
 {
 var pre = "love.physics.PolygonShape.";
 
+var t = lua_newtable();
+cLovePhysicsPolygonShape.prototype.Metatable = lua_newtable();
+cLovePhysicsPolygonShape.prototype.Metatable.str['__index'] = t;
+Shape_LuaMethods(t);
+t.str['getPoints'] = function (t) { var o = t._data._shape; return Box2D_VertexList_ToLua(o.GetVertices(),o.GetVertexCount()); }
+
 /// ( x1, y1, x2, y2, x3, y3, ... )
 cLovePhysicsPolygonShape.prototype.constructor = function (myfloats) {
 	this._shape = new b2PolygonShape;
@@ -607,11 +620,11 @@ cLovePhysicsPolygonShape.prototype.constructor = function (myfloats) {
 	
 	this._shape.SetAsArray(vertices);
 }
+
 cLovePhysicsPolygonShape.prototype.GetLuaHandle = function () {
 	var t = lua_newtable();
 	t._data = this;
-	t.str['getPoints'] = function (t) { var o = t._data._shape; return Box2D_VertexList_ToLua(o.GetVertices(),o.GetVertexCount()); }
-	Shape_LuaMethods(t);
+	t.metatable = this.Metatable;
 	return t;
 }
 	
