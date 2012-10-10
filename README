@@ -28,6 +28,7 @@ not-yet-implemented (incomplete list)
 * complex string matching pattern, especially balanced braces (e.g. xml parsers, see below)
 * screensize wrong (-1,-1) during love.load : love.graphics.getWidth()/getHeight()
 * raw sound/audio editing : love.sound.newSoundData etc
+* functions not allowed as table key
 
 known issues : 
 * audio : music formats .xm and .mod not supported by browsers usually

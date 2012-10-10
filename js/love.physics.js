@@ -15,16 +15,17 @@ var		b2Vec2			= Box2D.Common.Math.b2Vec2
 	,	b2DebugDraw		= Box2D.Dynamics.b2DebugDraw
 	;
 	
+var gPhysGravityScale = 1.0;
 var gPhysForceScale = 1.0;
 var gPhysImpulseScale = 1.0;
 var gPhysPosScale = 1.0;
 var gPhysPosScaleI = 1.0/gPhysPosScale;
 function Love_Physics_SetMeter (m) { 
-	//~ gPhysForceScale = m;
+	gPhysForceScale = m*m;
 	gPhysImpulseScale = m*m;
 	gPhysPosScale = 1.0; 
 	gPhysPosScaleI = 1.0/gPhysPosScale; 
-	b2Settings.b2_maxTranslation = 2.0*m;   
+	b2Settings.b2_maxTranslation = 2.0*m; // otherwise too slow
     b2Settings.b2_maxTranslationSquared = b2Settings.b2_maxTranslation * b2Settings.b2_maxTranslation;
 	MainPrint("meter",m,gPhysPosScale,gPhysPosScaleI);
 }
@@ -63,6 +64,8 @@ function Love_Physics_CreateTable (G) {
 
 // ***** ***** ***** ***** ***** cLovePhysicsFixture
 
+function LovePhysicsFixture_FromBox2D (fix) { return fix.loveHandle; }
+
 function cLovePhysicsFixture (body, shape, density) {
 	var pre = "love.physics.Fixture.";
 	
@@ -74,9 +77,14 @@ function cLovePhysicsFixture (body, shape, density) {
 		fixDef.restitution = 0; // default love (at meter=100)
 		fixDef.shape = shape._data._shape;
 		this._fixture = body._data._body.CreateFixture(fixDef);
+		this._fixture.loveHandle = this;
+		this._loveUserData = null;
+		this._t = null;
 	}
 	this.GetLuaHandle = function () {
+		if (this._t != null) return this._t;
 		var t = lua_newtable();
+		this._t = t;
 		t._data = this;
 		t.str['destroy']				= function (t) { return t._data.destroy(); }
 		t.str['getBody']				= function (t) { return t._data.getBody(); }
@@ -90,7 +98,6 @@ function cLovePhysicsFixture (body, shape, density) {
 		t.str['getMassData']			= function (t) { return t._data.getMassData(); }
 		t.str['getRestitution']			= function (t) { return t._data.getRestitution(); }
 		t.str['getShape']				= function (t) { return t._data.getShape(); }
-		t.str['getUserData']			= function (t) { return t._data.getUserData(); }
 		t.str['isSensor']				= function (t) { return t._data.isSensor(); }
 		t.str['rayCast']				= function (t) { return t._data.rayCast(); }
 		t.str['setCategory']			= function (t) { return t._data.setCategory(); }
@@ -101,8 +108,10 @@ function cLovePhysicsFixture (body, shape, density) {
 		t.str['setMask']				= function (t) { return t._data.setMask(); }
 		t.str['setRestitution']			= function (t) { return t._data.setRestitution(); }
 		t.str['setSensor']				= function (t) { return t._data.setSensor(); }
-		t.str['setUserData']			= function (t) { return t._data.setUserData(); }
 		t.str['testPoint']				= function (t) { return t._data.testPoint(); }
+		
+		t.str['getUserData']			= function (t) { return [t._data._loveUserData]; }
+		t.str['setUserData']			= function (t,v) { t._data._loveUserData = v; return LuaNil; }
 
 		return t;
 	}
@@ -118,8 +127,7 @@ function cLovePhysicsFixture (body, shape, density) {
 	this.getMask				= function () { return NotImplemented(pre+'getMask'); }			
 	this.getMassData			= function () { return NotImplemented(pre+'getMassData'); }		
 	this.getRestitution			= function () { return NotImplemented(pre+'getRestitution'); }	
-	this.getShape				= function () { return NotImplemented(pre+'getShape'); }			
-	this.getUserData			= function () { return NotImplemented(pre+'getUserData'); }		
+	this.getShape				= function () { return NotImplemented(pre+'getShape'); }		
 	this.isSensor				= function () { return NotImplemented(pre+'isSensor'); }			
 	this.rayCast				= function () { return NotImplemented(pre+'rayCast'); }			
 	this.setCategory			= function () { return NotImplemented(pre+'setCategory'); }		
@@ -130,7 +138,6 @@ function cLovePhysicsFixture (body, shape, density) {
 	this.setMask				= function () { return NotImplemented(pre+'setMask'); }			
 	this.setRestitution			= function () { return NotImplemented(pre+'setRestitution'); }	
 	this.setSensor				= function () { return NotImplemented(pre+'setSensor'); }		
-	this.setUserData			= function () { return NotImplemented(pre+'setUserData'); }		
 	this.testPoint				= function () { return NotImplemented(pre+'testPoint'); }		
 	
 	this.constructor(body, shape, density);
@@ -138,23 +145,48 @@ function cLovePhysicsFixture (body, shape, density) {
 
 // ***** ***** ***** ***** ***** cLovePhysicsWorld
 
+gMainWorld = null;
+
 function cLovePhysicsWorld (xg, yg, sleep) {
 	var pre = "love.physics.World.";
 	
 	this.constructor = function (xg, yg, bsleep) {
 		this._world = new b2World(
-			new b2Vec2(	(xg != null) ? (gPhysForceScale*xg) : 0, 
-						(yg != null) ? (gPhysForceScale*yg) : 0 ),    // gravity
+			new b2Vec2(	(xg != null) ? (gPhysGravityScale*xg) : 0, 
+						(yg != null) ? (gPhysGravityScale*yg) : 0 ),    // gravity
 			(bsleep != null) ? bsleep : true );		//allow sleep
 		MainPrint("world grav = ",(xg != null) ? xg : 0,(yg != null) ? yg : 0 , (bsleep != null) ? bsleep : true );
+		
+		var b2ContactListener = Box2D.Dynamics.b2ContactListener.b2_defaultListener;
+		gMainWorld = this;
+		
+		b2ContactListener.BeginContact = function (contact) {
+			if (!gMainWorld || gMainWorld.beginContact == null) return;
+			var fixA = LovePhysicsFixture_FromBox2D(contact.GetFixtureA());
+			var fixB = LovePhysicsFixture_FromBox2D(contact.GetFixtureB());
+			gMainWorld.beginContact(fixA.GetLuaHandle(),fixB.GetLuaHandle(),LuaNil);
+		}
+		//~ b2ContactListener.prototype.BeginContact = function (contact) { MainPrint("BeginContact"); }
 	}
 	this.GetLuaHandle = function () {
 		var t = lua_newtable();
 		t._data = this;
 		//~ t.str['somefun']				= function (t		) { return t._data.somefun			(); }
-		t.str['setGravity']				= function (t,x,y) { t._data._world.SetGravity(new b2Vec2(gPhysForceScale*x,gPhysForceScale*y)); return LuaNil; }		
+		t.str['setGravity']				= function (t,x,y) { t._data._world.SetGravity(new b2Vec2(gPhysGravityScale*x,gPhysGravityScale*y)); return LuaNil; }		
 		t.str['setMeter']				= function (t) { Love_Physics_SetMeter(m); return LuaNil; }		
-		t.str['setCallbacks']			= function (t) { return NotImplemented(pre+'setCallbacks'); }	// note : this.m_contactManager.m_contactListener
+		t.str['setCallbacks']			= function (t, beginContact, endContact, preSolve, postSolve) { // World:setCallbacks( beginContact, endContact, preSolve, postSolve )
+			t._data.beginContact = beginContact;
+			//~ MainPrint("setCallbacks",beginContact);
+			// lua Phys_OnCollision (fixA,fixB,contact) fixA:getUserData()
+			// note : this.m_contactManager.m_contactListener
+			// note : Box2D.Dynamics.b2ContactListener
+			// note : Box2D.Dynamics.b2ContactListener.b2_defaultListener = new b2ContactListener();
+			// Box2dWeb-2.1.a.3.js:5080: b2ContactListener.prototype.BeginContact = function (contact) {}
+			// Box2dWeb-2.1.a.3.js:5081: b2ContactListener.prototype.EndContact = function (contact) {}
+			// Box2dWeb-2.1.a.3.js:5082: b2ContactListener.prototype.PreSolve = function (contact, oldManifold) {}
+			// Box2dWeb-2.1.a.3.js:5083: b2ContactListener.prototype.PostSolve = function (contact, impulse) {}
+			return NotImplemented(pre+'setCallbacks (only beginContact)'); 
+		}	
 		t.str['update']					= function (t,dt) { return t._data.update(dt); }
 		t.str['getBodyCount']			= function (t) { NotImplemented(pre+'getBodyCount'); return [0]; }	 // m_bodyCount
 		return t;
@@ -541,7 +573,3 @@ function cLovePhysicsPolygonShape (arr) {
 }
 
 // ***** ***** ***** ***** ***** rest
-
-// todo 2012-10-10 slow speed :b2Island.prototype.Solve = function (step, gravity, allowSleep) {    m_linearDamping
-// 2012-10-10  i think i found the reason for slowness :   Box2D.Common.b2Settings.b2_maxTranslation = 2.0;   
-	  
