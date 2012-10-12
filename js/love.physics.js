@@ -2,17 +2,19 @@
 // first implementation is 0.8 api, maybe later implement 0.7.2 api ? or solve with adult lib
 // Box2DWeb demos : http://lib.ivank.net/?p=demos&d=box2D  
 
-var		b2Vec2			= Box2D.Common.Math.b2Vec2
-	,	b2Settings		= Box2D.Common.b2Settings
-	,	b2BodyDef		= Box2D.Dynamics.b2BodyDef
-	,	b2Body			= Box2D.Dynamics.b2Body
-	,	b2FixtureDef	= Box2D.Dynamics.b2FixtureDef
-	,	b2Fixture		= Box2D.Dynamics.b2Fixture
-	,	b2World			= Box2D.Dynamics.b2World
-	,	b2MassData		= Box2D.Collision.Shapes.b2MassData
-	,	b2PolygonShape	= Box2D.Collision.Shapes.b2PolygonShape
-	,	b2CircleShape	= Box2D.Collision.Shapes.b2CircleShape
-	,	b2DebugDraw		= Box2D.Dynamics.b2DebugDraw
+var		b2Vec2					= Box2D.Common.Math.b2Vec2
+	,	b2Settings				= Box2D.Common.b2Settings
+	,	b2BodyDef				= Box2D.Dynamics.b2BodyDef
+	,	b2Body					= Box2D.Dynamics.b2Body
+	,	b2FixtureDef			= Box2D.Dynamics.b2FixtureDef
+	,	b2Fixture				= Box2D.Dynamics.b2Fixture
+	,	b2World					= Box2D.Dynamics.b2World
+	,	b2MassData				= Box2D.Collision.Shapes.b2MassData
+	,	b2PolygonShape			= Box2D.Collision.Shapes.b2PolygonShape
+	,	b2CircleShape			= Box2D.Collision.Shapes.b2CircleShape
+	,	b2DebugDraw				= Box2D.Dynamics.b2DebugDraw
+    ,	b2RevoluteJoint 		= Box2D.Dynamics.Joints.b2RevoluteJoint
+	,	b2RevoluteJointDef		= Box2D.Dynamics.Joints.b2RevoluteJointDef
 	;
 	
 var gPhysGravityScale = 1.0;
@@ -37,13 +39,13 @@ function Love_Physics_CreateTable (G) {
 
 	G.str['love'].str['physics'] = t;
 	
-	t.str['newWorld'			] = function (xg, yg, sleep					) { return [(new cLovePhysicsWorld(xg, yg, sleep)						).GetLuaHandle()]; } //	Creates a new World.
-	t.str['newBody'				] = function (world, x, y, type				) { return [(new cLovePhysicsBody(world, x, y, type)					).GetLuaHandle()]; } //	Creates a new body.
-	t.str['newFixture'			] = function (body, shape, density			) { return [(new cLovePhysicsFixture(body, shape, density)				).GetLuaHandle()]; } //	Creates and attaches a fixture.
-	t.str['newCircleShape'		] = function (a,b,c							) { return [(new cLovePhysicsCircleShape(a,b,c)							).GetLuaHandle()]; } //	Creates a circle shape.
-	t.str['newRectangleShape'	] = function (x, y, width, height, angle	) { return [(new cLovePhysicsRectangleShape(x, y, width, height, angle)	).GetLuaHandle()]; } //	Shorthand for creating rectangluar PolygonShapes.
-	t.str['newPolygonShape'		] = function (								) { return [(new cLovePhysicsPolygonShape(arguments)					).GetLuaHandle()]; } //	Creates a new PolygonShape.
-	
+	t.str['newWorld'			] = function (xg, yg, sleep							) { return [(new cLovePhysicsWorld(xg, yg, sleep)								).GetLuaHandle()]; } //	Creates a new World.
+	t.str['newBody'				] = function (world, x, y, type						) { return [(new cLovePhysicsBody(world, x, y, type)							).GetLuaHandle()]; } //	Creates a new body.
+	t.str['newFixture'			] = function (body, shape, density					) { return [(new cLovePhysicsFixture(body, shape, density)						).GetLuaHandle()]; } //	Creates and attaches a fixture.
+	t.str['newCircleShape'		] = function (a,b,c									) { return [(new cLovePhysicsCircleShape(a,b,c)									).GetLuaHandle()]; } //	Creates a circle shape.
+	t.str['newRectangleShape'	] = function (x, y, width, height, angle			) { return [(new cLovePhysicsRectangleShape(x, y, width, height, angle)			).GetLuaHandle()]; } //	Shorthand for creating rectangluar PolygonShapes.
+	t.str['newPolygonShape'		] = function (										) { return [(new cLovePhysicsPolygonShape(arguments)							).GetLuaHandle()]; } //	Creates a new PolygonShape.
+	t.str['newRevoluteJoint'	] = function (body1, body2, x, y, collideConnected	) { return [(new cLovePhysicsRevoluteJoint(body1, body2, x, y, collideConnected)).GetLuaHandle()]; } //	Creates a pivot joint between two bodies.
 	
 	t.str['getDistance'			] = function () { return NotImplemented(pre+'getDistance'		); } //	Returns the two closest points between two fixtures and their distance.
 	t.str['getMeter'			] = function () { return NotImplemented(pre+'getMeter'			); } //	Returns the meter scale factor.
@@ -55,7 +57,6 @@ function Love_Physics_CreateTable (G) {
 	t.str['newMouseJoint'		] = function () { return NotImplemented(pre+'newMouseJoint'		); } //	Create a joint between a body and the mouse.
 	t.str['newPrismaticJoint'	] = function () { return NotImplemented(pre+'newPrismaticJoint'	); } //	Creates a prismatic joints between two bodies.
 	t.str['newPulleyJoint'		] = function () { return NotImplemented(pre+'newPulleyJoint'	); } //	Creates a pulley joint to join two bodies to each other and the ground.
-	t.str['newRevoluteJoint'	] = function () { return NotImplemented(pre+'newRevoluteJoint'	); } //	Creates a pivot joint between two bodies.
 	t.str['newRopeJoint'		] = function () { return NotImplemented(pre+'newRopeJoint'		); } //	Creates a joint between two bodies that enforces a max distance between them.
 	t.str['newWeldJoint'		] = function () { return NotImplemented(pre+'newWeldJoint'		); } //	A WeldJoint essentially glues two bodies together.
 	t.str['newWheelJoint'		] = function () { return NotImplemented(pre+'newWheelJoint'		); } //	Creates a wheel joint.
@@ -63,6 +64,7 @@ function Love_Physics_CreateTable (G) {
 }
 
 // ***** ***** ***** ***** ***** cLovePhysicsFixture
+cLovePhysicsFixture.prototype.pre = "love.physics.Fixture.";
 
 function LovePhysicsFixture_FromBox2D (fix) { return fix.loveHandle; }
 
@@ -70,8 +72,6 @@ function cLovePhysicsFixture (body, shape, density) {
 	this.constructor(body, shape, density);
 }
 
-{
-var pre = "love.physics.Fixture.";
 
 cLovePhysicsFixture.prototype.constructor = function (body, shape, density) {
 	if (density == null) density = 1.0;
@@ -132,89 +132,91 @@ cLovePhysicsFixture.prototype.GetLuaHandle = function () {
 }
 
 
-cLovePhysicsFixture.prototype.destroy				= function () { return NotImplemented(pre+'destroy'); }			
-cLovePhysicsFixture.prototype.getBody				= function () { return NotImplemented(pre+'getBody'); }			
-cLovePhysicsFixture.prototype.getBoundingBox			= function () { return NotImplemented(pre+'getBoundingBox'); }	
-cLovePhysicsFixture.prototype.getCategory			= function () { return NotImplemented(pre+'getCategory'); }		
-cLovePhysicsFixture.prototype.getDensity				= function () { return NotImplemented(pre+'getDensity'); }		
-cLovePhysicsFixture.prototype.getFilterData			= function () { return NotImplemented(pre+'getFilterData'); }	
-cLovePhysicsFixture.prototype.getFriction			= function () { return NotImplemented(pre+'getFriction'); }		
-cLovePhysicsFixture.prototype.getGroupIndex			= function () { return NotImplemented(pre+'getGroupIndex'); }	
-cLovePhysicsFixture.prototype.getMask				= function () { return NotImplemented(pre+'getMask'); }			
-cLovePhysicsFixture.prototype.getMassData			= function () { return NotImplemented(pre+'getMassData'); }		
-cLovePhysicsFixture.prototype.getRestitution			= function () { return NotImplemented(pre+'getRestitution'); }	
-cLovePhysicsFixture.prototype.getShape				= function () { return NotImplemented(pre+'getShape'); }		
-cLovePhysicsFixture.prototype.isSensor				= function () { return NotImplemented(pre+'isSensor'); }			
-cLovePhysicsFixture.prototype.rayCast				= function () { return NotImplemented(pre+'rayCast'); }			
-cLovePhysicsFixture.prototype.setDensity				= function () { return NotImplemented(pre+'setDensity'); }		
-cLovePhysicsFixture.prototype.setFilterData			= function () { return NotImplemented(pre+'setFilterData'); }	
-cLovePhysicsFixture.prototype.setFriction			= function () { return NotImplemented(pre+'setFriction'); }		
-cLovePhysicsFixture.prototype.setGroupIndex			= function () { return NotImplemented(pre+'setGroupIndex'); }	
-cLovePhysicsFixture.prototype.setRestitution			= function () { return NotImplemented(pre+'setRestitution'); }	
-cLovePhysicsFixture.prototype.setSensor				= function () { return NotImplemented(pre+'setSensor'); }		
-cLovePhysicsFixture.prototype.testPoint				= function () { return NotImplemented(pre+'testPoint'); }		
+cLovePhysicsFixture.prototype.destroy				= function () { return NotImplemented(this.pre+'destroy'); }			
+cLovePhysicsFixture.prototype.getBody				= function () { return NotImplemented(this.pre+'getBody'); }			
+cLovePhysicsFixture.prototype.getBoundingBox			= function () { return NotImplemented(this.pre+'getBoundingBox'); }	
+cLovePhysicsFixture.prototype.getCategory			= function () { return NotImplemented(this.pre+'getCategory'); }		
+cLovePhysicsFixture.prototype.getDensity				= function () { return NotImplemented(this.pre+'getDensity'); }		
+cLovePhysicsFixture.prototype.getFilterData			= function () { return NotImplemented(this.pre+'getFilterData'); }	
+cLovePhysicsFixture.prototype.getFriction			= function () { return NotImplemented(this.pre+'getFriction'); }		
+cLovePhysicsFixture.prototype.getGroupIndex			= function () { return NotImplemented(this.pre+'getGroupIndex'); }	
+cLovePhysicsFixture.prototype.getMask				= function () { return NotImplemented(this.pre+'getMask'); }			
+cLovePhysicsFixture.prototype.getMassData			= function () { return NotImplemented(this.pre+'getMassData'); }		
+cLovePhysicsFixture.prototype.getRestitution			= function () { return NotImplemented(this.pre+'getRestitution'); }	
+cLovePhysicsFixture.prototype.getShape				= function () { return NotImplemented(this.pre+'getShape'); }		
+cLovePhysicsFixture.prototype.isSensor				= function () { return NotImplemented(this.pre+'isSensor'); }			
+cLovePhysicsFixture.prototype.rayCast				= function () { return NotImplemented(this.pre+'rayCast'); }			
+cLovePhysicsFixture.prototype.setDensity				= function () { return NotImplemented(this.pre+'setDensity'); }		
+cLovePhysicsFixture.prototype.setFilterData			= function () { return NotImplemented(this.pre+'setFilterData'); }	
+cLovePhysicsFixture.prototype.setFriction			= function () { return NotImplemented(this.pre+'setFriction'); }		
+cLovePhysicsFixture.prototype.setGroupIndex			= function () { return NotImplemented(this.pre+'setGroupIndex'); }	
+cLovePhysicsFixture.prototype.setRestitution			= function () { return NotImplemented(this.pre+'setRestitution'); }	
+cLovePhysicsFixture.prototype.setSensor				= function () { return NotImplemented(this.pre+'setSensor'); }		
+cLovePhysicsFixture.prototype.testPoint				= function () { return NotImplemented(this.pre+'testPoint'); }		
 
-}
 
 // ***** ***** ***** ***** ***** cLovePhysicsWorld
+cLovePhysicsWorld.prototype.pre = "love.physics.World.";
 
 gMainWorld = null;
 
 function cLovePhysicsWorld (xg, yg, sleep) {
-	var pre = "love.physics.World.";
-	
-	this.constructor = function (xg, yg, bsleep) {
-		this._world = new b2World(
-			new b2Vec2(	(xg != null) ? (gPhysGravityScale*xg) : 0, 
-						(yg != null) ? (gPhysGravityScale*yg) : 0 ),    // gravity
-			(bsleep != null) ? bsleep : true );		//allow sleep
-		MainPrint("world grav = ",(xg != null) ? xg : 0,(yg != null) ? yg : 0 , (bsleep != null) ? bsleep : true );
-		
-		var b2ContactListener = Box2D.Dynamics.b2ContactListener.b2_defaultListener;
-		gMainWorld = this;
-		
-		b2ContactListener.BeginContact = function (contact) {
-			if (!gMainWorld || gMainWorld.beginContact == null) return;
-			var fixA = LovePhysicsFixture_FromBox2D(contact.GetFixtureA());
-			var fixB = LovePhysicsFixture_FromBox2D(contact.GetFixtureB());
-			gMainWorld.beginContact(fixA.GetLuaHandle(),fixB.GetLuaHandle(),LuaNil);
-		}
-		//~ b2ContactListener.prototype.BeginContact = function (contact) { MainPrint("BeginContact"); }
-	}
-	this.GetLuaHandle = function () {
-		var t = lua_newtable();
-		t._data = this;
-		//~ t.str['somefun']				= function (t		) { return t._data.somefun			(); }
-		t.str['setGravity']				= function (t,x,y) { t._data._world.SetGravity(new b2Vec2(gPhysGravityScale*x,gPhysGravityScale*y)); return LuaNil; }		
-		t.str['setMeter']				= function (t) { Love_Physics_SetMeter(m); return LuaNil; }		
-		t.str['setCallbacks']			= function (t, beginContact, endContact, preSolve, postSolve) { // World:setCallbacks( beginContact, endContact, preSolve, postSolve )
-			t._data.beginContact = beginContact;
-			//~ MainPrint("setCallbacks",beginContact);
-			// lua Phys_OnCollision (fixA,fixB,contact) fixA:getUserData()
-			// note : this.m_contactManager.m_contactListener
-			// note : Box2D.Dynamics.b2ContactListener
-			// note : Box2D.Dynamics.b2ContactListener.b2_defaultListener = new b2ContactListener();
-			// Box2dWeb-2.1.a.3.js:5080: b2ContactListener.prototype.BeginContact = function (contact) {}
-			// Box2dWeb-2.1.a.3.js:5081: b2ContactListener.prototype.EndContact = function (contact) {}
-			// Box2dWeb-2.1.a.3.js:5082: b2ContactListener.prototype.PreSolve = function (contact, oldManifold) {}
-			// Box2dWeb-2.1.a.3.js:5083: b2ContactListener.prototype.PostSolve = function (contact, impulse) {}
-			return NotImplemented(pre+'setCallbacks (only beginContact)'); 
-		}	
-		t.str['update']					= function (t,dt) { return t._data.update(dt); }
-		t.str['getBodyCount']			= function (t) { NotImplemented(pre+'getBodyCount'); return [0]; }	 // m_bodyCount
-		return t;
-	}	
-	this.update			= function (dt) {
-		//~ MainPrint("world.update(dt=",dt);
-		try {
-			//~ dt = 1 / 60;
-			this._world.Step( dt  ,  8  ,  6 ); // frame-rate,velocity iterations,position iterations
-			//~ this._world.DrawDebugData();
-			this._world.ClearForces();
-		} catch (e) { MainPrint("exception during World.update:"+e); }
-	}		
 	this.constructor(xg, yg, sleep);
 }
+	
+cLovePhysicsWorld.prototype.constructor = function (xg, yg, bsleep) {
+	this._world = new b2World(
+		new b2Vec2(	(xg != null) ? (gPhysGravityScale*xg) : 0, 
+					(yg != null) ? (gPhysGravityScale*yg) : 0 ),    // gravity
+		(bsleep != null) ? bsleep : true );		//allow sleep
+	MainPrint("world grav = ",(xg != null) ? xg : 0,(yg != null) ? yg : 0 , (bsleep != null) ? bsleep : true );
+	
+	var b2ContactListener = Box2D.Dynamics.b2ContactListener.b2_defaultListener;
+	gMainWorld = this;
+	
+	b2ContactListener.BeginContact = function (contact) {
+		if (!gMainWorld || gMainWorld.beginContact == null) return;
+		var fixA = LovePhysicsFixture_FromBox2D(contact.GetFixtureA());
+		var fixB = LovePhysicsFixture_FromBox2D(contact.GetFixtureB());
+		gMainWorld.beginContact(fixA.GetLuaHandle(),fixB.GetLuaHandle(),LuaNil);
+	}
+	//~ b2ContactListener.prototype.BeginContact = function (contact) { MainPrint("BeginContact"); }
+}
+
+cLovePhysicsWorld.prototype.GetLuaHandle = function () {
+	var t = lua_newtable();
+	t._data = this;
+	//~ t.str['somefun']				= function (t		) { return t._data.somefun			(); }
+	t.str['setGravity']				= function (t,x,y) { t._data._world.SetGravity(new b2Vec2(gPhysGravityScale*x,gPhysGravityScale*y)); return LuaNil; }		
+	t.str['setMeter']				= function (t) { Love_Physics_SetMeter(m); return LuaNil; }		
+	t.str['setCallbacks']			= function (t, beginContact, endContact, preSolve, postSolve) { // World:setCallbacks( beginContact, endContact, preSolve, postSolve )
+		t._data.beginContact = beginContact;
+		//~ MainPrint("setCallbacks",beginContact);
+		// lua Phys_OnCollision (fixA,fixB,contact) fixA:getUserData()
+		// note : this.m_contactManager.m_contactListener
+		// note : Box2D.Dynamics.b2ContactListener
+		// note : Box2D.Dynamics.b2ContactListener.b2_defaultListener = new b2ContactListener();
+		// Box2dWeb-2.1.a.3.js:5080: b2ContactListener.prototype.BeginContact = function (contact) {}
+		// Box2dWeb-2.1.a.3.js:5081: b2ContactListener.prototype.EndContact = function (contact) {}
+		// Box2dWeb-2.1.a.3.js:5082: b2ContactListener.prototype.PreSolve = function (contact, oldManifold) {}
+		// Box2dWeb-2.1.a.3.js:5083: b2ContactListener.prototype.PostSolve = function (contact, impulse) {}
+		return NotImplemented(t._data.pre+'setCallbacks (only beginContact)'); 
+	}	
+	t.str['update']					= function (t,dt) { return t._data.update(dt); }
+	t.str['getBodyCount']			= function (t) { return [t._data._world.m_bodyCount]; }
+	return t;
+}	
+
+cLovePhysicsWorld.prototype.update			= function (dt) {
+	//~ MainPrint("world.update(dt=",dt);
+	try {
+		//~ dt = 1 / 60;
+		this._world.Step( dt  ,  8  ,  6 ); // frame-rate,velocity iterations,position iterations
+		//~ this._world.DrawDebugData();
+		this._world.ClearForces();
+	} catch (e) { MainPrint("exception during World.update:"+e); }
+}		
+
 
 
 // ***** ***** ***** ***** ***** cLovePhysicsBody
@@ -239,21 +241,20 @@ function cLovePhysicsBody (world, x, y, btype) {
 	this.constructor(world, x, y, btype);
 }
 
-
-{
-var pre = "love.physics.Body.";
+cLovePhysicsBody.prototype.pre = "love.physics.Body.";
 
 cLovePhysicsBody.prototype.constructor = function (world, x, y, btype) {
 	var bodyDef = new b2BodyDef;
 	bodyDef.type = Love2BodyType(btype);
 	//~ bodyDef.linearDamping = 0.0;
-	//~ MainPrint(pre+"new:","'"+btype+"'",bodyDef.type);
+	//~ MainPrint(this.pre+"new:","'"+btype+"'",bodyDef.type);
 	bodyDef.position.x = (x != null) ? (gPhysPosScaleI*x) : 0;
 	bodyDef.position.y = (y != null) ? (gPhysPosScaleI*y) : 0;
 	this._body = world._data._world.CreateBody(bodyDef);
 	//~ MainPrint("body linearDamping",this._body.GetLinearDamping());
 	this._world = world._data._world;
 }
+
 
 cLovePhysicsBody.prototype.Destroy = function () {
 	if (this._shapeHandle) {
@@ -357,65 +358,66 @@ cLovePhysicsBody.prototype.GetLuaHandle = function () {
 	return t;
 }
 
+
+
 cLovePhysicsBody.prototype.getX								= function () { return [this._body.GetPosition().x*gPhysPosScale]; }
 cLovePhysicsBody.prototype.getY								= function () { return [this._body.GetPosition().y*gPhysPosScale]; }
 cLovePhysicsBody.prototype.getPosition						= function () { var p = this._body.GetPosition(); return [p.x*gPhysPosScale,p.y*gPhysPosScale]; }
 cLovePhysicsBody.prototype.getAngle							= function () { return [this._body.GetAngle()]; }
 cLovePhysicsBody.prototype.getMass							= function () { return [this._body.GetMass()]; }
-cLovePhysicsBody.prototype.getInertia							= function () { 	   NotImplemented(pre+'getInertia'						); return [0]; }
-cLovePhysicsBody.prototype.getLinearDamping					= function () { 	   NotImplemented(pre+'getLinearDamping'				); return [0]; }
-cLovePhysicsBody.prototype.getWorldPoint						= function () { 	   NotImplemented(pre+'getWorldPoint'					); return [0,0]; }
-cLovePhysicsBody.prototype.getLocalCenter						= function () { 	   NotImplemented(pre+'getLocalCenter'					); return [0,0]; }
-cLovePhysicsBody.prototype.getWorldCenter						= function () { 	   NotImplemented(pre+'getWorldCenter'					); return [0,0]; }
-cLovePhysicsBody.prototype.getLinearVelocity					= function () { 	   NotImplemented(pre+'getLinearVelocity'				); return [0,0]; }
-cLovePhysicsBody.prototype.applyAngularImpulse				= function () { return NotImplemented(pre+'applyAngularImpulse'				); }
-cLovePhysicsBody.prototype.applyImpulse						= function () { return NotImplemented(pre+'applyImpulse'					); }
-cLovePhysicsBody.prototype.applyLinearImpulse					= function () { return NotImplemented(pre+'applyLinearImpulse'				); }
-cLovePhysicsBody.prototype.applyTorque						= function () { return NotImplemented(pre+'applyTorque'						); }
-cLovePhysicsBody.prototype.destroy							= function () { return NotImplemented(pre+'destroy'							); }
-cLovePhysicsBody.prototype.getAllowSleeping					= function () { return NotImplemented(pre+'getAllowSleeping'				); }
-cLovePhysicsBody.prototype.getAngularDamping					= function () { return NotImplemented(pre+'getAngularDamping'				); }
-cLovePhysicsBody.prototype.getAngularVelocity					= function () { return NotImplemented(pre+'getAngularVelocity'				); }
-cLovePhysicsBody.prototype.getFixtureList						= function () { return NotImplemented(pre+'getFixtureList'					); }
-cLovePhysicsBody.prototype.getGravityScale					= function () { return NotImplemented(pre+'getGravityScale'					); }
-cLovePhysicsBody.prototype.getLinearVelocityFromLocalPoint	= function () { return NotImplemented(pre+'getLinearVelocityFromLocalPoint'	); }
-cLovePhysicsBody.prototype.getLinearVelocityFromWorldPoint	= function () { return NotImplemented(pre+'getLinearVelocityFromWorldPoint'	); }
-cLovePhysicsBody.prototype.getLocalPoint						= function () { return NotImplemented(pre+'getLocalPoint'					); }
-cLovePhysicsBody.prototype.getLocalVector						= function () { return NotImplemented(pre+'getLocalVector'					); }
-cLovePhysicsBody.prototype.getMassData						= function () { return NotImplemented(pre+'getMassData'						); }
-cLovePhysicsBody.prototype.getType							= function () { return NotImplemented(pre+'getType'							); }
-cLovePhysicsBody.prototype.getWorldPoints						= function () { return NotImplemented(pre+'getWorldPoints'					); }
-cLovePhysicsBody.prototype.getWorldVector						= function () { return NotImplemented(pre+'getWorldVector'					); }
-cLovePhysicsBody.prototype.isActive							= function () { return NotImplemented(pre+'isActive'						); }
-cLovePhysicsBody.prototype.isAwake							= function () { return NotImplemented(pre+'isAwake'							); }
-cLovePhysicsBody.prototype.isBullet							= function () { return NotImplemented(pre+'isBullet'						); }
-cLovePhysicsBody.prototype.isDynamic							= function () { return NotImplemented(pre+'isDynamic'						); }
-cLovePhysicsBody.prototype.isFixedRotation					= function () { return NotImplemented(pre+'isFixedRotation'					); }
-cLovePhysicsBody.prototype.isFrozen							= function () { return NotImplemented(pre+'isFrozen'						); }
-cLovePhysicsBody.prototype.isSleeping							= function () { return NotImplemented(pre+'isSleeping'						); }
-cLovePhysicsBody.prototype.isSleepingAllowed					= function () { return NotImplemented(pre+'isSleepingAllowed'				); }
-cLovePhysicsBody.prototype.isStatic							= function () { return NotImplemented(pre+'isStatic'						); }
-cLovePhysicsBody.prototype.putToSleep							= function () { return NotImplemented(pre+'putToSleep'						); }
-cLovePhysicsBody.prototype.resetMassData						= function () { return NotImplemented(pre+'resetMassData'					); }
-cLovePhysicsBody.prototype.setActive							= function () { return NotImplemented(pre+'setActive'						); }
-cLovePhysicsBody.prototype.setAllowSleeping					= function () { return NotImplemented(pre+'setAllowSleeping'				); }
-cLovePhysicsBody.prototype.setAngle							= function () { return NotImplemented(pre+'setAngle'						); }
-cLovePhysicsBody.prototype.setAngularDamping					= function () { return NotImplemented(pre+'setAngularDamping'				); }
-cLovePhysicsBody.prototype.setAngularVelocity					= function () { return NotImplemented(pre+'setAngularVelocity'				); }
-cLovePhysicsBody.prototype.setAwake							= function () { return NotImplemented(pre+'setAwake'						); }
-cLovePhysicsBody.prototype.setBullet							= function () { return NotImplemented(pre+'setBullet'						); }
-cLovePhysicsBody.prototype.setFixedRotation					= function () { return NotImplemented(pre+'setFixedRotation'				); }
-cLovePhysicsBody.prototype.setGravityScale					= function () { return NotImplemented(pre+'setGravityScale'					); }
-cLovePhysicsBody.prototype.setInertia							= function () { return NotImplemented(pre+'setInertia'						); }
-cLovePhysicsBody.prototype.setLinearDamping					= function () { return NotImplemented(pre+'setLinearDamping'				); }
-cLovePhysicsBody.prototype.setMassData						= function () { return NotImplemented(pre+'setMassData'						); }
-cLovePhysicsBody.prototype.setMassFromShapes					= function () { return NotImplemented(pre+'setMassFromShapes'				); }
-cLovePhysicsBody.prototype.setSleepingAllowed					= function () { return NotImplemented(pre+'setSleepingAllowed'				); }
-cLovePhysicsBody.prototype.setX								= function () { return NotImplemented(pre+'setX'							); }
-cLovePhysicsBody.prototype.setY								= function () { return NotImplemented(pre+'setY'							); }
-cLovePhysicsBody.prototype.wakeUp								= function () { return NotImplemented(pre+'wakeUp'							); }
-cLovePhysicsBody.prototype.setMass							= function () { return NotImplemented(pre+'setMass'							); }
-}
+cLovePhysicsBody.prototype.getInertia							= function () { 	   NotImplemented(this.pre+'getInertia'						); return [0]; }
+cLovePhysicsBody.prototype.getLinearDamping					= function () { 	   NotImplemented(this.pre+'getLinearDamping'				); return [0]; }
+cLovePhysicsBody.prototype.getWorldPoint						= function () { 	   NotImplemented(this.pre+'getWorldPoint'					); return [0,0]; }
+cLovePhysicsBody.prototype.getLocalCenter						= function () { 	   NotImplemented(this.pre+'getLocalCenter'					); return [0,0]; }
+cLovePhysicsBody.prototype.getWorldCenter						= function () { 	   NotImplemented(this.pre+'getWorldCenter'					); return [0,0]; }
+cLovePhysicsBody.prototype.getLinearVelocity					= function () { 	   NotImplemented(this.pre+'getLinearVelocity'				); return [0,0]; }
+cLovePhysicsBody.prototype.applyAngularImpulse				= function () { return NotImplemented(this.pre+'applyAngularImpulse'				); }
+cLovePhysicsBody.prototype.applyImpulse						= function () { return NotImplemented(this.pre+'applyImpulse'					); }
+cLovePhysicsBody.prototype.applyLinearImpulse					= function () { return NotImplemented(this.pre+'applyLinearImpulse'				); }
+cLovePhysicsBody.prototype.applyTorque						= function () { return NotImplemented(this.pre+'applyTorque'						); }
+cLovePhysicsBody.prototype.destroy							= function () { return NotImplemented(this.pre+'destroy'							); }
+cLovePhysicsBody.prototype.getAllowSleeping					= function () { return NotImplemented(this.pre+'getAllowSleeping'				); }
+cLovePhysicsBody.prototype.getAngularDamping					= function () { return NotImplemented(this.pre+'getAngularDamping'				); }
+cLovePhysicsBody.prototype.getAngularVelocity					= function () { return NotImplemented(this.pre+'getAngularVelocity'				); }
+cLovePhysicsBody.prototype.getFixtureList						= function () { return NotImplemented(this.pre+'getFixtureList'					); }
+cLovePhysicsBody.prototype.getGravityScale					= function () { return NotImplemented(this.pre+'getGravityScale'					); }
+cLovePhysicsBody.prototype.getLinearVelocityFromLocalPoint	= function () { return NotImplemented(this.pre+'getLinearVelocityFromLocalPoint'	); }
+cLovePhysicsBody.prototype.getLinearVelocityFromWorldPoint	= function () { return NotImplemented(this.pre+'getLinearVelocityFromWorldPoint'	); }
+cLovePhysicsBody.prototype.getLocalPoint						= function () { return NotImplemented(this.pre+'getLocalPoint'					); }
+cLovePhysicsBody.prototype.getLocalVector						= function () { return NotImplemented(this.pre+'getLocalVector'					); }
+cLovePhysicsBody.prototype.getMassData						= function () { return NotImplemented(this.pre+'getMassData'						); }
+cLovePhysicsBody.prototype.getType							= function () { return NotImplemented(this.pre+'getType'							); }
+cLovePhysicsBody.prototype.getWorldPoints						= function () { return NotImplemented(this.pre+'getWorldPoints'					); }
+cLovePhysicsBody.prototype.getWorldVector						= function () { return NotImplemented(this.pre+'getWorldVector'					); }
+cLovePhysicsBody.prototype.isActive							= function () { return NotImplemented(this.pre+'isActive'						); }
+cLovePhysicsBody.prototype.isAwake							= function () { return NotImplemented(this.pre+'isAwake'							); }
+cLovePhysicsBody.prototype.isBullet							= function () { return NotImplemented(this.pre+'isBullet'						); }
+cLovePhysicsBody.prototype.isDynamic							= function () { return NotImplemented(this.pre+'isDynamic'						); }
+cLovePhysicsBody.prototype.isFixedRotation					= function () { return NotImplemented(this.pre+'isFixedRotation'					); }
+cLovePhysicsBody.prototype.isFrozen							= function () { return NotImplemented(this.pre+'isFrozen'						); }
+cLovePhysicsBody.prototype.isSleeping							= function () { return NotImplemented(this.pre+'isSleeping'						); }
+cLovePhysicsBody.prototype.isSleepingAllowed					= function () { return NotImplemented(this.pre+'isSleepingAllowed'				); }
+cLovePhysicsBody.prototype.isStatic							= function () { return NotImplemented(this.pre+'isStatic'						); }
+cLovePhysicsBody.prototype.putToSleep							= function () { return NotImplemented(this.pre+'putToSleep'						); }
+cLovePhysicsBody.prototype.resetMassData						= function () { return NotImplemented(this.pre+'resetMassData'					); }
+cLovePhysicsBody.prototype.setActive							= function () { return NotImplemented(this.pre+'setActive'						); }
+cLovePhysicsBody.prototype.setAllowSleeping					= function () { return NotImplemented(this.pre+'setAllowSleeping'				); }
+cLovePhysicsBody.prototype.setAngle							= function () { return NotImplemented(this.pre+'setAngle'						); }
+cLovePhysicsBody.prototype.setAngularDamping					= function () { return NotImplemented(this.pre+'setAngularDamping'				); }
+cLovePhysicsBody.prototype.setAngularVelocity					= function () { return NotImplemented(this.pre+'setAngularVelocity'				); }
+cLovePhysicsBody.prototype.setAwake							= function () { return NotImplemented(this.pre+'setAwake'						); }
+cLovePhysicsBody.prototype.setBullet							= function () { return NotImplemented(this.pre+'setBullet'						); }
+cLovePhysicsBody.prototype.setFixedRotation					= function () { return NotImplemented(this.pre+'setFixedRotation'				); }
+cLovePhysicsBody.prototype.setGravityScale					= function () { return NotImplemented(this.pre+'setGravityScale'					); }
+cLovePhysicsBody.prototype.setInertia							= function () { return NotImplemented(this.pre+'setInertia'						); }
+cLovePhysicsBody.prototype.setLinearDamping					= function () { return NotImplemented(this.pre+'setLinearDamping'				); }
+cLovePhysicsBody.prototype.setMassData						= function () { return NotImplemented(this.pre+'setMassData'						); }
+cLovePhysicsBody.prototype.setMassFromShapes					= function () { return NotImplemented(this.pre+'setMassFromShapes'				); }
+cLovePhysicsBody.prototype.setSleepingAllowed					= function () { return NotImplemented(this.pre+'setSleepingAllowed'				); }
+cLovePhysicsBody.prototype.setX								= function () { return NotImplemented(this.pre+'setX'							); }
+cLovePhysicsBody.prototype.setY								= function () { return NotImplemented(this.pre+'setY'							); }
+cLovePhysicsBody.prototype.wakeUp								= function () { return NotImplemented(this.pre+'wakeUp'							); }
+cLovePhysicsBody.prototype.setMass							= function () { return NotImplemented(this.pre+'setMass'							); }
 
 
 
@@ -454,40 +456,38 @@ body:destroy()
 
 
 // ***** ***** ***** ***** ***** cLovePhysicsShape
+cShapeBase.prototype.pre = "love.physics.Shape.";
 
 
 function cShapeBase () {}
 
-{
-var pre = "love.physics.Shape.";
-cShapeBase.prototype.computeAABB		= function () { return NotImplemented(pre+'computeAABB'			); }
-cShapeBase.prototype.computeMass		= function () { return NotImplemented(pre+'computeMass'			); }
-cShapeBase.prototype.destroy			= function () { return NotImplemented(pre+'destroy'				); }
-cShapeBase.prototype.getBody			= function () { return NotImplemented(pre+'getBody'				); }
-cShapeBase.prototype.getBoundingBox		= function () { return NotImplemented(pre+'getBoundingBox'		); return [0,0,0,0]; }
-cShapeBase.prototype.getCategory		= function () { return NotImplemented(pre+'getCategory'			); }
-cShapeBase.prototype.getCategoryBits	= function () { return NotImplemented(pre+'getCategoryBits'		); }
-cShapeBase.prototype.getChildCount		= function () { return NotImplemented(pre+'getChildCount'		); }
-cShapeBase.prototype.getData			= function () { return NotImplemented(pre+'getData'				); }
-cShapeBase.prototype.getDensity			= function () { return NotImplemented(pre+'getDensity'			); }
-cShapeBase.prototype.getFilterData		= function () { return NotImplemented(pre+'getFilterData'		); }
-cShapeBase.prototype.getFriction		= function () { return NotImplemented(pre+'getFriction'			); }
-cShapeBase.prototype.getMask			= function () { return NotImplemented(pre+'getMask'				); }
-cShapeBase.prototype.getRestitution		= function () { return NotImplemented(pre+'getRestitution'		); }
-cShapeBase.prototype.getType			= function () { return NotImplemented(pre+'getType'				); }
-cShapeBase.prototype.isSensor			= function () { return NotImplemented(pre+'isSensor'			); }
-cShapeBase.prototype.rayCast			= function () { return NotImplemented(pre+'rayCast'				); }
-cShapeBase.prototype.setCategory		= function () { return NotImplemented(pre+'setCategory'			); }
-cShapeBase.prototype.setData			= function () { return NotImplemented(pre+'setData'				); }
-cShapeBase.prototype.setDensity			= function () { return NotImplemented(pre+'setDensity'			); }
-cShapeBase.prototype.setFilterData		= function () { return NotImplemented(pre+'setFilterData'		); }
-cShapeBase.prototype.setFriction		= function () { return NotImplemented(pre+'setFriction'			); }
-cShapeBase.prototype.setMask			= function () { return NotImplemented(pre+'setMask'				); }
-cShapeBase.prototype.setRestitution		= function () { return NotImplemented(pre+'setRestitution'		); }
-cShapeBase.prototype.setSensor			= function () { return NotImplemented(pre+'setSensor'			); }
-cShapeBase.prototype.testPoint			= function () { return NotImplemented(pre+'testPoint'			); }
-cShapeBase.prototype.testSegment		= function () { return NotImplemented(pre+'testSegment'			); }
-}
+cShapeBase.prototype.computeAABB		= function () { return NotImplemented(this.pre+'computeAABB'			); }
+cShapeBase.prototype.computeMass		= function () { return NotImplemented(this.pre+'computeMass'			); }
+cShapeBase.prototype.destroy			= function () { return NotImplemented(this.pre+'destroy'				); }
+cShapeBase.prototype.getBody			= function () { return NotImplemented(this.pre+'getBody'				); }
+cShapeBase.prototype.getBoundingBox		= function () { return NotImplemented(this.pre+'getBoundingBox'		); return [0,0,0,0]; }
+cShapeBase.prototype.getCategory		= function () { return NotImplemented(this.pre+'getCategory'			); }
+cShapeBase.prototype.getCategoryBits	= function () { return NotImplemented(this.pre+'getCategoryBits'		); }
+cShapeBase.prototype.getChildCount		= function () { return NotImplemented(this.pre+'getChildCount'		); }
+cShapeBase.prototype.getData			= function () { return NotImplemented(this.pre+'getData'				); }
+cShapeBase.prototype.getDensity			= function () { return NotImplemented(this.pre+'getDensity'			); }
+cShapeBase.prototype.getFilterData		= function () { return NotImplemented(this.pre+'getFilterData'		); }
+cShapeBase.prototype.getFriction		= function () { return NotImplemented(this.pre+'getFriction'			); }
+cShapeBase.prototype.getMask			= function () { return NotImplemented(this.pre+'getMask'				); }
+cShapeBase.prototype.getRestitution		= function () { return NotImplemented(this.pre+'getRestitution'		); }
+cShapeBase.prototype.getType			= function () { return NotImplemented(this.pre+'getType'				); }
+cShapeBase.prototype.isSensor			= function () { return NotImplemented(this.pre+'isSensor'			); }
+cShapeBase.prototype.rayCast			= function () { return NotImplemented(this.pre+'rayCast'				); }
+cShapeBase.prototype.setCategory		= function () { return NotImplemented(this.pre+'setCategory'			); }
+cShapeBase.prototype.setData			= function () { return NotImplemented(this.pre+'setData'				); }
+cShapeBase.prototype.setDensity			= function () { return NotImplemented(this.pre+'setDensity'			); }
+cShapeBase.prototype.setFilterData		= function () { return NotImplemented(this.pre+'setFilterData'		); }
+cShapeBase.prototype.setFriction		= function () { return NotImplemented(this.pre+'setFriction'			); }
+cShapeBase.prototype.setMask			= function () { return NotImplemented(this.pre+'setMask'				); }
+cShapeBase.prototype.setRestitution		= function () { return NotImplemented(this.pre+'setRestitution'		); }
+cShapeBase.prototype.setSensor			= function () { return NotImplemented(this.pre+'setSensor'			); }
+cShapeBase.prototype.testPoint			= function () { return NotImplemented(this.pre+'testPoint'			); }
+cShapeBase.prototype.testSegment		= function () { return NotImplemented(this.pre+'testSegment'			); }
 
 function Shape_LuaMethods (t) {
 	t.str['computeAABB'		] = function (t) { return t._data.computeAABB		(); }
@@ -522,14 +522,13 @@ function Shape_LuaMethods (t) {
 
 // ***** ***** ***** ***** ***** cLovePhysicsCircleShape
 cLovePhysicsCircleShape.prototype = new cShapeBase;
+cLovePhysicsCircleShape.prototype.pre = "love.physics.CircleShape.";
 
 
 function cLovePhysicsCircleShape (a,b,c) {
 	this.constructor(a,b,c);
 }
 	
-{
-var pre = "love.physics.CircleShape.";
 	
 var t = lua_newtable();
 cLovePhysicsCircleShape.prototype.Metatable = lua_newtable();
@@ -556,16 +555,17 @@ cLovePhysicsCircleShape.prototype.GetLuaHandle = function () {
 	t.metatable = this.Metatable;
 	return t;
 }
-cLovePhysicsCircleShape.prototype.getLocalCenter			= function () { 	   NotImplemented(pre+'getLocalCenter'	); return [0,0]; }
-cLovePhysicsCircleShape.prototype.getWorldCenter			= function () { 	   NotImplemented(pre+'getWorldCenter'	); return [0,0]; }
-cLovePhysicsCircleShape.prototype.setRadius					= function () { return NotImplemented(pre+'setRadius'		); }
+cLovePhysicsCircleShape.prototype.getLocalCenter			= function () { 	   NotImplemented(this.pre+'getLocalCenter'	); return [0,0]; }
+cLovePhysicsCircleShape.prototype.getWorldCenter			= function () { 	   NotImplemented(this.pre+'getWorldCenter'	); return [0,0]; }
+cLovePhysicsCircleShape.prototype.setRadius					= function () { return NotImplemented(this.pre+'setRadius'		); }
 
 cLovePhysicsCircleShape.prototype.getRadius					= function () { return [this._shape.GetRadius()*gPhysPosScale]; }
-}	
+
 
 
 // ***** ***** ***** ***** ***** cLovePhysicsRectangleShape
 cLovePhysicsRectangleShape.prototype = new cShapeBase;
+cLovePhysicsRectangleShape.prototype.pre = "love.physics.RectangleShape.";
 
 
 function cLovePhysicsRectangleShape (x, y, width, height, angle) {
@@ -573,8 +573,6 @@ function cLovePhysicsRectangleShape (x, y, width, height, angle) {
 }
 
 
-{
-var pre = "love.physics.RectangleShape.";
 	
 var t = lua_newtable();
 cLovePhysicsRectangleShape.prototype.Metatable = lua_newtable();
@@ -603,11 +601,11 @@ cLovePhysicsRectangleShape.prototype.GetLuaHandle = function () {
 	return t;
 }
 	
-}
 
 
 // ***** ***** ***** ***** ***** cLovePhysicsPolygonShape
 cLovePhysicsPolygonShape.prototype = new cShapeBase;
+cLovePhysicsPolygonShape.prototype.pre = "love.physics.PolygonShape.";
 
 
 function Box2D_VertexList_ToLua (vlist,len) { 
@@ -619,9 +617,6 @@ function Box2D_VertexList_ToLua (vlist,len) {
 function cLovePhysicsPolygonShape (arr) {
 	this.constructor(arr);
 }
-
-{
-var pre = "love.physics.PolygonShape.";
 
 var t = lua_newtable();
 cLovePhysicsPolygonShape.prototype.Metatable = lua_newtable();
@@ -647,6 +642,63 @@ cLovePhysicsPolygonShape.prototype.GetLuaHandle = function () {
 	return t;
 }
 	
+
+
+// ***** ***** ***** ***** ***** cJointBase
+cJointBase.prototype.pre = "love.physics.Join.";
+
+
+function cJointBase () {}
+
+cShapeBase.prototype.destroy			= function () {
+	if (this._joint) { t._world.DestroyJoint(this._joint); this._joint = null; }
 }
 
+function Joint_LuaMethods (t) {
+	t.str['destroy'			] = function (t) { return t._data.destroy			(); }
+}
+
+
+// ***** ***** ***** ***** ***** cLovePhysicsRevoluteJoint
+cLovePhysicsRevoluteJoint.prototype = new cJointBase;
+cLovePhysicsRevoluteJoint.prototype.pre = "love.physics.RevoluteJoint.";
+
+
+function cLovePhysicsRevoluteJoint (body1, body2, x, y, collideConnected) {
+	this.constructor(body1, body2, x, y, collideConnected);
+}
+
+
+var t = lua_newtable();
+cLovePhysicsRevoluteJoint.prototype.Metatable = lua_newtable();
+cLovePhysicsRevoluteJoint.prototype.Metatable.str['__index'] = t;
+Joint_LuaMethods(t);
+//~ t.str['getPoints'] = function (t) { var o = t._data._shape; return Box2D_VertexList_ToLua(o.GetVertices(),o.GetVertexCount()); }
+
+/// ( x1, y1, x2, y2, x3, y3, ... )
+cLovePhysicsRevoluteJoint.prototype.constructor = function (body1, body2, x, y, collideConnected) {
+	var def = new b2RevoluteJointDef;
+    // def.type = e_revoluteJoint;
+	def.Initialize(body1._data._body,body2._data._body,new b2Vec2(gPhysPosScaleI*x,gPhysPosScaleI*y));
+	def.collideConnected = (collideConnected == null) ? false : collideConnected;
+	this._world = body1._data._world;
+	this._joint = this._world.CreateJoint(def); // calls new b2RevoluteJoint(def);
+	
+	
+	//~ this._joint = new b2RevoluteJoint;
+	//~ this._body = world._data._world.CreateBody(bodyDef);
+	// gPhysPosScaleI*
+	
+	//~ this._joint.SetAsArray(vertices);
+}
+
+cLovePhysicsRevoluteJoint.prototype.GetLuaHandle = function () {
+	var t = lua_newtable();
+	t._data = this;
+	t.metatable = this.Metatable;
+	return t;
+}
+	
+
+	
 // ***** ***** ***** ***** ***** rest
