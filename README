@@ -28,7 +28,6 @@ not-yet-implemented (incomplete list)
 * complex string matching pattern, especially balanced braces (e.g. xml parsers, see below)
 * screensize wrong (-1,-1) during love.load : love.graphics.getWidth()/getHeight()
 * raw sound/audio editing : love.sound.newSoundData etc
-* functions not allowed as table key
 
 known issues : 
 * audio : music formats .xm and .mod not supported by browsers usually
@@ -43,6 +42,8 @@ known issues :
 * when changing lua files, be sure to clear browser cache to see your changes, pressing f5 is not enough since it doesn't refresh dynamically loaded files like the .lua ones
 * lua string patterns aren't fully convertible to javascript regexp, so while most string patterns should work, more complex ones (like xml parsers) might fail
 ** if you need this for maploading or similar i'd recommend working around that by serialize the loaded table as .lua file
+* functions not allowed as table key
+* table with key-type=obj tends to slow down if inserted/deleted a lot every frame, usage of js:splice in lua-parser might be bad? further testing needed, example devmania2012veh pre 2012-10-12
 
 web api available:
 * if (love.web) then ... end

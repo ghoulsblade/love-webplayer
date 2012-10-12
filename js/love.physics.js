@@ -105,15 +105,20 @@ t.str['getRestitution']			= function (t) { return t._data.getRestitution(); }
 t.str['getShape']				= function (t) { return t._data.getShape(); }
 t.str['isSensor']				= function (t) { return t._data.isSensor(); }
 t.str['rayCast']				= function (t) { return t._data.rayCast(); }
-t.str['setCategory']			= function (t) { return t._data.setCategory(); }
 t.str['setDensity']				= function (t) { return t._data.setDensity(); }
 t.str['setFilterData']			= function (t) { return t._data.setFilterData(); }
 t.str['setFriction']			= function (t) { return t._data.setFriction(); }
 t.str['setGroupIndex']			= function (t) { return t._data.setGroupIndex(); }
-t.str['setMask']				= function (t) { return t._data.setMask(); }
 t.str['setRestitution']			= function (t) { return t._data.setRestitution(); }
 t.str['setSensor']				= function (t) { return t._data.setSensor(); }
 t.str['testPoint']				= function (t) { return t._data.testPoint(); }
+
+
+t.str['setMask']				= function (t,a,b,c,d,e,f,g) { t._data._fixture.m_filter.maskBits		= Lua2Box2DMask([a,b,c,d,e,f,g]); return LuaNil; }
+t.str['setCategory']			= function (t,a,b,c,d,e,f,g) { t._data._fixture.m_filter.categoryBits	= Lua2Box2DCategory([a,b,c,d,e,f,g]); return LuaNil; }
+
+function Lua2Box2DMask		(arr) { var res = 0x0000; for (var i=0;i<arr.length;++i) res |= 2 << arr[i]; return res; } //~ this.filter.categoryBits = 0x0001;
+function Lua2Box2DCategory	(arr) { return 0xFFFF ^ Lua2Box2DMask(arr); } //~ this.filter.maskBits = 0xFFFF;
 
 t.str['getUserData']			= function (t) { return [t._data._loveUserData]; }
 t.str['setUserData']			= function (t,v) { t._data._loveUserData = v; return LuaNil; }
@@ -125,6 +130,7 @@ cLovePhysicsFixture.prototype.GetLuaHandle = function () {
 	t.metatable = this.Metatable;
 	return t;
 }
+
 
 cLovePhysicsFixture.prototype.destroy				= function () { return NotImplemented(pre+'destroy'); }			
 cLovePhysicsFixture.prototype.getBody				= function () { return NotImplemented(pre+'getBody'); }			
@@ -140,12 +146,10 @@ cLovePhysicsFixture.prototype.getRestitution			= function () { return NotImpleme
 cLovePhysicsFixture.prototype.getShape				= function () { return NotImplemented(pre+'getShape'); }		
 cLovePhysicsFixture.prototype.isSensor				= function () { return NotImplemented(pre+'isSensor'); }			
 cLovePhysicsFixture.prototype.rayCast				= function () { return NotImplemented(pre+'rayCast'); }			
-cLovePhysicsFixture.prototype.setCategory			= function () { return NotImplemented(pre+'setCategory'); }		
 cLovePhysicsFixture.prototype.setDensity				= function () { return NotImplemented(pre+'setDensity'); }		
 cLovePhysicsFixture.prototype.setFilterData			= function () { return NotImplemented(pre+'setFilterData'); }	
 cLovePhysicsFixture.prototype.setFriction			= function () { return NotImplemented(pre+'setFriction'); }		
 cLovePhysicsFixture.prototype.setGroupIndex			= function () { return NotImplemented(pre+'setGroupIndex'); }	
-cLovePhysicsFixture.prototype.setMask				= function () { return NotImplemented(pre+'setMask'); }			
 cLovePhysicsFixture.prototype.setRestitution			= function () { return NotImplemented(pre+'setRestitution'); }	
 cLovePhysicsFixture.prototype.setSensor				= function () { return NotImplemented(pre+'setSensor'); }		
 cLovePhysicsFixture.prototype.testPoint				= function () { return NotImplemented(pre+'testPoint'); }		
