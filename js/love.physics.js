@@ -15,6 +15,8 @@ var		b2Vec2					= Box2D.Common.Math.b2Vec2
 	,	b2DebugDraw				= Box2D.Dynamics.b2DebugDraw
     ,	b2RevoluteJoint 		= Box2D.Dynamics.Joints.b2RevoluteJoint
 	,	b2RevoluteJointDef		= Box2D.Dynamics.Joints.b2RevoluteJointDef
+	,	b2WeldJoint				= Box2D.Dynamics.Joints.b2WeldJoint
+	,	b2WeldJointDef			= Box2D.Dynamics.Joints.b2WeldJointDef
 	;
 	
 var gPhysGravityScale = 1.0;
@@ -46,6 +48,7 @@ function Love_Physics_CreateTable (G) {
 	t.str['newRectangleShape'	] = function (x, y, width, height, angle			) { return [(new cLovePhysicsRectangleShape(x, y, width, height, angle)			).GetLuaHandle()]; } //	Shorthand for creating rectangluar PolygonShapes.
 	t.str['newPolygonShape'		] = function (										) { return [(new cLovePhysicsPolygonShape(arguments)							).GetLuaHandle()]; } //	Creates a new PolygonShape.
 	t.str['newRevoluteJoint'	] = function (body1, body2, x, y, collideConnected	) { return [(new cLovePhysicsRevoluteJoint(body1, body2, x, y, collideConnected)).GetLuaHandle()]; } //	Creates a pivot joint between two bodies.
+	t.str['newWeldJoint'		] = function (body1, body2, x, y, collideConnected	) { return [(new cLovePhysicsWeldJoint(body1, body2, x, y, collideConnected)).GetLuaHandle()]; } //	A WeldJoint essentially glues two bodies together.
 	
 	t.str['getDistance'			] = function () { return NotImplemented(pre+'getDistance'		); } //	Returns the two closest points between two fixtures and their distance.
 	t.str['getMeter'			] = function () { return NotImplemented(pre+'getMeter'			); } //	Returns the meter scale factor.
@@ -58,7 +61,6 @@ function Love_Physics_CreateTable (G) {
 	t.str['newPrismaticJoint'	] = function () { return NotImplemented(pre+'newPrismaticJoint'	); } //	Creates a prismatic joints between two bodies.
 	t.str['newPulleyJoint'		] = function () { return NotImplemented(pre+'newPulleyJoint'	); } //	Creates a pulley joint to join two bodies to each other and the ground.
 	t.str['newRopeJoint'		] = function () { return NotImplemented(pre+'newRopeJoint'		); } //	Creates a joint between two bodies that enforces a max distance between them.
-	t.str['newWeldJoint'		] = function () { return NotImplemented(pre+'newWeldJoint'		); } //	A WeldJoint essentially glues two bodies together.
 	t.str['newWheelJoint'		] = function () { return NotImplemented(pre+'newWheelJoint'		); } //	Creates a wheel joint.
 	t.str['setMeter'			] = function (m) { Love_Physics_SetMeter(m); return LuaNil; } //	Sets the meter scale factor.  (affects forces, coords, impulse, mass etc..)
 }
@@ -320,7 +322,6 @@ t.str['setAngle'						]		= function (t) { return t._data.setAngle								(); }
 t.str['setAngularDamping'				]		= function (t) { return t._data.setAngularDamping						(); }
 t.str['setAngularVelocity'				]		= function (t) { return t._data.setAngularVelocity						(); }
 t.str['setAwake'						]		= function (t) { return t._data.setAwake								(); }
-t.str['setBullet'						]		= function (t) { return t._data.setBullet								(); }
 t.str['setFixedRotation'				]		= function (t) { return t._data.setFixedRotation						(); }
 t.str['setGravityScale'					]		= function (t) { return t._data.setGravityScale						(); }
 t.str['setInertia'						]		= function (t) { return t._data.setInertia								(); }
@@ -332,6 +333,8 @@ t.str['setSleepingAllowed'				]		= function (t) { return t._data.setSleepingAllo
 t.str['setX'							]		= function (t) { return t._data.setX									(); }
 t.str['setY'							]		= function (t) { return t._data.setY									(); }
 t.str['wakeUp'							]		= function (t) { return t._data.wakeUp									(); }
+t.str['applyImpulse'					]		= function (t) { return t._data.applyImpulse							(); }
+
 t.str['destroy'							]		= function (t			) { t._data.Destroy(); t.str = null; return LuaNil; }
 t.str['setPosition'						]		= function (t,x,y		) { return t._data._body.SetPosition(new b2Vec2(gPhysPosScaleI*x,gPhysPosScaleI*y)); return LuaNil; }
 t.str['getMass'							]		= function (t			) { return [t._data._body.GetMass()]; }
@@ -339,8 +342,9 @@ t.str['setType'							]		= function (t,btype		) { return t._data._body.SetType(L
 t.str['setLinearVelocity'				]		= function (t,x,y		) { return t._data._body.SetLinearVelocity(new b2Vec2(gPhysPosScaleI*x,gPhysPosScaleI*y)); return LuaNil; }
 t.str['applyForce'						]		= function (t,fx,fy,x,y	) { var o = t._data._body; return o.ApplyForce(new b2Vec2(gPhysForceScale*fx,gPhysForceScale*fy),(x != null) ? (new b2Vec2(gPhysPosScaleI*x,gPhysPosScaleI*y)) : (o.GetWorldCenter())); }
 t.str['applyLinearImpulse'				]		= function (t,ix,iy,x,y	) { var o = t._data._body; return o.ApplyImpulse(new b2Vec2(gPhysImpulseScale*ix,gPhysImpulseScale*iy),(x != null) ? (new b2Vec2(gPhysPosScaleI*x,gPhysPosScaleI*y)) : (o.GetWorldCenter())); }
-t.str['getLinearVelocity'				]		= function (t) { var v = t._data._body.GetLinearVelocity(); return [v.x,v.y]; }
-t.str['applyImpulse'					]		= function (t) { return t._data.applyImpulse							(); }
+t.str['getLinearVelocity'				]		= function (t			) { var v = t._data._body.GetLinearVelocity(); return [v.x,v.y]; }
+t.str['setBullet'						]		= function (t,v			) { return t._data._body.SetBullet(v); }
+
 
 //~ t.str['applyLinearImpulse'				]		= function (t) { return t._data.applyLinearImpulse						(); }
 // TODO: applyForce/applyLinearImpulse : which is right :  GetWorldCenter, not GetLocalCenter : http://lib.ivank.net/?p=demos&d=box2D
@@ -668,31 +672,53 @@ function cLovePhysicsRevoluteJoint (body1, body2, x, y, collideConnected) {
 	this.constructor(body1, body2, x, y, collideConnected);
 }
 
-
 var t = lua_newtable();
 cLovePhysicsRevoluteJoint.prototype.Metatable = lua_newtable();
 cLovePhysicsRevoluteJoint.prototype.Metatable.str['__index'] = t;
 Joint_LuaMethods(t);
-//~ t.str['getPoints'] = function (t) { var o = t._data._shape; return Box2D_VertexList_ToLua(o.GetVertices(),o.GetVertexCount()); }
 
-/// ( x1, y1, x2, y2, x3, y3, ... )
+
 cLovePhysicsRevoluteJoint.prototype.constructor = function (body1, body2, x, y, collideConnected) {
 	var def = new b2RevoluteJointDef;
-    // def.type = e_revoluteJoint;
 	def.Initialize(body1._data._body,body2._data._body,new b2Vec2(gPhysPosScaleI*x,gPhysPosScaleI*y));
 	def.collideConnected = (collideConnected == null) ? false : collideConnected;
 	this._world = body1._data._world;
 	this._joint = this._world.CreateJoint(def); // calls new b2RevoluteJoint(def);
-	
-	
-	//~ this._joint = new b2RevoluteJoint;
-	//~ this._body = world._data._world.CreateBody(bodyDef);
-	// gPhysPosScaleI*
-	
-	//~ this._joint.SetAsArray(vertices);
 }
 
 cLovePhysicsRevoluteJoint.prototype.GetLuaHandle = function () {
+	var t = lua_newtable();
+	t._data = this;
+	t.metatable = this.Metatable;
+	return t;
+}
+	
+
+
+// ***** ***** ***** ***** ***** cLovePhysicsWeldJoint
+cLovePhysicsWeldJoint.prototype = new cJointBase;
+cLovePhysicsWeldJoint.prototype.pre = "love.physics.WeldJoint.";
+
+
+function cLovePhysicsWeldJoint (body1, body2, x, y, collideConnected) {
+	this.constructor(body1, body2, x, y, collideConnected);
+}
+
+var t = lua_newtable();
+cLovePhysicsWeldJoint.prototype.Metatable = lua_newtable();
+cLovePhysicsWeldJoint.prototype.Metatable.str['__index'] = t;
+Joint_LuaMethods(t);
+
+
+cLovePhysicsWeldJoint.prototype.constructor = function (body1, body2, x, y, collideConnected) {
+	var def = new b2WeldJointDef;
+	def.Initialize(body1._data._body,body2._data._body,new b2Vec2(gPhysPosScaleI*x,gPhysPosScaleI*y));
+	def.collideConnected = (collideConnected == null) ? false : collideConnected;
+	this._world = body1._data._world;
+	this._joint = this._world.CreateJoint(def); // calls new b2WeldJoint(def);
+}
+
+cLovePhysicsWeldJoint.prototype.GetLuaHandle = function () {
 	var t = lua_newtable();
 	t._data = this;
 	t.metatable = this.Metatable;
