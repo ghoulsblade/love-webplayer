@@ -184,6 +184,7 @@ function Love_Web_CreateTable (G) {
 	t.str['javascript']		= function (code) { return [eval(code)]; }
 	
 	/// e.g. if (string.find(love.web.getAgent(),"MSIE")) then ...mp3... else ...ogg... end
+	t.str['checkGLError']		= function (msg) { MyCheckGLError(msg); return LuaNil; }
 	t.str['getAgent']		= function (code) { return [navigator.userAgent]; }
 	t.str['setMaxFPS']		= function (fps) { MainPrint("obsolete: love.web.setMaxFPS"); }
 	t.str['showPreCompiledJS']	= function (path) { showPreCompiledJS(path); }
@@ -413,6 +414,7 @@ function MainStep () {
 		var dt = res[0];
 		if (Gamepad.supported)
 			GamepadState = Gamepad.getStates();
+		
 		call_love_update(dt);
 		call_love_draw();
 	}

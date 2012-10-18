@@ -198,10 +198,13 @@ function MyGetStackTrace () {
 	return mye ? mye.stack : "??";
 }
 
+gIgnoreFirstOutOfMemory = true;
+
 function MyCheckGLError (where) {
 	if (gGLErrorAlertsStopped) return;
 	var e = gl.getError(); 
 	if (e != gl.NO_ERROR) {
+		if (gIgnoreFirstOutOfMemory && e == gl.OUT_OF_MEMORY) { gIgnoreFirstOutOfMemory = false; return; }
 		gGLErrorAlertsStopped = true;
 		alert("MyCheckGLError("+(where?where:"")+") : gl.getError() : "+e+" : "+OpenGLError2Txt(e)+" stack="+MyGetStackTrace());
 	}

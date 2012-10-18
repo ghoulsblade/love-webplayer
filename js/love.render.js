@@ -114,12 +114,16 @@ function BasicGeo_Draw (mode) {
 	//~ assert(mi_BasicGeo_Vertices <= kMaxBasicGeoVertices);
 	if (!(mi_BasicGeo_Vertices <= kMaxBasicGeoVertices)) alert("BasicGeo_Draw : incomplete");
 	//~ MainPrint(mFB_BasicGeo.slice(0,mi_BasicGeo_Vertices*2));
+	
 	UpdateGlFloatBufferLen(gl,mVB_BasicGeo,mFB_BasicGeo,mi_BasicGeo_Vertices*2,gl.DYNAMIC_DRAW);
 	
 	gl.bindTexture(gl.TEXTURE_2D, null); gLastGLTexture = null;
 	setVertexBuffersToCustom(mVB_BasicGeo,mVB_BasicGeo_TexCoord);
 	gl.uniform4f(shaderProgram.uFragOverrideAddColor,1,1,1,1);
-	gl.drawArrays(mode, 0, mi_BasicGeo_Vertices);
+	// gl.flush(); // finish/swapbuffer (optional?)   didn't help webgl OUT_OF_MEMORY error
+	// MyCheckGLError("BasicGeo_Draw 05 mi_BasicGeo_Vertices="+String(mi_BasicGeo_Vertices));
+	gl.drawArrays(mode, 0, mi_BasicGeo_Vertices); //  gl.getError() : 1285 : OUT_OF_MEMORY   here with mi_BasicGeo_Vertices=2
+	// MyCheckGLError("BasicGeo_Draw 06 mi_BasicGeo_Vertices="+String(mi_BasicGeo_Vertices));  
 	gl.uniform4f(shaderProgram.uFragOverrideAddColor,0,0,0,0);
 }
 
