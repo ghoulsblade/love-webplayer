@@ -164,11 +164,22 @@ function LuaBootStrap (G) {
 		// path transformations
 		if (path.substr(-4) == ".lua") path = path.slice(0, -4); // require automatically appends .lua to the filepath later, remove it here
 		path = path.replace(/\./g, "/");
-		
+
+		var t = lua_tableget(lua_packages, path);
+
+		if (t != null) return t;
+
 		var initpath = path+"init.lua"; // require("shaders") -> shaders/init.lua 
+
 		if (LoveFS_exists(initpath)) 
-				return RunLuaFromPath(initpath);
-		else	return RunLuaFromPath(path + ".lua"); // require("bla") -> bla.lua
+				t = RunLuaFromPath(initpath);
+		else	t = RunLuaFromPath(path + ".lua"); // require("bla") -> bla.lua
+
+		t = t || true;
+
+		lua_tableset(lua_packages, path, t);
+
+		return t;
 		
 		//~ NOTE: replaces parser lib lua_require(G, path);
 	};
