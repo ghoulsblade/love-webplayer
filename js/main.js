@@ -165,7 +165,7 @@ function LuaBootStrap (G) {
 		if (path.substr(-4) == ".lua") path = path.slice(0, -4); // require automatically appends .lua to the filepath later, remove it here
 		path = path.replace(/\./g, "/");
 		
-		var initpath = path+"init.lua"; // require("shaders") -> shaders/init.lua 
+		var initpath = path+"/init.lua"; // require("shaders") -> shaders/init.lua 
 		if (LoveFS_exists(initpath)) 
 				return RunLuaFromPath(initpath);
 		else	return RunLuaFromPath(path + ".lua"); // require("bla") -> bla.lua
