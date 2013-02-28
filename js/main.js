@@ -167,8 +167,8 @@ function LuaBootStrap (G) {
 		
 		var initpath = path+"/init.lua"; // require("shaders") -> shaders/init.lua 
 		if (LoveFS_exists(initpath)) 
-				return RunLuaFromPath(initpath);
-		else	return RunLuaFromPath(path + ".lua"); // require("bla") -> bla.lua
+				return RunLuaFromPath(initpath, false, path);
+		else	return RunLuaFromPath(path + ".lua", false, path); // require("bla") -> bla.lua
 		
 		//~ NOTE: replaces parser lib lua_require(G, path);
 	};
@@ -251,7 +251,7 @@ function LoveRequireSocketHTTP () {
 }
 
 /// synchronous ajax to get file, so code executed before function returns
-function RunLuaFromPath (path, safe) {
+function RunLuaFromPath (path, safe, modulename) {
 	if (gLoveExecutionHalted) return;
 	if (!lua_parser) {
 		throw new Error("Lua parser not available, perhaps you're not using the lua+parser.js version of the library?");
@@ -275,7 +275,7 @@ function RunLuaFromPath (path, safe) {
 		MyProfileStart("RunLuaFromPath:parse:"+path);
 		var myfun = lua_load(luacode,temp_function_name); // parse code
 		MyProfileStart("RunLuaFromPath:run:"+path);
-		var res = myfun(); // run code, returns _G
+		var res = myfun(modulename); // run code, returns _G
 		MyProfileEnd();
 		return res;
 	} catch (e) {
