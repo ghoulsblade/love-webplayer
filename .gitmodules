@@ -1,0 +1,3 @@
+[submodule "js/weblua"]
+	path = js/weblua
+	url = git://github.com/campadrenalin/weblua.git
