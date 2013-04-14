@@ -8,63 +8,63 @@
 function Love_Audio_Init () {}
 
 function Love_Audio_CreateTable (G) {
-	var t = lua_newtable();
+	var t = {};
 	var pre = "love.audio.";
 	
-	G.str['love'].str['audio'] = t;
+	G['love']['audio'] = t;
 	
 	// love.audio.newSource(path)
-	t.str['newSource']		= function (path,srctype) { return [Love_Audio_MakeSourceHandle(new cLoveAudioSource(path,srctype))]; }
-	//~ t.str['newSource']				= function () { return NotImplemented(pre+'newSource'); }
+	t['newSource']		= function (path,srctype) { return [Love_Audio_MakeSourceHandle(new cLoveAudioSource(path,srctype))]; }
+	//~ t['newSource']				= function () { return NotImplemented(pre+'newSource'); }
 	
 	// love.audio.play(sourceobj, number)
-	t.str['play']			= function (src,num) { if (src && src._data) src._data.love_audio_play(); } // MainPrint("audio.play called");
-	//~ t.str['play']					= function () { return NotImplemented(pre+'play'); }
+	t['play']			= function (src,num) { if (src && src._data) src._data.love_audio_play(); } // MainPrint("audio.play called");
+	//~ t['play']					= function () { return NotImplemented(pre+'play'); }
 	
 	// TODO: "play" overloads
 	// TODO: "newSource" overloads
 	
-	t.str['getNumSources']			= function () { return NotImplemented(pre+'getNumSources'); }
-	t.str['getOrientation']			= function () { return NotImplemented(pre+'getOrientation'); }
-	t.str['getPosition']			= function () { return NotImplemented(pre+'getPosition'); }
-	t.str['getVelocity']			= function () { return NotImplemented(pre+'getVelocity'); }
-	t.str['getVolume']				= function () { return NotImplemented(pre+'getVolume'); }
-	t.str['pause']					= function () { return NotImplemented(pre+'pause'); }
-	t.str['resume']					= function () { return NotImplemented(pre+'resume'); }
-	t.str['rewind']					= function () { return NotImplemented(pre+'rewind'); }
-	t.str['setOrientation']			= function () { return NotImplemented(pre+'setOrientation'); }
-	t.str['setPosition']			= function () { return NotImplemented(pre+'setPosition'); }
-	t.str['setVelocity']			= function () { return NotImplemented(pre+'setVelocity'); }
-	t.str['setVolume']				= function () { return NotImplemented(pre+'setVolume'); }
-	t.str['stop']					= function () { return NotImplemented(pre+'stop'); }
+	t['getNumSources']			= function () { return NotImplemented(pre+'getNumSources'); }
+	t['getOrientation']			= function () { return NotImplemented(pre+'getOrientation'); }
+	t['getPosition']			= function () { return NotImplemented(pre+'getPosition'); }
+	t['getVelocity']			= function () { return NotImplemented(pre+'getVelocity'); }
+	t['getVolume']				= function () { return NotImplemented(pre+'getVolume'); }
+	t['pause']					= function () { return NotImplemented(pre+'pause'); }
+	t['resume']					= function () { return NotImplemented(pre+'resume'); }
+	t['rewind']					= function () { return NotImplemented(pre+'rewind'); }
+	t['setOrientation']			= function () { return NotImplemented(pre+'setOrientation'); }
+	t['setPosition']			= function () { return NotImplemented(pre+'setPosition'); }
+	t['setVelocity']			= function () { return NotImplemented(pre+'setVelocity'); }
+	t['setVolume']				= function () { return NotImplemented(pre+'setVolume'); }
+	t['stop']					= function () { return NotImplemented(pre+'stop'); }
 }
 
 function Love_Audio_MakeSourceHandle (o) {
-	var t = lua_newtable();
+	var t = {};
 	var pre = "love.audio.source.";
 	t._data = o;
-	t.str['type']				= function (t		) { return t._data.type			(); }
-	t.str['typeOf']				= function (t		) { return t._data.typeOf		(); }
-	t.str['getDirection']		= function (t		) { return t._data.getDirection	(); }
-	t.str['getPitch']			= function (t		) { return t._data.getPitch		(); }
-	t.str['getPosition']		= function (t		) { return t._data.getPosition	(); }
-	t.str['getVelocity']		= function (t		) { return t._data.getVelocity	(); }
-	t.str['getVolume']			= function (t		) { return t._data.getVolume	(); }
-	t.str['isLooping']			= function (t		) { return t._data.isLooping	(); }
-	t.str['isPaused']			= function (t		) { return t._data.isPaused		(); }
-	t.str['isStatic']			= function (t		) { return t._data.isStatic		(); }
-	t.str['isStopped']			= function (t		) { return t._data.isStopped	(); }
-	t.str['pause']				= function (t		) { return t._data.pause		(); }
-	t.str['play']				= function (t		) { return t._data.play			(); }
-	t.str['resume']				= function (t		) { return t._data.resume		(); }
-	t.str['rewind']				= function (t		) { return t._data.rewind		(); }
-	t.str['setDirection']		= function (t		) { return t._data.setDirection	(); }
-	t.str['setLooping']			= function (t,bLoop	) { return t._data.setLooping	(bLoop); }
-	t.str['setPitch']			= function (t		) { return t._data.setPitch		(); }
-	t.str['setPosition']		= function (t		) { return t._data.setPosition	(); }
-	t.str['setVelocity']		= function (t		) { return t._data.setVelocity	(); }
-	t.str['setVolume']			= function (t,vol	) { return t._data.setVolume	(vol); }
-	t.str['stop']				= function (t		) { return t._data.stop			(); }
+	t['type']				= function (t		) { return t._data.type			(); }
+	t['typeOf']				= function (t		) { return t._data.typeOf		(); }
+	t['getDirection']		= function (t		) { return t._data.getDirection	(); }
+	t['getPitch']			= function (t		) { return t._data.getPitch		(); }
+	t['getPosition']		= function (t		) { return t._data.getPosition	(); }
+	t['getVelocity']		= function (t		) { return t._data.getVelocity	(); }
+	t['getVolume']			= function (t		) { return t._data.getVolume	(); }
+	t['isLooping']			= function (t		) { return t._data.isLooping	(); }
+	t['isPaused']			= function (t		) { return t._data.isPaused		(); }
+	t['isStatic']			= function (t		) { return t._data.isStatic		(); }
+	t['isStopped']			= function (t		) { return t._data.isStopped	(); }
+	t['pause']				= function (t		) { return t._data.pause		(); }
+	t['play']				= function (t		) { return t._data.play			(); }
+	t['resume']				= function (t		) { return t._data.resume		(); }
+	t['rewind']				= function (t		) { return t._data.rewind		(); }
+	t['setDirection']		= function (t		) { return t._data.setDirection	(); }
+	t['setLooping']			= function (t,bLoop	) { return t._data.setLooping	(bLoop); }
+	t['setPitch']			= function (t		) { return t._data.setPitch		(); }
+	t['setPosition']		= function (t		) { return t._data.setPosition	(); }
+	t['setVelocity']		= function (t		) { return t._data.setVelocity	(); }
+	t['setVolume']			= function (t,vol	) { return t._data.setVolume	(vol); }
+	t['stop']				= function (t		) { return t._data.stop			(); }
 
 	return t;
 }

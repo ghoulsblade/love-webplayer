@@ -44,7 +44,7 @@ function LoveFileList (url) {
 // example: "dira" contains 1 file (a.txt) and 2 subdirs (diraa,dirab) :   love.filesystem.enumerate("dira") (="dira/") = {"a.txt","diraa","dirab"}
 function LoveFilesystemEnumerate (path) {
 	if (!gFilesystemEnumerateList) return NotImplemented(pre+'enumerate (try index.html body onload : LoveFileList("filelist.txt") from "find . > filelist.txt")');
-	var res = lua_newtable();
+	var res = {};
 	if (path.substring(path.length - 1) == "/") path = path.substring(0,path.length - 1); // remove trailing /
 	path = LoveFSNormalizePath(path);
 	// TODO : evaluate ./ and ../ , js-regex ? 
@@ -92,52 +92,53 @@ function LoveFS_exists (path) {
 }
 
 /// init lua api
-function Love_Filesystem_CreateTable (G) {
-	var t = lua_newtable();
+function Love_Filesystem_CreateTable () {
+	var t = {};
 	var pre = "love.filesystem.";
 
-	G.str['love'].str['filesystem'] = t;
+	t['enumerate']				= function (path) { return LoveFilesystemEnumerate(path); }
 	
-	t.str['enumerate']				= function (path) { return LoveFilesystemEnumerate(path); }
+	t['exists']					= function (path) { return [LoveFS_exists(path)]; }
+	t['isDirectory']			= function (path) { return [LoveFS_isDir(path)]; }
+	t['isFile']					= function (path) { return [LoveFS_isFile(path)]; }
 	
-	t.str['exists']					= function (path) { return [LoveFS_exists(path)]; }
-	t.str['isDirectory']			= function (path) { return [LoveFS_isDir(path)]; }
-	t.str['isFile']					= function (path) { return [LoveFS_isFile(path)]; }
-	
-	t.str['getLastModified']		= function () { return NotImplemented(pre+'getLastModified'); }
-	t.str['getAppdataDirectory']	= function () { NotImplemented(pre+'getAppdataDirectory'); return [""]; }
-	t.str['getSaveDirectory']		= function () { NotImplemented(pre+'getSaveDirectory'); return [""]; }
-	t.str['getUserDirectory']		= function () { NotImplemented(pre+'getUserDirectory'); return [""]; }
-	t.str['getWorkingDirectory']	= function () { NotImplemented(pre+'getWorkingDirectory'); return [""]; }
-	t.str['init']					= function () { }
-	t.str['lines']					= function () { return NotImplemented(pre+'lines'); }
-	t.str['load']					= function (path) { return [function () { return RunLuaFromPath(path); }]; } // quick&dirty
-	t.str['mkdir']					= function () { return NotImplemented(pre+'mkdir'); }
-	t.str['newFile']				= function () { return NotImplemented(pre+'newFile'); }
-	t.str['newFileData']			= function () { return NotImplemented(pre+'newFileData'); }
-	t.str['read']					= function (path) { return [LoveFS_readFile(path)]; }
-	t.str['remove']					= function () { return NotImplemented(pre+'remove (no LocalStorage)'); }
-	t.str['setIdentity']			= function () { return NotImplemented(pre+'setIdentity (no LocalStorage)'); }
-	t.str['setSource']				= function () { return NotImplemented(pre+'setSource'); }
-	t.str['write']					= function (filename, data) { return NotImplemented(pre+"write (no LocalStorage)"); }
+	t['getLastModified']		= function () { return NotImplemented(pre+'getLastModified'); }
+	t['getAppdataDirectory']	= function () { NotImplemented(pre+'getAppdataDirectory'); return [""]; }
+	t['getSaveDirectory']		= function () { NotImplemented(pre+'getSaveDirectory'); return [""]; }
+	t['getUserDirectory']		= function () { NotImplemented(pre+'getUserDirectory'); return [""]; }
+	t['getWorkingDirectory']	= function () { NotImplemented(pre+'getWorkingDirectory'); return [""]; }
+	t['init']					= function () { }
+	t['lines']					= function () { return NotImplemented(pre+'lines'); }
+	t['load']					= function (path) { return [function () { return RunLuaFromPath(path); }]; } // quick&dirty
+	t['mkdir']					= function () { return NotImplemented(pre+'mkdir'); }
+	t['newFile']				= function () { return NotImplemented(pre+'newFile'); }
+	t['newFileData']			= function () { return NotImplemented(pre+'newFileData'); }
+	t['read']					= function (path) { return [LoveFS_readFile(path)]; }
+	t['remove']					= function () { return NotImplemented(pre+'remove (no LocalStorage)'); }
+	t['setIdentity']			= function () { return NotImplemented(pre+'setIdentity (no LocalStorage)'); }
+	t['setSource']				= function () { return NotImplemented(pre+'setSource'); }
+	t['write']					= function (filename, data) { return NotImplemented(pre+"write (no LocalStorage)"); }
 	
 	
 	if (localStorage)
 	{
-		t.str['write']					= function (path, data)
+		t['write']					= function (path, data)
 		{
 			localStorage[gFilesystemPrefix+path] = data;
+            return LuaNil;
 		}
-		t.str['setIdentity']                            = function (identity)
+		t['setIdentity']                            = function (identity)
 		{
 			if (identity)
 				gFilesystemPrefix = identity + "-";
+            return LuaNil;
 		}
-		t.str['remove']                                 = function (path)
+		t['remove']                                 = function (path)
 		{
 			localStorage.removeItem(gFilesystemPrefix+path);
+            return LuaNil;
 		}
-		t.str['load']                                   = function (path)
+		t['load']                                   = function (path)
 		{
 			var file = localStorage[gFilesystemPrefix+path];
 			if (file)
@@ -154,4 +155,6 @@ function Love_Filesystem_CreateTable (G) {
 			return [function () { return RunLuaFromPath(path); }]; // quick&dirty
 		}
 	}
+
+    Lua.inject(t, null, 'love.filesystem');
 }

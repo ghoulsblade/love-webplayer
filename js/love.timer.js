@@ -7,7 +7,7 @@ var fps = 0;
 
 /// init lua api
 function Love_Timer_CreateTable (G) {
-	var t = lua_newtable();
+	var t = {};
 	var pre = "love.timer.";
 	if (!lastFrame)
 	{
@@ -16,30 +16,28 @@ function Love_Timer_CreateTable (G) {
 		frames = 0;
 	}
 
-	G.str['love'].str['timer'] = t;
-	
-	t.str['getDelta']		= function ()
+	t['getDelta']		= function ()
 	{
 		return [gTimerSecondsSinceLastFrame];
 	}
 
-	t.str['getFPS']			= function ()
+	t['getFPS']			= function ()
 	{
 		return [fps];
 	}
 
-	t.str['getMicroTime']	= function ()
+	t['getMicroTime']	= function ()
 	{
 		return [MyGetTicks() / 1000.0]; //XXX: Not real microseconds
 	}
 
-	t.str['getTime']		= function ()
+	t['getTime']		= function ()
 	{
 		return [MyGetTicks() / 1000.0];
 	}
 
-	t.str['sleep']			= function () { return NotImplemented(pre+'sleep'); }
-	t.str['step']			= function ()
+	t['sleep']			= function () { return NotImplemented(pre+'sleep'); }
+	t['step']			= function ()
 	{
 		var t = MyGetTicks();
 		gTimerSecondsSinceLastFrame = (t - lastFrame) / 1000.0;
@@ -53,5 +51,8 @@ function Love_Timer_CreateTable (G) {
 			prevFps = t;
 			frames = 0;
 		}
+        return LuaNil;
 	}
+
+    Lua.inject(t, null, 'love.timer');
 }
