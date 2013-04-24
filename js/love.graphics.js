@@ -31,7 +31,7 @@ function Love_Graphics_CreateTable () {
 	// note: pass through variable argument list ? myfun.apply(null,arguments) http://stackoverflow.com/questions/676721/calling-dynamic-function-with-dynamic-parameters-in-javascript
 	
 	// love.graphics.newImage(path)
-	t['newImage']			= function (a) { return [Love_Graphics_MakeImageHandle(new cLoveImage(a))]; }
+	t['newImage']			= function (a) { return [new cLoveImage(a)]; }
 	
 	// font = love.graphics.newImageFont( image, glyphs )
 	// font = love.graphics.newImageFont( filename, glyphs )
@@ -84,7 +84,7 @@ function Love_Graphics_CreateTable () {
 	
 	//~ love.graphics.draw(drawable, x, y, r, sx, sy, ox, oy )
 	t['draw']		= function (drawable, x, y, r, sx, sy, ox, oy ) {
-		var o = drawable._data;
+		var o = drawable;
 		if (o.IsImage())
 				DrawSprite(o.GetTextureID(),o.getWidth(),o.getHeight(),x || 0,y || 0,r || 0.0,sx || 1.0,sy || 1.0,ox || 0.0,oy || 0.0);
 		else	o.RenderSelf(x || 0,y || 0,r || 0.0,sx || 1.0,sy || 1.0,ox || 0.0,oy || 0.0);
@@ -296,6 +296,7 @@ function cLoveImage (a) {
 	this.mode_warp_h = "clamp"; // clamp,repeat
 	this.mode_warp_v = "clamp"; // clamp,repeat
 	this.bIsFromCanvas = false;
+    this.__handle = true; // Only pass into Lua by reference
 	
 	if ((typeof a) == "string") {	
 		// load image from path

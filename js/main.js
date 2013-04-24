@@ -3,7 +3,7 @@ Lua.initialize();
 
 var kUseHTMLConsole = false; // if false, output is still visible in firefox javascript console
 var G = null; // the big lua _G containing lua global vars
-//var gMyTicks = MyGetTicks();
+var gMyTicks = MyGetTicks();
 var gSecondsSinceLastFrame = 0;
 var gMaxHTMLConsoleLines = 10;
 var gLoveExecutionHalted = false; // stop at first fatal error
@@ -88,30 +88,30 @@ function LuaBootStrap () {
 	
 	// callback defaults
 	// note : could maybe be done by lua_libs['love']['load'] = ...
-	love_module['load']		= function () {};
-	love_module['draw']		= function () {};
-	love_module['update']		= function () {};
-	love_module['focus']	= function () {};
-	love_module['joystickpressed']	= function () {};
-	love_module['joystickreleased']	= function () {};
-	love_module['keypressed']	= function () {};
-	love_module['keyreleased']	= function () {};
-	love_module['mousepressed']	= function () {};
-	love_module['mousereleased']	= function () {};
-	love_module['quit']	= function () {};
+	love_module['load']		= function () { return LuaNil; };
+	love_module['draw']		= function () { return LuaNil; };
+	love_module['update']		= function () { return LuaNil; };
+	love_module['focus']	= function () { return LuaNil; };
+	love_module['joystickpressed']	= function () { return LuaNil; };
+	love_module['joystickreleased']	= function () { return LuaNil; };
+	love_module['keypressed']	= function () { return LuaNil; };
+	love_module['keyreleased']	= function () { return LuaNil; };
+	love_module['mousepressed']	= function () { return LuaNil; };
+	love_module['mousereleased']	= function () { return LuaNil; };
+	love_module['quit']	= function () { return LuaNil; };
 	//love_module['getn']	= function (t) { return [lua_len(t)]; }; ///< table.getn for backwards compatibility
 
     Lua.inject(love_module, 'love');
 	
 	// register love api functions
-	//Love_Audio_CreateTable();
+	Love_Audio_CreateTable();
 	Love_Event_CreateTable();
 	Love_Filesystem_CreateTable();
 	//Love_Font_CreateTable();
 	Love_Graphics_CreateTable();
-	//Love_Image_CreateTable();
-	//Love_Joystick_CreateTable();
-	//Love_Keyboard_CreateTable();
+	Love_Image_CreateTable();
+	Love_Joystick_CreateTable();
+	Love_Keyboard_CreateTable();
 	//Love_Mouse_CreateTable();
 	//Love_Physics_CreateTable();
 	//Love_Sound_CreateTable();
@@ -153,7 +153,6 @@ function Love_Web_CreateTable () {
 	web_module['checkGLError']		= function (msg) { MyCheckGLError(msg); return LuaNil; }
 	web_module['getAgent']		= function (code) { return [navigator.userAgent]; }
 	web_module['setMaxFPS']		= function (fps) { MainPrint("obsolete: love.web.setMaxFPS"); }
-	web_module['showPreCompiledJS']	= function (path) { showPreCompiledJS(path); }
 	web_module['browserIsFirefox']	= function () { return [gAgent_Firefox]; }
 	web_module['browserIsChrome']	= function () { return [gAgent_Chrome]; }
 	
@@ -230,12 +229,17 @@ function LoveFatalError (msg) {
 /// execute love callback function, catch any error message and display in html so people can see without webdev console  (blue love error screen)
 function call_love_callback_guarded (callbackname,fargs) {
 	if (gLoveExecutionHalted) return;
+    //console.log(">> love." + callbackname);
+    Lua.eval('love.' + callbackname)[0].apply(null, fargs);
+    //console.log("<< love." + callbackname);
+    /*
 	if (!G) return;
 	try {
 		return lua_call(love_module[callbackname],fargs);
 	} catch (e) {
 		LoveFatalError("error during love."+callbackname+"("+String(fargs)+") : "+String(e)+" :\n"+PrepareExceptionStacktraceForOutput(e));
 	}
+    */
 }
 
 // love main callbacks, if you call them, please use these helpers for easier maintenance,error handling etc
@@ -279,14 +283,16 @@ function MainStep () {
 	Love_Graphics_Step_Start();
 	
 	// only call love functions if MainStep() has finished loading
-	if (G) {
+	//if (Lua.eval('love == nil') == [false]) {
 		var it = Lua.eval("love.event.poll()")[0];
 		var ev;
-		while ((ev = lua_call(it, [])))
+
+		while (( ev = it() ))
 		{
 			var ev_name = ev[0];
+            if (!ev_name) break;
 			ev.shift();
-			call_lua_function_safe("love."+ev_name, ev);
+			Lua.eval("love."+ev_name)[0](ev);
 		}
 		var res = Lua.eval("love.timer.getDelta()");
 		var dt = res[0];
@@ -295,7 +301,7 @@ function MainStep () {
 		
 		call_love_update(dt);
 		call_love_draw();
-	}
+	//}
 	
 	Love_Graphics_Step_End();
 }

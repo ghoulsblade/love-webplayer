@@ -3,7 +3,7 @@ function Love_Event_PollIterator()
 {
 	var ev = gEvents[0];
 	gEvents.shift();
-	return ev;
+	return ev ? ev : LuaNil;
 }
 
 $(window).focus(function()

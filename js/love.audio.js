@@ -11,8 +11,6 @@ function Love_Audio_CreateTable (G) {
 	var t = {};
 	var pre = "love.audio.";
 	
-	G['love']['audio'] = t;
-	
 	// love.audio.newSource(path)
 	t['newSource']		= function (path,srctype) { return [Love_Audio_MakeSourceHandle(new cLoveAudioSource(path,srctype))]; }
 	//~ t['newSource']				= function () { return NotImplemented(pre+'newSource'); }
@@ -37,6 +35,8 @@ function Love_Audio_CreateTable (G) {
 	t['setVelocity']			= function () { return NotImplemented(pre+'setVelocity'); }
 	t['setVolume']				= function () { return NotImplemented(pre+'setVolume'); }
 	t['stop']					= function () { return NotImplemented(pre+'stop'); }
+
+    Lua.inject(t, null, 'love.audio');
 }
 
 function Love_Audio_MakeSourceHandle (o) {
