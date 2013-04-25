@@ -230,7 +230,7 @@ function LoveFatalError (msg) {
 function call_love_callback_guarded (callbackname,fargs) {
 	if (gLoveExecutionHalted) return;
     //console.log(">> love." + callbackname);
-    Lua.eval('love.' + callbackname)[0].apply(null, fargs);
+    Lua.call('love.' + callbackname, fargs);
     //console.log("<< love." + callbackname);
     /*
 	if (!G) return;
@@ -257,7 +257,7 @@ function call_love_update			(dt)				{ return call_love_callback_guarded('update'
 function call_love_run				()					{ return call_love_callback_guarded('run',LuaNoParam); }	// The main function, containing the main loop. A sensible default is used when left out.
 function push_event(eventname, a, b, c, d)
 {
-	Lua.eval("love.event.push")[0](eventname, a, b, c, d);
+	Lua.call("love.event.push", [eventname, a, b, c, d]);
 }
 
 /// just for debug until keyboard works, index.html: <br><a href="javascript:MainButton()">MainButton()</a>
@@ -284,7 +284,7 @@ function MainStep () {
 	
 	// only call love functions if MainStep() has finished loading
 	//if (Lua.eval('love == nil') == [false]) {
-		var it = Lua.eval("love.event.poll()")[0];
+		var it = Lua.cache("love.event.poll()")[0];
 		var ev;
 
 		while (( ev = it() ))
@@ -292,7 +292,7 @@ function MainStep () {
 			var ev_name = ev[0];
             if (!ev_name) break;
 			ev.shift();
-			Lua.eval("love."+ev_name)[0](ev);
+			Lua.call("love."+ev_name, [ev]);
 		}
 		var res = Lua.eval("love.timer.getDelta()");
 		var dt = res[0];
@@ -409,19 +409,19 @@ function MainRunAfterPreloadFinished () {
 		console: false,
 		identity: false,
 	};
-	Lua.eval("love.conf")[0](gLoveConf);
+	Lua.call("love.conf", [gLoveConf]);
 	if (gLoveConf["screen"])
 	{
 		var screen = gLoveConf["screen"];
-		Lua.eval("love.graphics.setMode")[0](
+		Lua.call("love.graphics.setMode", [
 				screen.width, screen.height, screen.fullscreen,
-				screen.vsync, screen.fsaa);
+				screen.vsync, screen.fsaa]);
 	}
-	Lua.eval("love.graphics.setCaption")[0](gLoveConf["title"] || "LÖVE-webplayer");
+	Lua.call("love.graphics.setCaption", [gLoveConf["title"] || "LÖVE-webplayer"]);
 	var identity = gLoveConf["identity"];
 	if (!identity)
 		identity = document.location.pathname; // Base it on url
-	Lua.eval("love.filesystem.setIdentity")[0](identity);
+	Lua.call("love.filesystem.setIdentity", [identity]);
 	RunLuaFromPath("main.lua"); // run main.lua
 	MyProfileStart("love.load");
 	call_love_load(); // call love.load()
