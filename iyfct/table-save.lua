@@ -87,7 +87,7 @@ function table.save(  tbl,filename )
 					end
 					file:write( charS.."{"..lookup[v].."},"..charE )
 				elseif type( v ) == "function" then
-					file:write( charS.."loadstring("..exportstring(string.dump( v )).."),"..charE )
+					file:write( charS.."load("..exportstring(string.dump( v )).."),"..charE )
 				else
 					local value =  ( type( v ) == "string" and exportstring( v ) ) or tostring( v )
 					file:write(  charS..value..","..charE )
@@ -116,7 +116,7 @@ function table.save(  tbl,filename )
 					end
 					file:write( "{"..lookup[v].."},"..charE )
 				elseif type( v ) == "function" then
-					file:write( "loadstring("..exportstring(string.dump( v )).."),"..charE )
+					file:write( "load("..exportstring(string.dump( v )).."),"..charE )
 				else
 					local value =  ( type( v ) == "string" and exportstring( v ) ) or tostring( v )
 					file:write( value..","..charE )
@@ -148,7 +148,7 @@ end
 function table.load( sfile )
 	-- catch marker for stringtable
 	if string.sub( sfile,-3,-1 ) == "--|" then
-		tables,err = loadstring( sfile )
+		tables,err = load( sfile )
 	else
 		tables,err = loadfile( sfile )
 	end

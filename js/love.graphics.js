@@ -45,10 +45,10 @@ function Love_Graphics_CreateTable () {
 		return [Love_Graphics_MakeFontHandle(new cLoveFont("newFont",a,b))]; 
 	}
 	
-	t['newQuad']			= function (x, y, width, height, sw, sh) { return [Love_Graphics_MakeQuadHandle(new cLoveQuad(x, y, width, height, sw, sh))]; }
+	t['newQuad']			= function (x, y, width, height, sw, sh) { return [new cLoveQuad(x, y, width, height, sw, sh)]; }
 	t['drawq']				= function (image, quad, x, y, r, sx, sy, ox, oy) {
-		var o = image._data;
-		var q = quad._data;
+		var o = image;
+		var q = quad;
 		DrawSpriteQ(o.GetTextureID(),q,q.w,q.h,x,y,r||0,sx||1,(sy||sx)||1,ox||0,oy||0);
 		return LuaNil;
 	}
@@ -57,11 +57,10 @@ function Love_Graphics_CreateTable () {
 	t['setBackgroundColor']	= function (r,g,b,a) { 
 		if ((typeof r) != "number") {
 			var rgb = r;
-			ensure_arraymode(rgb);
-			r = rgb.uints[0];
-			g = rgb.uints[1];
-			b = rgb.uints[2];
-			a = MyDefault(rgb.uints[3],255);
+			r = rgb[0];
+			g = rgb[1];
+			b = rgb[2];
+			a = MyDefault(rgb[3],255);
 		}
 		gl.clearColor(r/255.0, g/255.0, b/255.0, MyDefault(a,255)/255.0);
 		return LuaNil;
@@ -72,11 +71,10 @@ function Love_Graphics_CreateTable () {
 		//  MainPrint("graphics.setColor called");
 		if ((typeof r) != "number") {
 			var rgb = r;
-			ensure_arraymode(rgb);
-			r = rgb.uints[0];
-			g = rgb.uints[1];
-			b = rgb.uints[2];
-			a = MyDefault(rgb.uints[3],255);
+			r = rgb[0];
+			g = rgb[1];
+			b = rgb[2];
+			a = MyDefault(rgb[3],255);
 		}
 		setColor(r,g,b,a);
 		return LuaNil;
@@ -289,32 +287,33 @@ function Love_Graphics_MakeImageHandle (o) {
 }
 
 function cLoveImage (a) {
+    var self = this; // So that all functions are "bound"
 	var bPixelArt = false;
-	this.bPreLoadWarningPrinted = false;
-	this.mode_filter_min = "linear"; // linear,nearest
-	this.mode_filter_mag = "linear"; // linear,nearest
-	this.mode_warp_h = "clamp"; // clamp,repeat
-	this.mode_warp_v = "clamp"; // clamp,repeat
-	this.bIsFromCanvas = false;
-    this.__handle = true; // Only pass into Lua by reference
+	self.bPreLoadWarningPrinted = false;
+	self.mode_filter_min = "linear"; // linear,nearest
+	self.mode_filter_mag = "linear"; // linear,nearest
+	self.mode_warp_h = "clamp"; // clamp,repeat
+	self.mode_warp_v = "clamp"; // clamp,repeat
+	self.bIsFromCanvas = false;
+    self.__handle = true; // Only pass into Lua by reference
 	
 	if ((typeof a) == "string") {	
 		// load image from path
 		var path = a;
-		this.path = path;
-		this.tex = loadImageTexture(gl, path, bPixelArt);
+		self.path = path;
+		self.tex = loadImageTexture(gl, path, bPixelArt);
 	} else if ((typeof a) == "object") {
 		if (a._data && a._data.canvas) {
 			// load image from imagedata
 			var imgdata = a._data;
-			this.bIsFromCanvas = true;
-			this.path = "(imgdata)";
+			self.bIsFromCanvas = true;
+			self.path = "(imgdata)";
 			var texture = gl.createTexture();
-			this.tex = texture;
+			self.tex = texture;
 			doLoadImageTexture(gl, imgdata.canvas, texture, bPixelArt);
 			//~ MainPrint("cLoveImage from imgdata:",imgdata.canvas.width);
-			this.width = imgdata.canvas.width;
-			this.height = imgdata.canvas.height;
+			self.width = imgdata.canvas.width;
+			self.height = imgdata.canvas.height;
 		} else {
 			MainPrint("cLoveImage unexpcected constructor obj:",a);
 		}
@@ -322,42 +321,42 @@ function cLoveImage (a) {
 		MainPrint("cLoveImage unexpcected constructor param:",a);
 	}
 	
-	this.setFilter		= function (smin,smag) {
-		this.mode_filter_min = smin;
-		this.mode_filter_mag = smag;
-		this.UpdateTexParams();
+	self.setFilter		= function (smin,smag) {
+		self.mode_filter_min = smin;
+		self.mode_filter_mag = smag;
+		self.UpdateTexParams();
 	}
-	this.setWrap		= function (h,v) {
-		this.mode_warp_h = h;
-		this.mode_warp_v = v;
-		this.UpdateTexParams();
+	self.setWrap		= function (h,v) {
+		self.mode_warp_h = h;
+		self.mode_warp_v = v;
+		self.UpdateTexParams();
 	}
-	this.UpdateTexParams		= function () {
-		updateTextureParams(gl,this.tex,
-			(this.mode_filter_min == "linear")?gl.LINEAR:gl.NEAREST,
-			(this.mode_filter_mag == "linear")?gl.LINEAR:gl.NEAREST,
-			(this.mode_warp_h == "clamp")?gl.CLAMP_TO_EDGE:gl.REPEAT,
-			(this.mode_warp_v == "clamp")?gl.CLAMP_TO_EDGE:gl.REPEAT );
+	self.UpdateTexParams		= function () {
+		updateTextureParams(gl,self.tex,
+			(self.mode_filter_min == "linear")?gl.LINEAR:gl.NEAREST,
+			(self.mode_filter_mag == "linear")?gl.LINEAR:gl.NEAREST,
+			(self.mode_warp_h == "clamp")?gl.CLAMP_TO_EDGE:gl.REPEAT,
+			(self.mode_warp_v == "clamp")?gl.CLAMP_TO_EDGE:gl.REPEAT );
 	}
 	
-	this.GetTextureID	= function () { return this.tex; }
-	this.IsImage		= function () { return true; }
+	self.GetTextureID	= function () { return self.tex; }
+	self.IsImage		= function () { return true; }
 
-	this.ensureLoaded	= function () {
-		//~ MainPrint("img:ensureLoaded() complete=",this.tex.image.complete);
-		if (!this.tex.image.complete) {
-			//~ MainPrint("img:ensureLoaded() waiting for download to complete: path",this.path);
-			//~ while (!this.tex.image.complete) alert("waiting for images to load...\nplease press 'ok' =)\n(no sleep() in javascript and setTimeout doesn't block)"); // seems there's no thread.sleep() in javascript that can block execution of subsequent code. 
+	self.ensureLoaded	= function () {
+		//~ MainPrint("img:ensureLoaded() complete=",self.tex.image.complete);
+		if (!self.tex.image.complete) {
+			//~ MainPrint("img:ensureLoaded() waiting for download to complete: path",self.path);
+			//~ while (!self.tex.image.complete) alert("waiting for images to load...\nplease press 'ok' =)\n(no sleep() in javascript and setTimeout doesn't block)"); // seems there's no thread.sleep() in javascript that can block execution of subsequent code. 
 			// setTimeout is not an option since it would need restructuring of the lua code that we don't have control over
-			if (!this.bPreLoadWarningPrinted) {
-				this.bPreLoadWarningPrinted = true;
-				MainPrintToHTMLConsole("Warning, image("+this.path+"):getWidth()/getHeight() accessed before loaded, try reload/F5. "+
+			if (!self.bPreLoadWarningPrinted) {
+				self.bPreLoadWarningPrinted = true;
+				MainPrintToHTMLConsole("Warning, image("+self.path+"):getWidth()/getHeight() accessed before loaded, try reload/F5. "+
 					"This could change game behaviour and cannot be reliably prevented at js/lua runtime alone, list img files in index.html : &lt;body onload=\"MainOnLoad(['img1.png','img2.png'])\"&gt; to fix");
 			}
 		}
 	}
-	this.getWidth		= function () { if (this.bIsFromCanvas) return this.width; this.ensureLoaded(); return this.tex.image.width; }
-	this.getHeight		= function () { if (this.bIsFromCanvas) return this.height; this.ensureLoaded(); return this.tex.image.height; }
+	self.getWidth		= function () { if (self.bIsFromCanvas) return self.width; self.ensureLoaded(); return self.tex.image.width; }
+	self.getHeight		= function () { if (self.bIsFromCanvas) return self.height; self.ensureLoaded(); return self.tex.image.height; }
 
 }
 
@@ -365,46 +364,33 @@ function cLoveImage (a) {
 
 // ***** ***** ***** ***** ***** cLoveQuad
 
-function Love_Graphics_MakeQuadHandle (o) {
-	var t = {};
-	var pre = "love.graphics.quad.";
-	t._data = o;
-	
-	t['flip']				= function (t) { return NotImplemented(pre+'flip'); }	// Flips this quad horizontally, vertically, or both.
-	t['getViewport']		= function (t) { return NotImplemented(pre+'getViewport'); }	// Gets the current viewport of this Quad.
-	t['setViewport']		= function (t) { return NotImplemented(pre+'setViewport'); }	// Sets the texture coordinates according to a viewport.
-
-	t['type']				= function (t) { return NotImplemented(pre+'type'); }	// Gets the type of the object as a string.
-	t['typeOf']				= function (t) { return NotImplemented(pre+'typeOf'); }	// Checks whether an object is of a certain type.
-	
-	return t;
-}
-
 function cLoveQuad (x, y, width, height, sw, sh) {
+    var self = this;
+    self.__handle = true;
 
-	this.UpdateTexCoordBuffer = function () {
-		var		u0 = this.x/this.sw;
-		var		v0 = this.y/this.sh;
-		var		u1 = (this.x+this.w)/this.sw;
-		var		v1 = (this.y+this.h)/this.sh;
+	self.UpdateTexCoordBuffer = function () {
+		var		u0 = self.x/self.sw;
+		var		v0 = self.y/self.sh;
+		var		u1 = (self.x+self.w)/self.sw;
+		var		v1 = (self.y+self.h)/self.sh;
 		var		a;
-		if (this.bFlippedX) { a = u0; u0 = u1; u1 = a; }
-		if (this.bFlippedY) { a = v0; v0 = v1; v1 = a; }
-		UpdateGlFloatBuffer(gl,this.vb_Tex,[u0,v0, u1,v0, u0,v1, u1,v1],gl.DYNAMIC_DRAW);
+		if (self.bFlippedX) { a = u0; u0 = u1; u1 = a; }
+		if (self.bFlippedY) { a = v0; v0 = v1; v1 = a; }
+		UpdateGlFloatBuffer(gl,self.vb_Tex,[u0,v0, u1,v0, u0,v1, u1,v1],gl.DYNAMIC_DRAW);
 	}
 	
-	this.setViewport = function (x,y,w,h) {
-		this.x = x;
-		this.y = y;
-		this.w = w;
-		this.h = h;
-		this.UpdateTexCoordBuffer();
+	self.setViewport = function (x,y,w,h) {
+		self.x = x;
+		self.y = y;
+		self.w = w;
+		self.h = h;
+		self.UpdateTexCoordBuffer();
 	}
 	
-	this.sw = sw;
-	this.sh = sh;
-	this.vb_Tex = MakeGlFloatBuffer(gl,[0,0, 10,0, 0,10, 10,10],gl.DYNAMIC_DRAW);
-	this.setViewport(x,y,width,height);
+	self.sw = sw;
+	self.sh = sh;
+	self.vb_Tex = MakeGlFloatBuffer(gl,[0,0, 10,0, 0,10, 10,10],gl.DYNAMIC_DRAW);
+	self.setViewport(x,y,width,height);
 	
 	// TODO
 }

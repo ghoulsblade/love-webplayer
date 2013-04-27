@@ -57,14 +57,15 @@ function NetState2Txt (element) {
 }
 
 function cLoveAudioSource (path,srctype) {
-	this.path = path;
+    var self = this;
+	self.path = path;
 	var pre = "love.audio.source.";
 	
-	this.constructor = function (path,srctype) {
+	self.constructor = function (path,srctype) {
 		//~ MainPrint("cLoveAudioSource",path);
-		this.path = path;
-		this.srctype =srctype;
-        this.__handle = true; // Only pass into Lua by reference
+		self.path = path;
+		self.srctype =srctype;
+        self.__handle = true; // Only pass into Lua by reference
 		
 		// html example
 		//~ <audio loop="loop" autoplay="autoplay">
@@ -99,8 +100,8 @@ function cLoveAudioSource (path,srctype) {
 		// html5 element add via js
 		if (bUseJS) {
 		    var element = document.createElement('audio');
-			var myself = this;
-			this.element = element;
+			var myself = self;
+			self.element = element;
 			element.addEventListener("loadeddata"		, function() { myself.callback_loadeddata();		});
 			element.addEventListener("canplay"			, function() { myself.callback_canplay();			});
 			element.addEventListener("canplaythrough"	, function() { myself.callback_canplaythrough();	});
@@ -126,7 +127,7 @@ function cLoveAudioSource (path,srctype) {
 			if (!element) return;
 			
 			MainPrint("cLoveAudioSource 01");
-			this.element = element;
+			self.element = element;
 			MainPrint("cLoveAudioSource 02",path);
 			element.src = path;
 			MainPrint("cLoveAudioSource 03");
@@ -142,26 +143,26 @@ function cLoveAudioSource (path,srctype) {
 	}
 	
 	// called on 
-	this.callback_loadeddata		= function () {} // readystate = HAVE_CURRENT_DATA reached
-	this.callback_canplay			= function () {} // readystate = HAVE_FUTURE_DATA reached
-	this.callback_canplaythrough	= function () {} // readystate = HAVE_ENOUGH_DATA reached
-	this.callback_ended				= function () {}
-	this.callback_abort				= function () {}
-	this.callback_error				= function () {}
-	this.callback_emptied			= function () {}
+	self.callback_loadeddata		= function () {} // readystate = HAVE_CURRENT_DATA reached
+	self.callback_canplay			= function () {} // readystate = HAVE_FUTURE_DATA reached
+	self.callback_canplaythrough	= function () {} // readystate = HAVE_ENOUGH_DATA reached
+	self.callback_ended				= function () {}
+	self.callback_abort				= function () {}
+	self.callback_error				= function () {}
+	self.callback_emptied			= function () {}
 	
-	//~ this.callback_loadeddata		= function () { MainPrint("callback_loadeddata",this.path); } 
-	//~ this.callback_canplay			= function () { MainPrint("callback_canplay",this.path); } 
-	//~ this.callback_canplaythrough	= function () { MainPrint("callback_canplaythrough",this.path); } 
-	//~ this.callback_abort				= function () { MainPrint("callback_abort",this.path); } 
-	//~ this.callback_error				= function () { MainPrint("callback_error",this.path); } 
-	//~ this.callback_emptied			= function () { MainPrint("callback_emptied",this.path); } 
-	//~ this.callback_ended				= function () { MainPrint("callback_ended",this.path); } 
+	//~ self.callback_loadeddata		= function () { MainPrint("callback_loadeddata",self.path); } 
+	//~ self.callback_canplay			= function () { MainPrint("callback_canplay",self.path); } 
+	//~ self.callback_canplaythrough	= function () { MainPrint("callback_canplaythrough",self.path); } 
+	//~ self.callback_abort				= function () { MainPrint("callback_abort",self.path); } 
+	//~ self.callback_error				= function () { MainPrint("callback_error",self.path); } 
+	//~ self.callback_emptied			= function () { MainPrint("callback_emptied",self.path); } 
+	//~ self.callback_ended				= function () { MainPrint("callback_ended",self.path); } 
 	
 	
-	this._play = function () {
-		if (!this.element) return;
-		var element = this.element;
+	self._play = function () {
+		if (!self.element) return;
+		var element = self.element;
 		if (!element.play) return;
 		//~ if (element.readyState >= element.HAVE_CURRENT_DATA && !element.ended && !element.paused) {
 			//~ element.currentTime = 0; // rewind if still playing ? 
@@ -169,79 +170,79 @@ function cLoveAudioSource (path,srctype) {
 		if (element.readyState >= element.HAVE_ENOUGH_DATA) {
 			element.play();
 		} else if (element.readyState >= element.HAVE_CURRENT_DATA && element.networkState == element.NETWORK_IDLE) {
-			//~ MainPrint("audio:play()",ReadyState2Txt(element),NetState2Txt(element),this.path);
+			//~ MainPrint("audio:play()",ReadyState2Txt(element),NetState2Txt(element),self.path);
 			element.play();
 			//~ element.currentTime = 0;
 		} else {
 			
-			//~ MainPrint("audio:play() delayed...",ReadyState2Txt(element),NetState2Txt(element),this.path);
-			this.callback_canplaythrough = function () {
-				//~ MainPrint("audio:play() delayed exec",ReadyState2Txt(element),NetState2Txt(element),this.path);
+			//~ MainPrint("audio:play() delayed...",ReadyState2Txt(element),NetState2Txt(element),self.path);
+			self.callback_canplaythrough = function () {
+				//~ MainPrint("audio:play() delayed exec",ReadyState2Txt(element),NetState2Txt(element),self.path);
 				element.play();
 			}
 			if (element.networkState == element.NETWORK_NO_SOURCE) {
-				//~ MainPrint("audio:play() delay due to NETWORK_NO_SOURCE",ReadyState2Txt(element),NetState2Txt(element),this.path);
+				//~ MainPrint("audio:play() delay due to NETWORK_NO_SOURCE",ReadyState2Txt(element),NetState2Txt(element),self.path);
 				window.setTimeout(function () {
 					// try again after a few sek
 					if (element.networkState == element.NETWORK_NO_SOURCE) {
-						//~ MainPrint("audio:play() timeout struck...",ReadyState2Txt(element),NetState2Txt(element),this.path);
+						//~ MainPrint("audio:play() timeout struck...",ReadyState2Txt(element),NetState2Txt(element),self.path);
 						element.load();
 					}
 					}, 5*1000);
-				element.src = this.path;
-				//~ element.setAttribute('src', this.path);
+				element.src = self.path;
+				//~ element.setAttribute('src', self.path);
 			}
 		}
 	}
 	
-	this.play				= function () { // called as object method
-		this._play();
-		//~ MainPrint("love.audio.source:play() called path="+String(this.path)); 
+	self.play				= function () { // called as object method
+		self._play();
+		//~ MainPrint("love.audio.source:play() called path="+String(self.path)); 
 	} 
 	
-	this.love_audio_play	= function () { // called as api function
-		this._play();
-		//~ MainPrint("love.audio.play(source) called path="+String(this.path)); 
+	self.love_audio_play	= function () { // called as api function
+		self._play();
+		//~ MainPrint("love.audio.play(source) called path="+String(self.path)); 
 	}	
 	
-	this.type			= function () { return NotImplemented(pre+'type'); }			
-	this.typeOf			= function () { return NotImplemented(pre+'typeOf'); }
-	this.getDirection	= function () { return NotImplemented(pre+'getDirection'); }
-	this.getPitch		= function () { return NotImplemented(pre+'getPitch'); }
-	this.getVelocity	= function () { return NotImplemented(pre+'getVelocity'); }
-	this.getPosition	= function () { return [this.element ? (this.element.setVolume) : 0]; }
-	this.getVolume		= function () { return [this.element ? (this.element.setVolume) : 0]; }
-	this.isLooping		= function () { return [this.element ? (this.element.loop) : false]; }
-	this.isPaused		= function () { return [this.element ? (this.element.paused) : false]; }
-	this.isStatic		= function () { return NotImplemented(pre+'isStatic'); }
-	this.isStopped		= function () { return [this.element ? (this.element.ended || this.element.paused) : false]; }
-	this.pause			= function () { return NotImplemented(pre+'pause'); }
-	this.resume			= function () { return NotImplemented(pre+'resume'); }
-	this.rewind			= function () {
-		if (!this.element) return;
-		if (this.element.currentTime != null)
-			this.element.currentTime = 0;
+	self.type			= function () { return NotImplemented(pre+'type'); }			
+	self.typeOf			= function () { return NotImplemented(pre+'typeOf'); }
+	self.getDirection	= function () { return NotImplemented(pre+'getDirection'); }
+	self.getPitch		= function () { return NotImplemented(pre+'getPitch'); }
+	self.getVelocity	= function () { return NotImplemented(pre+'getVelocity'); }
+	self.getPosition	= function () { return [self.element ? (self.element.setVolume) : 0]; }
+	self.getVolume		= function () { return [self.element ? (self.element.setVolume) : 0]; }
+	self.isLooping		= function () { return [self.element ? (self.element.loop) : false]; }
+	self.isPaused		= function () { return [self.element ? (self.element.paused) : false]; }
+	self.isStatic		= function () { return NotImplemented(pre+'isStatic'); }
+	self.isStopped		= function () { return [self.element ? (self.element.ended || self.element.paused) : false]; }
+	self.pause			= function () { return NotImplemented(pre+'pause'); }
+	self.resume			= function () { return NotImplemented(pre+'resume'); }
+	self.rewind			= function () {
+		if (!self.element) return;
+		if (self.element.currentTime != null)
+			self.element.currentTime = 0;
 	}
-	this.setDirection	= function () { return NotImplemented(pre+'setDirection'); }
-	this.setLooping		= function (bLoop) { 
-		if (!this.element) return;
+	self.setDirection	= function () { return NotImplemented(pre+'setDirection'); }
+	self.setLooping		= function (bLoop) { 
+		if (!self.element) return;
 		if (bLoop == null) return;
-		this.element.loop = bLoop ? true : false;
+		self.element.loop = bLoop ? true : false;
 	}
-	this.setPitch		= function () { return NotImplemented(pre+'setPitch'); }
-	this.setPosition	= function (x,y,z) { return NotImplemented(pre+'setPosition'); }
-	this.setVelocity	= function () { return NotImplemented(pre+'setVelocity'); }
-	this.setVolume		= function (fVol) { // fVol=1.0 means normal volume
-		if (!this.element) return;
+	self.setPitch		= function () { return NotImplemented(pre+'setPitch'); }
+	self.setPosition	= function (x,y,z) { return NotImplemented(pre+'setPosition'); }
+	self.setVelocity	= function () { return NotImplemented(pre+'setVelocity'); }
+	self.setVolume		= function (fVol) { // fVol=1.0 means normal volume
+		if (!self.element) return;
 		if (fVol == null) return; // setting volume=null turns the sound to noise on chrome 2012-04-25
-		if (this.element.volume != null)
-			this.element.volume = fVol;  // html5 volume=1.0=loudest http://dev.w3.org/html5/spec/media-elements.html#dom-media-volume
+		if (self.element.volume != null)
+			self.element.volume = fVol;  // html5 volume=1.0=loudest http://dev.w3.org/html5/spec/media-elements.html#dom-media-volume
 	}
-	this.stop			= function () {
-		if (!this.element) return;
-		if (this.element.stop) this.element.stop();
+	self.stop			= function () {
+		if (!self.element) return;
+		if (self.element.stop) self.element.stop();
 	}
-	this.constructor (path,srctype);	
+	self.constructor (path,srctype);	
 }
 
 
