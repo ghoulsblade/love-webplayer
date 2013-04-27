@@ -141,6 +141,7 @@ case 1:
       "};\n" +
 	  "LuaBootStrap(G);\n"+ // added 2012-03 by ghoulsblade for love-webplayer
       "{\n" +
+      "  varargs = arguments;\n" + // added 2013-02 by campadrenalin for love-webplayer
       $$[$0-2].simple_form + "\n" +
       "}\n";
   
