@@ -74,9 +74,8 @@ function love.draw()
 end
 
 function love.keypressed(k)
-    nekochan.x = nekochan.x + 30;
 	if k == "r" then
-		(love.filesystem.load("main.lua"))() -- webplayer parsing needs braces!
+		love.filesystem.load("main.lua")()
 	end
 end
 
@@ -121,9 +120,4 @@ end
 
 function spawn_cloud(xpos, ypos, speed)
 	table.insert(clouds, { x = xpos, y = ypos, s = speed } )
-end
-
-
-function love.keypressed(key, uni)
-	print(key, uni)
 end

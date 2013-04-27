@@ -99,7 +99,6 @@ function LuaBootStrap () {
 	love_module['mousepressed']	= function () { return LuaNil; };
 	love_module['mousereleased']	= function () { return LuaNil; };
 	love_module['quit']	= function () { return LuaNil; };
-	//love_module['getn']	= function (t) { return [lua_len(t)]; }; ///< table.getn for backwards compatibility
 
     Lua.inject(love_module, 'love');
 	
@@ -202,6 +201,7 @@ function RunLuaFromPath (path, safe) {
 		// var temp_function_name = "luatmp_"+path.replace(/[^a-zA-Z0-9]/g,"_");
 		
 		MyProfileStart("RunLuaFromPath:run:"+path);
+        Lua.cache.items = {}; // Clear cache;
 		var res = Lua.exec(luacode);
 		MyProfileEnd();
 		return res;
@@ -291,7 +291,7 @@ function MainStep () {
 			var ev_name = ev[0];
             if (!ev_name) break;
 			ev.shift();
-			Lua.call("love."+ev_name, [ev]);
+			Lua.call("love."+ev_name, ev);
 		}
 		var res = Lua.eval("love.timer.getDelta()");
 		var dt = res[0];
