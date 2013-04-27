@@ -392,6 +392,7 @@ function MainRunAfterPreloadFinished () {
 			fullscreen: false,
 			vsync: true,
 			fsaa: 0,
+            '__handle': true,
 		},
 		modules: {
 			event: true,
@@ -406,9 +407,11 @@ function MainRunAfterPreloadFinished () {
 			sound: true,
 			font: true,
 			thread: true,
+            '__handle': true,
 		},
 		console: false,
 		identity: false,
+        '__handle': true,
 	};
 	Lua.call("love.conf", [gLoveConf]);
 	if (gLoveConf["screen"])
