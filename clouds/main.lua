@@ -54,9 +54,15 @@ function love.update(dt)
 	
 	nekochan:update(dt)
 	
-	-- Update clouds.
-	for k, c in ipairs(clouds) do
+    
+	-- Update clouds, iterating backwards for safe removal of off-screen ones.
+	local width = love.graphics.getWidth()
+	for k=#clouds,1,-1 do
+		local c = clouds[k]
 		c.x = c.x + c.s * dt
+		if c.x > width then
+			table.remove(clouds, k)
+		end
 	end
 	
 end
