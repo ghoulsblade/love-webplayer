@@ -8,7 +8,7 @@
 function love.load()
 	
 	-- The amazing music.
-	-- music = love.audio.newSource("prondisk.xm")
+	music = love.audio.newSource("prondisk.xm")
 	
 	-- The various images used.
 	body = love.graphics.newImage("body.png")
@@ -27,7 +27,7 @@ function love.load()
 	
 	love.graphics.setColor(255, 255, 255, 200)
 	
-	-- love.audio.play(music, 0)
+	love.audio.play(music, 0)
 end
 
 function love.update(dt)
@@ -74,6 +74,7 @@ function love.draw()
 end
 
 function love.keypressed(k)
+    nekochan.x = nekochan.x + 30;
 	if k == "r" then
 		(love.filesystem.load("main.lua"))() -- webplayer parsing needs braces!
 	end

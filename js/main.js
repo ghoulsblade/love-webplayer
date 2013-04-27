@@ -249,11 +249,11 @@ function call_love_update			(dt)				{ return call_love_callback_guarded('update'
 //function call_love_focus			(bHasFocus)			{ return call_love_callback_guarded('focus',[bHasFocus]); }	// Callback function triggered when window receives or loses focus.
 //function call_love_joystickpressed	(joystick, button)	{ return call_love_callback_guarded('joystickpressed',[joystick, button]); }	// Called when a joystick button is pressed.
 //function call_love_joystickreleased	(joystick, button)	{ return call_love_callback_guarded('joystickreleased',[joystick, button]); }	// Called when a joystick button is released.
-//function call_love_keypressed		(key, unicode)		{ return call_love_callback_guarded('keypressed',[key, unicode]); }	// Callback function triggered when a key is pressed.
-//function call_love_keyreleased		(key)				{ return call_love_callback_guarded('keyreleased',[key]); }	// Callback function triggered when a key is released.
+function call_love_keypressed		(key, unicode)		{ return call_love_callback_guarded('keypressed',[key, unicode]); }	// Callback function triggered when a key is pressed.
+function call_love_keyreleased		(key)				{ return call_love_callback_guarded('keyreleased',[key]); }	// Callback function triggered when a key is released.
 //function call_love_mousepressed		(x, y, button)		{ return call_love_callback_guarded('mousepressed',[x, y, button]); }	// Callback function triggered when a mouse button is pressed.
 //function call_love_mousereleased	(x, y, button)		{ return call_love_callback_guarded('mousereleased',[x, y, button]); }	// Callback function triggered when a mouse button is released.
-//function call_love_quit				()					{ return call_love_callback_guarded('quit',[]); }	// Callback function triggered when the game is closed.
+function call_love_quit				()					{ return call_love_callback_guarded('quit',[]); }	// Callback function triggered when the game is closed.
 function call_love_run				()					{ return call_love_callback_guarded('run',LuaNoParam); }	// The main function, containing the main loop. A sensible default is used when left out.
 function push_event(eventname, a, b, c, d)
 {
@@ -273,7 +273,6 @@ function MainButton () {
 /// called every frame
 function MainStep () {
 	if (gLoveExecutionHalted) return;
-	window.requestAnimFrame(MainStep, gCanvasElement);
 	
 //	var t = MyGetTicks();
 //	gSecondsSinceLastFrame = min(1,(t - gMyTicks) / 1000.0);
@@ -304,6 +303,8 @@ function MainStep () {
 	//}
 	
 	Love_Graphics_Step_End();
+    // Only continue if no error has occurred
+	window.requestAnimFrame(MainStep, gCanvasElement);
 }
 
 /// http://www.khronos.org/webgl/wiki/FAQ#What_is_the_recommended_way_to_implement_a_rendering_loop.3F

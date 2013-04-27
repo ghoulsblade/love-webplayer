@@ -12,11 +12,11 @@ function Love_Audio_CreateTable (G) {
 	var pre = "love.audio.";
 	
 	// love.audio.newSource(path)
-	t['newSource']		= function (path,srctype) { return [Love_Audio_MakeSourceHandle(new cLoveAudioSource(path,srctype))]; }
+	t['newSource']		= function (path,srctype) { return [new cLoveAudioSource(path,srctype)]; }
 	//~ t['newSource']				= function () { return NotImplemented(pre+'newSource'); }
 	
 	// love.audio.play(sourceobj, number)
-	t['play']			= function (src,num) { if (src && src._data) src._data.love_audio_play(); } // MainPrint("audio.play called");
+	t['play']			= function (src,num) { if (src && src._data) src._data.love_audio_play(); return LuaNil; } // MainPrint("audio.play called");
 	//~ t['play']					= function () { return NotImplemented(pre+'play'); }
 	
 	// TODO: "play" overloads
@@ -37,36 +37,6 @@ function Love_Audio_CreateTable (G) {
 	t['stop']					= function () { return NotImplemented(pre+'stop'); }
 
     Lua.inject(t, null, 'love.audio');
-}
-
-function Love_Audio_MakeSourceHandle (o) {
-	var t = {};
-	var pre = "love.audio.source.";
-	t._data = o;
-	t['type']				= function (t		) { return t._data.type			(); }
-	t['typeOf']				= function (t		) { return t._data.typeOf		(); }
-	t['getDirection']		= function (t		) { return t._data.getDirection	(); }
-	t['getPitch']			= function (t		) { return t._data.getPitch		(); }
-	t['getPosition']		= function (t		) { return t._data.getPosition	(); }
-	t['getVelocity']		= function (t		) { return t._data.getVelocity	(); }
-	t['getVolume']			= function (t		) { return t._data.getVolume	(); }
-	t['isLooping']			= function (t		) { return t._data.isLooping	(); }
-	t['isPaused']			= function (t		) { return t._data.isPaused		(); }
-	t['isStatic']			= function (t		) { return t._data.isStatic		(); }
-	t['isStopped']			= function (t		) { return t._data.isStopped	(); }
-	t['pause']				= function (t		) { return t._data.pause		(); }
-	t['play']				= function (t		) { return t._data.play			(); }
-	t['resume']				= function (t		) { return t._data.resume		(); }
-	t['rewind']				= function (t		) { return t._data.rewind		(); }
-	t['setDirection']		= function (t		) { return t._data.setDirection	(); }
-	t['setLooping']			= function (t,bLoop	) { return t._data.setLooping	(bLoop); }
-	t['setPitch']			= function (t		) { return t._data.setPitch		(); }
-	t['setPosition']		= function (t		) { return t._data.setPosition	(); }
-	t['setVelocity']		= function (t		) { return t._data.setVelocity	(); }
-	t['setVolume']			= function (t,vol	) { return t._data.setVolume	(vol); }
-	t['stop']				= function (t		) { return t._data.stop			(); }
-
-	return t;
 }
 
 function ReadyState2Txt (element) {
@@ -94,6 +64,7 @@ function cLoveAudioSource (path,srctype) {
 		//~ MainPrint("cLoveAudioSource",path);
 		this.path = path;
 		this.srctype =srctype;
+        this.__handle = true; // Only pass into Lua by reference
 		
 		// html example
 		//~ <audio loop="loop" autoplay="autoplay">

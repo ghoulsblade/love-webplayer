@@ -17,7 +17,7 @@ $(window).blur(function()
 });
 
 window.onbeforeunload = function() {
-	call_lua_function_safe("love.quit", []);
+	Lua.call("love.quit", []);
 };
 
 /// init lua api
