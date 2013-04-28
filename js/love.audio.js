@@ -232,7 +232,7 @@ function cLoveAudioSource (path,srctype) {
 	self.setPitch		= function () { return NotImplemented(pre+'setPitch'); }
 	self.setPosition	= function (x,y,z) { return NotImplemented(pre+'setPosition'); }
 	self.setVelocity	= function () { return NotImplemented(pre+'setVelocity'); }
-	self.setVolume		= function (fVol) { // fVol=1.0 means normal volume
+	self.setVolume		= function (_, fVol) { // fVol=1.0 means normal volume
 		if (!self.element) return;
 		if (fVol == null) return; // setting volume=null turns the sound to noise on chrome 2012-04-25
 		if (self.element.volume != null)
