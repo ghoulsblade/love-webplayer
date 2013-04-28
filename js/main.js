@@ -118,10 +118,9 @@ function LuaBootStrap () {
 	Love_Timer_CreateTable();
 	Love_Web_CreateTable(); // web api
 	
-    /*
 	// replace default lua.js require
-	// could also be done by lua_core["require"] = function () {...}
-	G['require'] = function (path) {
+    console.log("Replacing require")
+	Lua.inject(function (path) {
 		// builtin libs
 		if (path == "socket.http") { return LoveRequireSocketHTTP(); }
 		
@@ -135,11 +134,10 @@ function LuaBootStrap () {
 		else	return RunLuaFromPath(path + ".lua"); // require("bla") -> bla.lua
 		
 		//~ NOTE: replaces parser lib lua_require(G, path);
-	};
-	G['dofile'] = function (path) {
+	}, 'require');
+	Lua.inject(function (path) {
 		return RunLuaFromPath(path);
-	};
-    */
+	}, 'dofile');
 
 }
 
@@ -202,7 +200,7 @@ function RunLuaFromPath (path, safe) {
 		
 		MyProfileStart("RunLuaFromPath:run:"+path);
         Lua.cache.items = {}; // Clear cache;
-		var res = Lua.exec(luacode);
+		var res = Lua.exec(luacode, path);
 		MyProfileEnd();
 		return res;
 	} catch (e) {

@@ -5,14 +5,14 @@ if (window.location.host == "localhost" && window.location.pathname.substring(0,
 
 /// init lua api
 function Love_Font_CreateTable (G) {
-	var t = lua_newtable();
+	var t = {};
 	var pre = "love.font.";
 
 	G.str['love'].str['font'] = t;
 	
-	t.str['newFontData']	= function () { return NotImplemented(pre+'newFontData'); }
-	t.str['newGlyphData']	= function () { return NotImplemented(pre+'newGlyphData'); }
-	t.str['newRasterizer']	= function () { return NotImplemented(pre+'newRasterizer'); }
+	t['newFontData']	= function () { return NotImplemented(pre+'newFontData'); }
+	t['newGlyphData']	= function () { return NotImplemented(pre+'newGlyphData'); }
+	t['newRasterizer']	= function () { return NotImplemented(pre+'newRasterizer'); }
 }
 
 
@@ -28,17 +28,17 @@ AlignMode.LEFT = "left";
 AlignMode.RIGHT = "right";
 
 function Love_Graphics_MakeFontHandle (o) {
-	var t = lua_newtable();
+	var t = {};
 	var pre = "love.graphics.font.";
 	t._data = o;
 	
-	t.str['getHeight']			= function (t) { return [t._data.font_h]; }	// Gets the height of the Font in pixels.
-	t.str['getLineHeight']		= function (t) { return [t._data.line_h]; }	// Gets the line height.
-	t.str['getWidth']			= function (t,txt) { return [t._data.getLineW(txt)]; }	// Determines the horizontal size a line of text needs.
-	t.str['getWrap']			= function (t) { NotImplemented(pre+'getWrap'); return [1]; }	// Returns how many lines text would be wrapped to.
-	t.str['setLineHeight']		= function (t,line_h) { t._data.line_h = line_h; }	// Sets the line height.
-	t.str['type']				= function (t) { return ["Font"]; }	// Gets the type of the object as a string.
-	t.str['typeOf']				= function (t,x) { return [x == "Object" || x == "Font"]; }	// Checks whether an object is of a certain type.
+	t['getHeight']			= function (t) { return [t._data.font_h]; }	// Gets the height of the Font in pixels.
+	t['getLineHeight']		= function (t) { return [t._data.line_h]; }	// Gets the line height.
+	t['getWidth']			= function (t,txt) { return [t._data.getLineW(txt)]; }	// Determines the horizontal size a line of text needs.
+	t['getWrap']			= function (t) { NotImplemented(pre+'getWrap'); return [1]; }	// Returns how many lines text would be wrapped to.
+	t['setLineHeight']		= function (t,line_h) { t._data.line_h = line_h; }	// Sets the line height.
+	t['type']				= function (t) { return ["Font"]; }	// Gets the type of the object as a string.
+	t['typeOf']				= function (t,x) { return [x == "Object" || x == "Font"]; }	// Checks whether an object is of a certain type.
 	
 	return t;
 }
@@ -53,6 +53,7 @@ function GlyphInfo (w,movex,u0,u1) {
 };
 
 function cLoveFont (caller_name,a,b) {
+    this.__handle = true;
 	this.TAG = "love.graphics.font";
 	this.kMaxGlyphsPerString = 1024*8; // limit not really needed in webgl, keep code for porting code to other platforms
 	this.kMaxVerticesPerString = this.kMaxGlyphsPerString * 6;
@@ -97,7 +98,7 @@ function cLoveFont (caller_name,a,b) {
 		var img;
 		if ((typeof image_or_filename) == "string")
 				img = new cLoveImage(image_or_filename);
-		else	img = image_or_filename._data;
+		else	img = image_or_filename;
 		this.prepareImgForGetPixel(img.tex.image);
 		this.init(img, glyphs);
 	}
