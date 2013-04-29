@@ -37,7 +37,7 @@ function love.load()
 	state = Menu.create()	-- current game state
 	
 	-- Setup
-	love.graphics.setBackgroundColor(unpack(color["background"]))
+	love.graphics.setBackgroundColor(table.unpack(color["background"]))
 	love.audio.play(music["default"], 0)
 
 end

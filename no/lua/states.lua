@@ -85,7 +85,7 @@ function Instructions:draw()
 
 	love.graphics.draw(graphics["logo"], 400, 125, 0, 1, 1, 100, 75)
 	
-	love.graphics.setColor(unpack(color["text"]))
+	love.graphics.setColor(table.unpack(color["text"]))
 	love.graphics.setFont(font["small"])
 	love.graphics.printf("The point of this game is to fill out a standard, randomly generated, nonogram by using the mouse. The left mouse button fills in (or 'un-fills') an area whilst the right mouse button is used to set hints where you think an area shouldn't be filled.\nUse the escape key to pause the game.\n\nGood luck.", 100, 250, 600, "center")
 	
@@ -147,12 +147,12 @@ function Options:draw()
 
 	love.graphics.draw(graphics["logo"], 400, 125, 0, 1, 1, 100, 75)
 	
-	love.graphics.setColor(unpack(color["text"]))
+	love.graphics.setColor(table.unpack(color["text"]))
 	love.graphics.setFont(font["large"])
 	love.graphics.print("Audio:", 250, 270)
 	love.graphics.print("Level:", 250, 345)
 	
-	love.graphics.setColor(unpack(color["main"]))
+	love.graphics.setColor(table.unpack(color["main"]))
 	love.graphics.setLine(4, "rough")
 	
 	if audio then
@@ -321,7 +321,7 @@ function Game:draw()
 	end
 	
 	-- The grid
-	love.graphics.setColor(unpack(color["main"]))
+	love.graphics.setColor(table.unpack(color["main"]))
 	love.graphics.setLine(2, "rough")
 	love.graphics.rectangle("line",gx,gy,gs,gs) -- surrounding rectangle
 	love.graphics.setLine(1)
@@ -332,7 +332,7 @@ function Game:draw()
 	end
 	
 	-- Text
-	love.graphics.setColor(unpack(color["text"]))
+	love.graphics.setColor(table.unpack(color["text"]))
 	love.graphics.setFont(font["default"])
 	for i=1,size do
 		love.graphics.printf(self.horizontal[i],
@@ -353,12 +353,12 @@ function Game:draw()
 			love.graphics.setColor(255,255,255,235-(235*(self.win/0.5)))
 			love.graphics.rectangle("fill",0,0,love.graphics.getWidth(),love.graphics.getHeight())
 		else
-			love.graphics.setColor(unpack(color["overlay"]))
+			love.graphics.setColor(table.unpack(color["overlay"]))
 			love.graphics.rectangle("fill",0,0,love.graphics.getWidth(),love.graphics.getHeight())
-			love.graphics.setColor(unpack(color["main"]))
+			love.graphics.setColor(table.unpack(color["main"]))
 			love.graphics.setFont(font["huge"])
 			love.graphics.printf("CONGRATULATIONS", 0, 150, love.graphics.getWidth(), "center")
-			love.graphics.setColor(unpack(color["text"]))
+			love.graphics.setColor(table.unpack(color["text"]))
 			love.graphics.setFont(font["default"])
 			love.graphics.printf("You completed a level " .. size .. " puzzle in: \n" .. string.format("%.2f", self.time) .. " seconds", 0, 200+64, love.graphics.getWidth(), "center")
 			-- Buttons
@@ -366,12 +366,12 @@ function Game:draw()
 			self.button["quit"]:draw()
 		end
 	elseif self.pause then
-		love.graphics.setColor(unpack(color["overlay"]))
+		love.graphics.setColor(table.unpack(color["overlay"]))
 		love.graphics.rectangle("fill",0,0,love.graphics.getWidth(),love.graphics.getHeight())
-		love.graphics.setColor(unpack(color["main"]))
+		love.graphics.setColor(table.unpack(color["main"]))
 		love.graphics.setFont(font["huge"])
 		love.graphics.printf("PAUSED", 0, 150, love.graphics.getWidth(), "center")
-		love.graphics.setColor(unpack(color["text"]))
+		love.graphics.setColor(table.unpack(color["text"]))
 		love.graphics.setFont(font["default"])
 		-- Buttons
 		self.button["resume"]:draw()

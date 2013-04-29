@@ -36,13 +36,13 @@ function Love_Graphics_CreateTable () {
 	// font = love.graphics.newImageFont( image, glyphs )
 	// font = love.graphics.newImageFont( filename, glyphs )
 	t['newImageFont']		= function (image_or_filename, glyphs) { // see love.font.js
-		return [Love_Graphics_MakeFontHandle(new cLoveFont("newImageFont",image_or_filename, glyphs))]; 
+		return [new cLoveFont("newImageFont",image_or_filename, glyphs)]; 
 	}
 	
 	// font = love.graphics.newFont( filename, size=12 )
 	// font = love.graphics.newFont( size ) // This variant uses the default font (Vera Sans) with a custom size. 
 	t['newFont']			= function (a,b) { 
-		return [Love_Graphics_MakeFontHandle(new cLoveFont("newFont",a,b))]; 
+		return [new cLoveFont("newFont",a,b)]; 
 	}
 	
 	t['newQuad']			= function (x, y, width, height, sw, sh) { return [new cLoveQuad(x, y, width, height, sw, sh)]; }
