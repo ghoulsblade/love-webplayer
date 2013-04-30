@@ -16,7 +16,7 @@ function Love_Audio_CreateTable (G) {
 	//~ t['newSource']				= function () { return NotImplemented(pre+'newSource'); }
 	
 	// love.audio.play(sourceobj, number)
-	t['play']			= function (src,num) { if (src && src._data) src._data.love_audio_play(); return LuaNil; } // MainPrint("audio.play called");
+	t['play']			= function (src,num) { if (src) src.love_audio_play(); return LuaNil; } // MainPrint("audio.play called");
 	//~ t['play']					= function () { return NotImplemented(pre+'play'); }
 	
 	// TODO: "play" overloads

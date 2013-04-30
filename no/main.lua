@@ -38,7 +38,8 @@ function love.load()
 	
 	-- Setup
 	love.graphics.setBackgroundColor(table.unpack(color["background"]))
-	love.audio.play(music["default"], 0)
+    music["default"].setLooping(true)
+	love.audio.play(music["default"])
 
 end
 
