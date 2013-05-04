@@ -16,7 +16,7 @@ function Love_Graphics_Init () {
 	MainInitScene();
 	MyCheckGLError();
 	
-	mDefaultFont = new cLoveFont("initDefaultFont");
+	mDefaultFont = makeDefaultFont();
 	mFont = mDefaultFont;
 	MyCheckGLError();
 }
@@ -36,13 +36,13 @@ function Love_Graphics_CreateTable () {
 	// font = love.graphics.newImageFont( image, glyphs )
 	// font = love.graphics.newImageFont( filename, glyphs )
 	t['newImageFont']		= function (image_or_filename, glyphs) { // see love.font.js
-		return [new cLoveFont("newImageFont",image_or_filename, glyphs)]; 
+		return [new cLoveImageFont(image_or_filename, glyphs)]; 
 	}
 	
 	// font = love.graphics.newFont( filename, size=12 )
 	// font = love.graphics.newFont( size ) // This variant uses the default font (Vera Sans) with a custom size. 
 	t['newFont']			= function (a,b) { 
-		return [new cLoveFont("newFont",a,b)]; 
+		return [new cLoveWebFont(a,b)]; 
 	}
 	
 	t['newQuad']			= function (x, y, width, height, sw, sh) { return [new cLoveQuad(x, y, width, height, sw, sh)]; }
@@ -138,7 +138,7 @@ function Love_Graphics_CreateTable () {
 	
 	t['print']				= function (s, x, y, r, sx, sy)		{ if (mFont != null) mFont.print(String(s), x, y, r||0, sx||1, (sy||sx)||1 ); return LuaNil; }
 	t['printf']				= function (s, x, y, limit, align )	{ if (mFont != null) mFont.printf(String(s), x, y, limit, align || "left"); return LuaNil; }
-	t['setFont']			= function (x) { mFont = (x == undefined) ? mDefaultFont : x._data; return LuaNil; }
+	t['setFont']			= function (x) { mFont = (x == undefined) ? mDefaultFont : x; return LuaNil; }
 	//~ t['setFont']			= function (x) { mFont = mDefaultFont; return LuaNil; }
 	
 	t['newFramebuffer']		= function () { return NotImplemented(pre+'newFramebuffer'); }
