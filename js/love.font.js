@@ -27,7 +27,8 @@ AlignMode.CENTER = "center";
 AlignMode.LEFT = "left";
 AlignMode.RIGHT = "right";
 
-function GlyphInfo (w,movex,u0,u1, tex) {
+function GlyphInfo (str, w,movex,u0,u1, tex) {
+	this.str = str;
 	this.w = w;
 	this.movex = movex;
 	this.u0 = u0;
@@ -52,6 +53,9 @@ function VertexBuffer (max_glyphs, max_vertices, font_height, texture) {
     this.font_height  = font_height;  // Height of the font
     this.texture      = texture;      // Texture to ultimately apply
 
+    this.draw_x = 0;
+    this.draw_y = 0;
+
     // alloc/resize float buffers
     if (g_mVB_Pos_font == null) {
         g_mVB_Pos_font = MakeGlFloatBuffer(gl,[],gl.DYNAMIC_DRAW);
@@ -66,17 +70,21 @@ function VertexBuffer (max_glyphs, max_vertices, font_height, texture) {
     
     this.num_vertices = 0; // Current number of vertices
 
-	this.add_glyph = function (gi, draw_x,draw_y, sx,sy) {
+    this.move = function (x, y) {
+        this.draw_x += x;
+        this.draw_y += y;
+    }
+	this.add_glyph = function (gi) {
 		if (gi == null) return;
 		if (this.mVB_Pos == null) { MainPrint(this.TAG,"addCharToBufferS:mVB_Pos = null"); return; }
 		if (this.mVB_Tex == null) { MainPrint(this.TAG,"addCharToBufferS:mVB_Tex = null"); return; }
 			
-		var ax = draw_x;
-		var ay = draw_y;
-		var vx_x = gi.w*sx;
+		var ax = this.draw_x;
+		var ay = this.draw_y;
+		var vx_x = gi.w;
 		var vx_y = 0; // todo : rotate ?
 		var vy_x = 0; // todo : rotate ?
-		var vy_y = this.font_height * sy;
+		var vy_y = this.font_height;
 		var mVB_Tex2 = this.mVB_Tex2;
 		var mVB_Pos2 = this.mVB_Pos2;
 		
@@ -103,7 +111,7 @@ function VertexBuffer (max_glyphs, max_vertices, font_height, texture) {
 		}
 	}
 
-	this.draw = function () {
+	this.draw = function (draw_x, draw_y, scale_x, scale_y, rotate) {
 		if (this.num_vertices == 0) return;
 		if (this.mVB_Pos == null) { MainPrint(this.TAG,"drawBuffer:mVB_Pos = null"); return; }
 		if (this.mVB_Tex == null) { MainPrint(this.TAG,"drawBuffer:mVB_Tex = null"); return; }
@@ -112,10 +120,17 @@ function VertexBuffer (max_glyphs, max_vertices, font_height, texture) {
 		UpdateGlFloatBufferLen(gl,this.mVB_Pos,this.mVB_Pos2,this.num_vertices*2,gl.DYNAMIC_DRAW);
 		UpdateGlFloatBufferLen(gl,this.mVB_Tex,this.mVB_Tex2,this.num_vertices*2,gl.DYNAMIC_DRAW);
 
-		setVertexBuffersToCustom(this.mVB_Pos,this.mVB_Tex);
+        // Transform 
+        GLModelViewPush();
+        GLModelViewTranslate(draw_x*3, draw_y*3, 1); // TODO : Figure out why 3 is the magic number
 
+        // Draw
+		setVertexBuffersToCustom(this.mVB_Pos,this.mVB_Tex);
 		gl.bindTexture(gl.TEXTURE_2D, this.texture); gLastGLTexture = this.texture;
 		gl.drawArrays(gl.TRIANGLES, 0, this.num_vertices);
+
+        // Reset transform
+        GLModelViewPop();
 	}
 }
 
@@ -162,6 +177,35 @@ cLoveFont.prototype.get_line_width = function(str) {
         record_width = (width > record_width) ? width : record_width;
     }
     return record_width;
+}
+// Return array of [width, str] pairs for each line
+cLoveFont.prototype.split_lines = function (text, max_width) { 
+    var len = text.length;
+    var lines = [];
+    var last_cut = 0;
+
+    // TODO: wrap ignores word boundaries for now, lookahead ? 
+    for (var i=0;i<len;++i) {
+        // Scout ahead for danger
+        var substring = text.substring(last_cut, i+1);
+        var linew = this.get_line_width(substring);
+        if (linew > max_width || text.charAt(i) == '\n') {
+            // Backtrack
+            var substring = text.substring(last_cut, i);
+            var linew = this.get_line_width(substring);
+            lines.push([max_width-linew, substring]);
+
+            if (text.charAt(i) == '\n') i++; // Skip
+            last_cut = i;
+        }
+    }
+    var substring = text.substring(last_cut, i);
+    if (substring) {
+        var linew = this.get_line_width(substring);
+        lines.push([max_width-linew, substring]);
+    }
+
+    return lines;
 }
 cLoveFont.prototype.isWhiteSpace    = function (c) { 
     return c == ' ' || c == '\t' || c == '\r' || c == '\n';
@@ -273,7 +317,7 @@ function cLoveImageFont (a,b) {
 			
 			// register glyph
 			//~ MainPrint(self.TAG,"glyph:"+c+":x="+x+",w="+w+",spacing="+spacing);
-			self.set_glyph(c, new GlyphInfo(w,w+spacing,x/imgw,(x+w)/imgw));
+			self.set_glyph(c, new GlyphInfo(c, w,w+spacing,x/imgw,(x+w)/imgw));
 			
 			//~ if (pLog != null) pLog.println("glyph="+c+" x="+x+" w="+w+" spacing="+spacing); // TODO: remove, DEBUG only
 			//~ MainPrint(self.TAG,"glyph="+c+" x="+x+" w="+w+" spacing="+spacing); // TODO: remove, DEBUG only
@@ -314,78 +358,58 @@ function cLoveImageFont (a,b) {
             self.font_h,
             self.img.GetTextureID()
         );
-		var x = param_x;
-		var y = param_y;
 		// TODO: rotate code here rather than in prepareBuffer? x,y
 		for (var i=0;i<len;++i) {
 			var c = text.charAt(i);
-			var draw_x = x;
-			var draw_y = y;
+			buffer.add_glyph(self.get_glyph(c));
 			if (c != '\n') {
-				x += self.getGlyphMoveX(c)*sx;
+                buffer.move(self.getGlyphMoveX(c), 0);
 			} else {
-                x = param_x;
-                y += self.line_h*self.font_h*sy;
+                buffer.move(-buffer.draw_x, self.line_h*self.font_h);
 			}
-			buffer.add_glyph(self.get_glyph(c), draw_x,draw_y, sx,sy);
 		}
-		buffer.draw();
+		buffer.draw(param_x, param_y);
 	}
 	
 	/// NOTE: not related to c printf, rather wordwrap etc
 	self.printf = function (text, param_x, param_y, limit, align) {
+		//~ MainPrint(self.TAG,"printf:"+param_x+","+param_y+","+limit+","+Align2Text(align)+" :"+text);
 		if (self.bForceLowerCase) text = text.toLowerCase();
-		var len = text.length;
+        var lines = self.split_lines(text, limit);
+
         var buffer = new VertexBuffer(
             self.kMaxGlyphsPerString,
             self.kMaxVerticesPerString,
             self.font_h,
             self.img.GetTextureID()
         );
-		var x = param_x; // TODO: align here
-		var y = param_y;
-		var bAlignRecalcNeeded = true;
-		// TODO: wrap ignores word boundaries for now, lookahead ? 
-		//~ MainPrint(self.TAG,"printf:"+param_x+","+param_y+","+limit+","+Align2Text(align)+" :"+text);
-		for (var i=0;i<len;++i) {
-			var c = text.charAt(i);
-			if (bAlignRecalcNeeded) {
-				bAlignRecalcNeeded = false;
-				if (align != AlignMode.LEFT) {
-					var linew = self.get_line_width((i > 0) ? text : text.substring(i));
-					//~ MainPrint(self.TAG,"printf:["+i+"] linew="+linew+","+Align2Text(align)+" :"+text); 
-					if (linew > limit) linew = limit; // small inaccuracy here, but shouldn't matter much
-					if (align == AlignMode.RIGHT) x += (limit - linew); 
-					if (align == AlignMode.CENTER) x += (limit - linew)/2; // text is in the middle between param_x and param_x+limit
-				}
-			}
-			
-			var draw_x = x;
-			var draw_y = y;
-			if (!self.isWhiteSpace(c)) {
-				var mx = self.getGlyphMoveX(c);
-				if (x + mx < param_x + limit) {
-					x += mx;
-				} else {
-					draw_x = param_x; // TODO: align here
-					draw_y = y + self.line_h*self.font_h;
-					x = draw_x + mx;
-					y = draw_y;
-					bAlignRecalcNeeded = true;
-				}
-			} else {
-				if (c == ' ' ) x += self.getGlyphMoveX(c);
-				if (c == '\t') x += self.getGlyphMoveX(c);
-				if (c == '\n') {
-					x = param_x; // TODO: align here
-					y += self.line_h*self.font_h;
-					bAlignRecalcNeeded = true;
-				}
-			}
-			buffer.add_glyph(self.get_glyph(c), draw_x,draw_y, 1,1);
+
+        // Add a line at a time
+		for (var i=0;i<lines.length;++i) {
+
+            var line_data  = lines[i];
+            var line_extra = line_data[0];
+            var line_text  = line_data[1];
+
+            var line_leftspace = 0;
+            if (align == AlignMode.RIGHT) {
+                line_leftspace = line_extra;
+            } else if (align == AlignMode.CENTER) {
+                line_leftspace = line_extra * 0.5;
+            }
+            buffer.move(-buffer.draw_x + line_leftspace, 0);
+
+            for (var ci in line_text) {
+                var c = line_text[ci];
+
+                buffer.add_glyph(self.get_glyph(c));
+                buffer.move(self.getGlyphMoveX(c), 0);
+            }
+
+            buffer.move(0, self.line_h*self.font_h);
 		}
 		// TODO: center/right align line-wise : get_line_width(substr(... till next newline))
-		buffer.draw();
+		buffer.draw(param_x, param_y);
 	}
 	
 	self.constructor(a,b);
