@@ -1,16 +1,16 @@
 
 /// init lua api
 function Love_Keyboard_CreateTable (G) {
-	var t = lua_newtable();
+	var t = {};
 	var pre = "love.keyboard.";
 
-	G.str['love'].str['keyboard'] = t;
-	
-	t.str['getKeyRepeat']		= function () { return NotImplemented(pre+'getKeyRepeat'); }
-	t.str['isDown']				= function (key) {
+	t['getKeyRepeat']		= function () { return NotImplemented(pre+'getKeyRepeat'); }
+	t['isDown']				= function (key) {
 		return [keyState[key]];
 	}
-	t.str['setKeyRepeat']		= function () { return NotImplemented(pre+'setKeyRepeat'); }
+	t['setKeyRepeat']		= function () { return NotImplemented(pre+'setKeyRepeat'); }
+
+    Lua.inject(t, null, "love.keyboard");
 }
 
 keyState = {};

@@ -91,6 +91,24 @@ function getShader(gl, id) {
 
 // ***** ***** ***** ***** ***** textures
 
+// Generate WebGL texture from canvas
+function loadCanvasTexture(gl, canvas)
+{
+    var texture = gl.createTexture();
+
+    //gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+    gl.generateMipmap(gl.TEXTURE_2D);
+
+    gl.bindTexture(gl.TEXTURE_2D, null);
+
+    return texture;
+}
+
 // Load the image at the passed url, place it in a new WebGLTexture object and return the WebGLTexture.
 function loadImageTexture(gl, url, bPixelArt)
 {

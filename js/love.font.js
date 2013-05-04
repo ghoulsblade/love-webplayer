@@ -4,17 +4,16 @@ if (window.location.host == "localhost" && window.location.pathname.substring(0,
 // otherwise : error:cross domain security. we'll have to canvas-draw sth.
 
 /// init lua api
-function Love_Font_CreateTable (G) {
-	var t = lua_newtable();
+function Love_Font_CreateTable () {
+	var t = {};
 	var pre = "love.font.";
 
-	G.str['love'].str['font'] = t;
-	
-	t.str['newFontData']	= function () { return NotImplemented(pre+'newFontData'); }
-	t.str['newGlyphData']	= function () { return NotImplemented(pre+'newGlyphData'); }
-	t.str['newRasterizer']	= function () { return NotImplemented(pre+'newRasterizer'); }
-}
+	t['newFontData']	= function () { return NotImplemented(pre+'newFontData'); }
+	t['newGlyphData']	= function () { return NotImplemented(pre+'newGlyphData'); }
+	t['newRasterizer']	= function () { return NotImplemented(pre+'newRasterizer'); }
 
+    Lua.inject(t, null, 'love.font');
+}
 
 // ***** ***** ***** ***** ***** cLoveFont
 
@@ -27,250 +26,80 @@ AlignMode.CENTER = "center";
 AlignMode.LEFT = "left";
 AlignMode.RIGHT = "right";
 
-function Love_Graphics_MakeFontHandle (o) {
-	var t = lua_newtable();
-	var pre = "love.graphics.font.";
-	t._data = o;
-	
-	t.str['getHeight']			= function (t) { return [t._data.font_h]; }	// Gets the height of the Font in pixels.
-	t.str['getLineHeight']		= function (t) { return [t._data.line_h]; }	// Gets the line height.
-	t.str['getWidth']			= function (t,txt) { return [t._data.getLineW(txt)]; }	// Determines the horizontal size a line of text needs.
-	t.str['getWrap']			= function (t) { NotImplemented(pre+'getWrap'); return [1]; }	// Returns how many lines text would be wrapped to.
-	t.str['setLineHeight']		= function (t,line_h) { t._data.line_h = line_h; }	// Sets the line height.
-	t.str['type']				= function (t) { return ["Font"]; }	// Gets the type of the object as a string.
-	t.str['typeOf']				= function (t,x) { return [x == "Object" || x == "Font"]; }	// Checks whether an object is of a certain type.
-	
-	return t;
+function powerOfTwo(target) {
+    var position = 1;
+    while (position < target)
+        position *= 2;
+    return position;
 }
 
-function GlyphInfo (w,movex,u0,u1) {
+function GlyphInfo (str, w,movex,u0,u1, tex) {
+	this.str = str;
 	this.w = w;
 	this.movex = movex;
 	this.u0 = u0;
 	this.v0 = 0;
 	this.u1 = u1;
 	this.v1 = 1;
+    this.tex = tex;
 };
 
-function cLoveFont (caller_name,a,b) {
-	this.TAG = "love.graphics.font";
-	this.kMaxGlyphsPerString = 1024*8; // limit not really needed in webgl, keep code for porting code to other platforms
-	this.kMaxVerticesPerString = this.kMaxGlyphsPerString * 6;
-	
-	this.w_space = 0; // TODO: set from letter 'a' ? 
-	this.font_h = 12; // TODO: set from letter 'a' ? probably just the height of the whole image
-	this.line_h = 1.5; ///< Gets the line height. This will be the value previously set by Font:setLineHeight, or 1.0 by default. 
-	this.bForceLowerCase = false;
-	this.mGlyphInfos = {};
-	this.imgGetPixelContext = null;
-	
-	this.prepareImgForGetPixel = function (img) {
-		var newCanvas = document.createElement('canvas');
-		newCanvas.width = img.width;
-		newCanvas.height = img.height;
-		var context = newCanvas.getContext('2d');
-		context.drawImage(img, 0, 0);
-		this.imgGetPixelContext = context;
-		//~ document.getElementById("output").appendChild(newCanvas);
-		// NOTE:getpixel : http://stackoverflow.com/questions/3528299/get-pixel-color-of-base64-png-using-javascript
-		// NOTE:getpixel : http://stackoverflow.com/questions/1041399/how-to-use-javascript-or-jquery-to-read-a-pixel-of-an-image
-		// NOTE:getpixel : http://stackoverflow.com/questions/4154223/get-pixel-from-bitmap
-	}
-	this.getPixel = function(x,y) { 
-		var data = this.imgGetPixelContext.getImageData(x, y, 1, 1).data; 
-		//~ if (x == 0 && y == 0) MainPrint("font pixel0,0=",this.img.path,typeof data,data);
-		//~ return data ? (data[0] + 256*(data[1] + 256*(data[2] + 256*data[3]))) : 0;
-		return data ? (data[0] + 256*(data[1] + 256*(data[2]))) : 0;
-	}
+function VertexBuffer (max_glyphs, max_vertices, font_height, texture) {
 
-	/// constructor
-	this.init_default_font = function (image_or_filename,glyphs) {
-		// TODO: "Vera Sans"  12 . but until ttf/canvas font stuff works, just use standard image font 
-		if (kDefaultImageFontURL) {
-			this.init_image_font(kDefaultImageFontURL," abcdefghijklmnopqrstuvwxyz0123456789.!'-:·");
-			this.bForceLowerCase = true;
-		}
-	}
-	
-	this.init_image_font = function (image_or_filename,glyphs) {
-		this.glyphs = glyphs;
-		var img;
-		if ((typeof image_or_filename) == "string")
-				img = new cLoveImage(image_or_filename);
-		else	img = image_or_filename._data;
-		this.prepareImgForGetPixel(img.tex.image);
-		this.init(img, glyphs);
-	}
-	
-	this.constructor = function (caller_name,a,b) {
-		if (caller_name == "initDefaultFont") {
-			if (!kDefaultImageFontURL) MainPrint("warning:kDefaultImageFontURL not set for this hostname/path (needed for cross-domain image-load), default font disabled");
-			// otherwise : error:cross domain security. we'll have to canvas-draw sth.
-			this.init_default_font();
-		}
-		if (caller_name == "newImageFont") {
-			// font = love.graphics.newImageFont( image, glyphs )
-			// font = love.graphics.newImageFont( filename, glyphs )
-			// Creates a new font by loading a specifically formatted image.  : https://love2d.org/wiki/ImageFontFormat
-			this.init_image_font(a,b);
-		} else if (caller_name == "newFont") {
-			// font = love.graphics.newFont( filename, size=12 )
-			// font = love.graphics.newFont( size=12 ) // This variant uses the default font (Vera Sans) with a custom size. 
-			var filename;
-			var size;
-			if ((typeof a) == "string") {
-				filename = a;
-				size = (b == undefined) ? 12 : b;
-			} else {
-				//~ filename = "Vera Sans";
-				size = (a == undefined) ? 12 : a;
-			}
-			NotImplemented('love.graphics.newFont (ttf)');
-			this.init_default_font(); // fallback
-		}
-	}
-	
-	this.getGlyphInfo = function (c) { return this.mGlyphInfos[c]; }
-	
-	
-	/*
-	/// ttf font
-	public LuanObjFont (LuanGraphics g, String ttf_filename, int iSize) throws IOException { 
-		super(g.vm);
-		
-		File ttfFile = g.vm.getStorage().forceGetFileFromLovePath(ttf_filename);
-		FontRasterizer r = new FontRasterizer(ttfFile);
-		
-//		String glyphs = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-		String glyphs = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-		
-		Bitmap b = r.renderBitmapFont(glyphs, iSize, 1, Color.MAGENTA, Color.TRANSPARENT, Color.WHITE);
-		
-		init(g, new LuanObjImage(g, b), glyphs);
-	}
-	
-	/// ttf font, default ttf_filename to verdana sans
-	public LuanObjFont (LuanGraphics g,int iSize) throws IOException { this(g); this.g = g; NotImplemented("font:ttf with size"); } 
-	
-	/// fall back to image font in resources
-	public LuanObjFont (LuanGraphics g) throws IOException { this(g,new LuanObjImage(g, R.raw.imgfont_w)," abcdefghijklmnopqrstuvwxyz0123456789.!'-:·"); this.g = g; bForceLowerCase = true; } 
-	
-	/// imageFont
-	public LuanObjFont (LuanGraphics g,String filename,String glyphs) throws FileNotFoundException { this(g,new LuanObjImage(g,filename),glyphs); }
-	*/
-	
-	
-	this.init = function (img, glyphs) {
-		this.img = img;
-		// TODO
-		
-		/*
-		The imagefont file is an image file in a format that L�ve can load. It can contain transparent pixels, so a PNG file is preferable, and it also needs to contain spacer color that will separate the different font glyphs.
-		The upper left pixel of the image file is always taken to be the spacer color. All columns that have this color as their uppermost pixel are interpreted as separators of font glyphs. The areas between these separators are interpreted as the actual font glyphs.
-		The width of the separator areas affect the spacing of the font glyphs. It is possible to have more areas in the image than are required for the font in the love.graphics.newImageFont() call. The extra areas are ignored. 
-		*/
-		var col = this.getPixel(0,0);
-		var x = 0;
-		var imgw = img.getWidth();
-		this.font_h = img.getHeight();
-		this.w_space = 0;
-		while (x < imgw && this.getPixel(x,0) == col) ++x; // skip first separator column
-			
-		//~ if (pLog != null) pLog.println("FontConstr: img="+img.getDebugSource()+" col="+col+" w="+imgw+" h="+font_h+" x0="+x); // TODO: remove, DEBUG only
-		//~ MainPrint(this.TAG,"FontConstr: img="+img.getDebugSource()+" col="+col+" w="+imgw+" h="+font_h+" x0="+x); // TODO: remove, DEBUG only
-		
-		for (var i=0;i<glyphs.length;++i) {
-			var c = glyphs.charAt(i);
-			
-			// calc the size of the glyph
-			var w = 1;
-			while (x+w < imgw && this.getPixel(x+w,0) != col) ++w;
-				
-			// calc the size of the separator
-			var spacing = 0;
-			while (x+w+spacing < imgw && this.getPixel(x+w+spacing,0) == col) ++spacing;
-			
-			// register glyph
-			//~ MainPrint(this.TAG,"glyph:"+c+":x="+x+",w="+w+",spacing="+spacing);
-			this.mGlyphInfos[c] = new GlyphInfo(w,w+spacing,x/imgw,(x+w)/imgw);
-			
-			//~ if (pLog != null) pLog.println("glyph="+c+" x="+x+" w="+w+" spacing="+spacing); // TODO: remove, DEBUG only
-			//~ MainPrint(this.TAG,"glyph="+c+" x="+x+" w="+w+" spacing="+spacing); // TODO: remove, DEBUG only
-			
-			if (this.w_space == 0) this.w_space = w;
-			x += w+spacing;
-		}
-		
-		var gi = this.getGlyphInfo(' '); 
-		if (gi != null) this.w_space = gi.movex;
-	}
-	
-	
-	this.isWhiteSpace = function (c) { return c == ' ' || c == '\t' || c == '\r' || c == '\n'; }
-	this.getGlyphMoveX = function (c) { 
-		if (c == ' ') return this.w_space;
-		if (c == '\t') return 4*this.w_space;
-		
-		var gi = this.getGlyphInfo(c); 
-		if (gi != null) return gi.movex;
-		
-		return 0;
-	}
-	
 	// render buffer 
 	
 	//~ private FloatBuffer	mVB_Pos;
 	//~ private FloatBuffer	mVB_Tex;
 	//~ private float[]		mVB_Pos2;
 	//~ private float[]		mVB_Tex2;
-	//~ int					mBufferVertices;
-	
-	this.prepareBuffer = function (maxglyphs) { this.prepareBuffer(maxglyphs,0); }
-	this.prepareBuffer = function (maxglyphs,fRotate) {
-		if (maxglyphs > this.kMaxGlyphsPerString) {
-			NotImplemented("font: really really long text");
-		}
-		
-		// alloc/resize float buffers
-		if (g_mVB_Pos_font == null) {
-			g_mVB_Pos_font = MakeGlFloatBuffer(gl,[],gl.DYNAMIC_DRAW);
-			g_mVB_Tex_font = MakeGlFloatBuffer(gl,[],gl.DYNAMIC_DRAW);
-			g_mVB_Pos2_font = [this.kMaxVerticesPerString*2];
-			g_mVB_Tex2_font = [this.kMaxVerticesPerString*2];
-		}
-		this.mVB_Pos = g_mVB_Pos_font;
-		this.mVB_Tex = g_mVB_Tex_font;
-		this.mVB_Pos2 = g_mVB_Pos2_font;
-		this.mVB_Tex2 = g_mVB_Tex2_font;
-		
-		this.mBufferVertices = 0;
-	}
-	
-	
-	this.addCharToBuffer  = function (c,draw_x,draw_y) { this.addCharToBufferS(c,draw_x,draw_y,1,1); }
-	this.addCharToBufferS = function (c,draw_x,draw_y, sx, sy) {
-		var gi = this.getGlyphInfo(c);
+	//~ int					num_vertices;
+
+    this.max_glyphs   = max_glyphs;   // Max glyphs per string
+    this.max_vertices = max_vertices; // Max vertices per string
+    this.font_height  = font_height;  // Height of the font
+    this.texture      = texture;      // Texture to ultimately apply
+
+    this.draw_x = 0;
+    this.draw_y = 0;
+
+    // alloc/resize float buffers
+    if (g_mVB_Pos_font == null) {
+        g_mVB_Pos_font = MakeGlFloatBuffer(gl,[],gl.DYNAMIC_DRAW);
+        g_mVB_Tex_font = MakeGlFloatBuffer(gl,[],gl.DYNAMIC_DRAW);
+        g_mVB_Pos2_font = [this.max_vertices*2];
+        g_mVB_Tex2_font = [this.max_vertices*2];
+    }
+    this.mVB_Pos = g_mVB_Pos_font;
+    this.mVB_Tex = g_mVB_Tex_font;
+    this.mVB_Pos2 = g_mVB_Pos2_font;
+    this.mVB_Tex2 = g_mVB_Tex2_font;
+    
+    this.num_vertices = 0; // Current number of vertices
+
+    this.move = function (x, y) {
+        this.draw_x += x;
+        this.draw_y += y;
+    }
+	this.add_glyph = function (gi) {
 		if (gi == null) return;
 		if (this.mVB_Pos == null) { MainPrint(this.TAG,"addCharToBufferS:mVB_Pos = null"); return; }
 		if (this.mVB_Tex == null) { MainPrint(this.TAG,"addCharToBufferS:mVB_Tex = null"); return; }
 			
-		// add geometry to float buffers if possible
-		
-		var ax = draw_x;
-		var ay = draw_y;
-		var vx_x = gi.w*sx;
+		var ax = this.draw_x;
+		var ay = this.draw_y;
+		var vx_x = gi.w;
 		var vx_y = 0; // todo : rotate ?
 		var vy_x = 0; // todo : rotate ?
-		var vy_y = this.font_h*sy;
+		var vy_y = this.font_height;
 		var mVB_Tex2 = this.mVB_Tex2;
 		var mVB_Pos2 = this.mVB_Pos2;
 		
-		
-		// triangle1  lt-rt-lb
-		if (this.mBufferVertices < this.kMaxVerticesPerString) {
-			var i = this.mBufferVertices*2;
-			this.mBufferVertices += 6;
+		// add geometry to float buffers if possible
+		if (this.num_vertices < this.max_vertices) {
+			var i = this.num_vertices*2;
+			this.num_vertices += 6;
 			
+            // triangle1  lt-rt-lb
 			mVB_Tex2[i+0] = gi.u0; mVB_Pos2[i+0] = ax;
 			mVB_Tex2[i+1] = gi.v0; mVB_Pos2[i+1] = ay;
 			mVB_Tex2[i+2] = gi.u1; mVB_Pos2[i+2] = ax + vx_x;
@@ -287,111 +116,385 @@ function cLoveFont (caller_name,a,b) {
 			mVB_Tex2[i+11] = gi.v1; mVB_Pos2[i+11] = ay + vx_y + vy_y;
 		}
 	}
-	
-	this.drawBuffer = function () {
-		if (this.mBufferVertices == 0) return;
+
+	this.draw = function (draw_x, draw_y, scale_x, scale_y, rotate) {
+		if (this.num_vertices == 0) return;
 		if (this.mVB_Pos == null) { MainPrint(this.TAG,"drawBuffer:mVB_Pos = null"); return; }
 		if (this.mVB_Tex == null) { MainPrint(this.TAG,"drawBuffer:mVB_Tex = null"); return; }
-		if (this.img == null) { MainPrint(this.TAG,"drawBuffer:img = null"); return; }
-		UpdateGlFloatBufferLen(gl,this.mVB_Pos,this.mVB_Pos2,this.mBufferVertices*2,gl.DYNAMIC_DRAW);
-		UpdateGlFloatBufferLen(gl,this.mVB_Tex,this.mVB_Tex2,this.mBufferVertices*2,gl.DYNAMIC_DRAW);
+		if (this.texture == null) { MainPrint(this.TAG,"drawBuffer:texture = null"); return; }
+
+		UpdateGlFloatBufferLen(gl,this.mVB_Pos,this.mVB_Pos2,this.num_vertices*2,gl.DYNAMIC_DRAW);
+		UpdateGlFloatBufferLen(gl,this.mVB_Tex,this.mVB_Tex2,this.num_vertices*2,gl.DYNAMIC_DRAW);
+
+        // Transform
+        GLModelViewPush();
+        var base = matrix4Clone(gGLMatrix_ModelView); // Existing transformations
+        resetTransformMatrix(); // Translate on base coordinates
+        GLModelViewTranslate(draw_x, draw_y, 1);
+        matrix4Mult(gGLMatrix_ModelView, base); // Apply existing transformation on top
+        setMatrixUniforms_MV();
+
+        // Draw
 		setVertexBuffersToCustom(this.mVB_Pos,this.mVB_Tex);
-		gl.bindTexture(gl.TEXTURE_2D, this.img.GetTextureID()); gLastGLTexture = this.img.GetTextureID();
-		gl.drawArrays(gl.TRIANGLES, 0, this.mBufferVertices);
+		gl.bindTexture(gl.TEXTURE_2D, this.texture); gLastGLTexture = this.texture;
+		gl.drawArrays(gl.TRIANGLES, 0, this.num_vertices);
+
+        // Reset transform
+        GLModelViewPop();
+	}
+
+    this.clear = function () {
+        this.draw_x = this.draw_y = this.num_vertices = 0;
+    }
+}
+
+function cLoveFont () {
+    // Required functions:
+    //  * compute_glyph  : Turn a unicode glyph into a GlyphInfo object.
+    //  * _move          : Move all buffers
+    //  * _draw          : Draw all buffers
+
+    this.font_h = 12;
+    this.line_h = 1.0;
+
+    this._glyph_cache = {};
+}
+cLoveFont.prototype.__handle      = true;
+cLoveFont.prototype.getWidth      = function (self, text) { return [self.get_line_width(text)]; }
+cLoveFont.prototype.getHeight     = function (self) { return [self.font_h]; }
+cLoveFont.prototype.getLineHeight = function (self) { return [self.line_h]; }
+cLoveFont.prototype.setLineHeight = function (self, line_h) { self.line_h = line_h; return []; }
+cLoveFont.prototype.getWrap       = function (self) { NotImplemented(pre+'getWrap'); return [1]; }
+cLoveFont.prototype.type          = function (self) { return ["Font"]; }
+cLoveFont.prototype.typeOf        = function (self, x) { return [x == "Object" || x == "Font"]; }
+
+cLoveFont.prototype.set_glyph     = function (str, info) {
+    this._glyph_cache[str] = info;
+}
+cLoveFont.prototype.get_glyph     = function (str) {
+    if (!(str in this._glyph_cache)) {
+        this.set_glyph(str, this.compute_glyph(str));
+    }
+    return this._glyph_cache[str];
+}
+cLoveFont.prototype.get_line_width = function(str) {
+    // For now, naively assume each code point is one glyph
+    var width = 0;
+    var record_width = 0;
+    for (var i = 0; i < str.length; i++) {
+        var char = str.charAt(i);
+        if (char != '\n') {
+            var glyph = this.get_glyph(str.charAt(i));
+            width += glyph ? glyph.movex : 0;
+        } else {
+            width = 0;
+        }
+        record_width = (width > record_width) ? width : record_width;
+    }
+    return record_width;
+}
+// Return array of [width, str] pairs for each line
+cLoveFont.prototype.split_lines = function (text, max_width) { 
+    var len = text.length;
+    var lines = [];
+    var last_cut = 0;
+
+    // TODO: wrap ignores word boundaries for now, lookahead ? 
+    for (var i=0;i<len;++i) {
+        // Scout ahead for danger
+        var substring = text.substring(last_cut, i+1);
+        var linew = this.get_line_width(substring);
+        if (linew > max_width || text.charAt(i) == '\n') {
+            // Backtrack
+            var substring = text.substring(last_cut, i);
+            var linew = this.get_line_width(substring);
+            lines.push([max_width-linew, substring]);
+
+            if (text.charAt(i) == '\n') i++; // Skip
+            last_cut = i;
+        }
+    }
+    var substring = text.substring(last_cut, i);
+    if (substring) {
+        var linew = this.get_line_width(substring);
+        lines.push([max_width-linew, substring]);
+    }
+
+    return lines;
+}
+cLoveFont.prototype.isWhiteSpace    = function (c) { 
+    return c == ' ' || c == '\t' || c == '\r' || c == '\n';
+}
+cLoveFont.prototype.make_context_2D = function (width, height) {
+    var newCanvas = document.createElement('canvas');
+    newCanvas.width  = powerOfTwo(width);
+    newCanvas.height = powerOfTwo(height);
+    return newCanvas.getContext('2d');
+}
+cLoveFont.prototype.print = function (text, param_x, param_y, r, sx, sy) {
+    if (r != 0) NotImplemented("love.graphics.print !rotation!");
+    if (this.bForceLowerCase) text = text.toLowerCase();
+    
+    var len = text.length;
+    for (var i=0;i<len;++i) {
+        var c  = text.charAt(i);
+        var gi = this.get_glyph(c);
+        if (!gi) break;
+        var buffer = gi.tex.buffer;
+
+        buffer.add_glyph(gi);
+        if (c != '\n') {
+            this._move(gi.movex, 0);
+        } else {
+            this._move(-buffer.draw_x, self.line_h*self.font_h);
+        }
+    }
+    this._draw(param_x, param_y);
+}
+// NOTE: not related to c printf, rather wordwrap etc
+cLoveFont.prototype.printf = function (text, param_x, param_y, limit, align) {
+    //~ MainPrint(self.TAG,"printf:"+param_x+","+param_y+","+limit+","+Align2Text(align)+" :"+text);
+    if (this.bForceLowerCase) text = text.toLowerCase();
+    var lines = this.split_lines(text, limit);
+
+    // Add a line at a time
+    for (var i=0;i<lines.length;++i) {
+
+        var line_data  = lines[i];
+        var line_extra = line_data[0];
+        var line_text  = line_data[1];
+
+        var line_leftspace = 0;
+        if (align == AlignMode.RIGHT) {
+            line_leftspace = line_extra;
+        } else if (align == AlignMode.CENTER) {
+            line_leftspace = line_extra * 0.5;
+        }
+        var buffer = this.buffer || this.textures[0].buffer;
+        this._move(-buffer.draw_x + line_leftspace, 0);
+
+        for (var ci in line_text) {
+            var c  = line_text.charAt(ci);
+            var gi = this.get_glyph(c);
+
+            gi.tex.buffer.add_glyph(gi);
+            this._move(gi.movex, 0);
+        }
+
+        this._move(0, this.line_h*this.font_h);
+    }
+    this._draw(param_x, param_y);
+}
+
+function makeDefaultFont() {
+    return new cLoveWebFont("Vera Sans", 12);
+}
+
+function cLoveWebFont(a, b) {
+    var fontface;
+    var self = this;
+    self.kMaxGlyphsPerString = 1024;
+    self.kMaxVerticesPerString = 1024;
+
+    if (typeof a == "string") {
+        fontface = a;
+        size = b;
+    } else {
+        size = a;
+    }
+
+    self.Texture = function () {
+        this.padding_vertical = 2; // TODO: Figure out better way to calculate
+        this.ctx = self.make_context_2D(
+            self.texture_width,
+            self.line_h*self.font_h+this.padding_vertical
+        );
+        this.ctx.font    = self.font_h + "pt " + self.fontface;
+        this.ctx.textBaseline = "alphabetic";
+        this.height = this.ctx.canvas.height;
+
+        this.width_total = self.texture_width;
+        this.width_used  = 0;
+        this.image  = loadCanvasTexture(gl, this.ctx.canvas);
+        this.buffer = new VertexBuffer(
+            self.kMaxGlyphsPerString,
+            self.kMaxVerticesPerString,
+            this.height,
+            this.image
+        );
+
+        this.refresh_buffer_texture = function () {
+            this.image = loadCanvasTexture(gl, this.ctx.canvas);
+            this.buffer.texture = this.image;
+        }
+
+        this.make_glyph = function (str) {
+            var width = this.glyph_width(str);
+            var glyph = new GlyphInfo(str, width, width,
+                                      this.width_used/this.width_total,
+                                      (this.width_used+width)/this.width_total,
+                                      this);
+            this.ctx.fillText(str, this.width_used, self.font_h);
+            this.width_used += width;
+            this.refresh_buffer_texture(); // TODO: Call less frequently
+			return glyph;
+        }
+
+        this.glyph_width = function (str) {
+            return this.ctx.measureText(str).width;
+        }
+    }
+
+    this.__proto__ = new cLoveFont();
+    this.fontface = fontface || "Vera Sans";
+    this.font_h = size || 12;
+    this.texture_width = 1024;
+    this.textures = [];
+
+    this.compute_glyph = function (str) {
+        var tex = null;
+        for (var texid in this.textures) {
+            var prospect = this.textures[texid];
+            if (prospect.glyph_width(str) + prospect.width_used <= prospect.width_total) {
+                tex = prospect;
+                break;
+            }
+        }
+        if (!tex) {
+            tex = new self.Texture();
+            this.textures.push(tex);
+        }
+        return tex.make_glyph(str);
+    }
+
+    self._move = function (x, y) {
+        for (var texid in self.textures) {
+            self.textures[texid].buffer.move(x, y);
+        }
+    }
+    self._draw = function (x, y) {
+        for (var texid in self.textures) {
+            var buffer_n = self.textures[texid].buffer;
+            buffer_n.draw(x, y);
+            buffer_n.clear();
+        }
+    }
+
+}
+
+function cLoveImageFont (a,b) {
+    var self = this;
+    self.__proto__ = new cLoveFont();
+	self.TAG = "love.graphics.font";
+	self.kMaxGlyphsPerString = 1024*8; // limit not really needed in webgl, keep code for porting code to other platforms
+	self.kMaxVerticesPerString = self.kMaxGlyphsPerString * 6;
+	
+	self.w_space = 0; // TODO: set from letter 'a' ? 
+	self.bForceLowerCase = false;
+	self.imgGetPixelContext = null;
+
+	self.constructor = function (image_or_filename,glyphs) {
+		self.glyphs = glyphs;
+		var img;
+		if ((typeof image_or_filename) == "string")
+				img = new cLoveImage(image_or_filename);
+		else	img = image_or_filename;
+		self.prepareImgForGetPixel(img.tex.image);
+		self.init(img, glyphs);
+	}
+
+    // GLYPH SCANNING =========================================================
+
+	self.prepareImgForGetPixel = function (img) {
+		self.imgGetPixelContext = self.make_context_2D(img.width, img.height);
+		self.imgGetPixelContext.drawImage(img, 0, 0);
+
+		// NOTE:getpixel : http://stackoverflow.com/questions/3528299/get-pixel-color-of-base64-png-using-javascript
+		// NOTE:getpixel : http://stackoverflow.com/questions/1041399/how-to-use-javascript-or-jquery-to-read-a-pixel-of-an-image
+		// NOTE:getpixel : http://stackoverflow.com/questions/4154223/get-pixel-from-bitmap
+	}
+	self.getPixel = function(x,y) { 
+		var data = self.imgGetPixelContext.getImageData(x, y, 1, 1).data; 
+		//~ if (x == 0 && y == 0) MainPrint("font pixel0,0=",self.img.path,typeof data,data);
+		//~ return data ? (data[0] + 256*(data[1] + 256*(data[2] + 256*data[3]))) : 0;
+		return data ? (data[0] + 256*(data[1] + 256*(data[2]))) : 0;
 	}
 	
-	this.print = function (text, param_x, param_y, r, sx, sy) {
-		if (r != 0) NotImplemented("love.graphics.print !rotation!");
-		if (this.bForceLowerCase) text = text.toLowerCase();
+	self.init = function (img, glyphs) {
+		self.img = img;
+
+		// TODO
 		
-		var len = text.length;
-		this.prepareBuffer(len,r);
-		var x = param_x;
-		var y = param_y;
-		// TODO: rotate code here rather than in prepareBuffer? x,y
-		for (var i=0;i<len;++i) {
-			var c = text.charAt(i);
-			var draw_x = x;
-			var draw_y = y;
-			if (!this.isWhiteSpace(c)) {
-				var mx = this.getGlyphMoveX(c)*sx;
-				x += mx;
-			} else {
-				if (c == ' ' ) x += this.getGlyphMoveX(c)*sx;
-				if (c == '\t') x += this.getGlyphMoveX(c)*sx;
-				if (c == '\n') {
-					x = param_x;
-					y += this.line_h*this.font_h*sy;
-				}
-			}
-			this.addCharToBufferS(c,draw_x,draw_y,sx,sy);
-		}
-		this.drawBuffer();
-	}
-	
-	
-	
-	/// NOTE: not related to c printf, rather wordwrap etc
-	this.printf = function (text, param_x, param_y, limit, align) {
-		if (this.bForceLowerCase) text = text.toLowerCase();
-		var len = text.length;
-		this.prepareBuffer(len);
-		var x = param_x; // TODO: align here
-		var y = param_y;
-		var bAlignRecalcNeeded = true;
-		// TODO: wrap ignores word boundaries for now, lookahead ? 
-		//~ MainPrint(this.TAG,"printf:"+param_x+","+param_y+","+limit+","+Align2Text(align)+" :"+text);
-		for (var i=0;i<len;++i) {
-			var c = text.charAt(i);
-			if (bAlignRecalcNeeded) {
-				bAlignRecalcNeeded = false;
-				if (align != AlignMode.LEFT) {
-					var linew = this.getLineW((i > 0) ? text : text.substring(i)); // getLineW automatically stops at newline
-					//~ MainPrint(this.TAG,"printf:["+i+"] linew="+linew+","+Align2Text(align)+" :"+text); 
-					if (linew > limit) linew = limit; // small inaccuracy here, but shouldn't matter much
-					if (align == AlignMode.RIGHT) x += (limit - linew); 
-					if (align == AlignMode.CENTER) x += (limit - linew)/2; // text is in the middle between param_x and param_x+limit
-				}
-			}
-			
-			var draw_x = x;
-			var draw_y = y;
-			if (!this.isWhiteSpace(c)) {
-				var mx = this.getGlyphMoveX(c);
-				if (x + mx < param_x + limit) {
-					x += mx;
-				} else {
-					draw_x = param_x; // TODO: align here
-					draw_y = y + this.line_h*this.font_h;
-					x = draw_x + mx;
-					y = draw_y;
-					bAlignRecalcNeeded = true;
-				}
-			} else {
-				if (c == ' ' ) x += this.getGlyphMoveX(c);
-				if (c == '\t') x += this.getGlyphMoveX(c);
-				if (c == '\n') {
-					x = param_x; // TODO: align here
-					y += this.line_h*this.font_h;
-					bAlignRecalcNeeded = true;
-				}
-			}
-			this.addCharToBuffer(c,draw_x,draw_y);
-		}
-		// TODO: center/right align line-wise : getLineW(substr(... till next newline))
-		this.drawBuffer();
-	}
-	
-	/// doesn't support newlines
-	this.getLineW = function (text) {
+		/*
+		The imagefont file is an image file in a format that L�ve can load. It can contain transparent pixels, so a PNG file is preferable, and it also needs to contain spacer color that will separate the different font glyphs.
+		The upper left pixel of the image file is always taken to be the spacer color. All columns that have self color as their uppermost pixel are interpreted as separators of font glyphs. The areas between these separators are interpreted as the actual font glyphs.
+		The width of the separator areas affect the spacing of the font glyphs. It is possible to have more areas in the image than are required for the font in the love.graphics.newImageFont() call. The extra areas are ignored. 
+		*/
+		var col = self.getPixel(0,0);
 		var x = 0;
-		for (var i=0;i<text.length;++i) {
-			var c = text.charAt(i);
-			x += this.getGlyphMoveX(c);
-			if (c == '\n') return x; // early out
+		var imgw = img.getWidth();
+		self.font_h = img.getHeight();
+		self.w_space = 0;
+        self.buffer = new VertexBuffer(
+            self.kMaxGlyphsPerString,
+            self.kMaxVerticesPerString,
+            self.font_h,
+            self.img.GetTextureID()
+        );
+		while (x < imgw && self.getPixel(x,0) == col) ++x; // skip first separator column
+			
+		//~ if (pLog != null) pLog.println("FontConstr: img="+img.getDebugSource()+" col="+col+" w="+imgw+" h="+font_h+" x0="+x); // TODO: remove, DEBUG only
+		//~ MainPrint(self.TAG,"FontConstr: img="+img.getDebugSource()+" col="+col+" w="+imgw+" h="+font_h+" x0="+x); // TODO: remove, DEBUG only
+		
+		for (var i=0;i<glyphs.length;++i) {
+			var c = glyphs.charAt(i);
+			
+			// calc the size of the glyph
+			var w = 1;
+			while (x+w < imgw && self.getPixel(x+w,0) != col) ++w;
+				
+			// calc the size of the separator
+			var spacing = 0;
+			while (x+w+spacing < imgw && self.getPixel(x+w+spacing,0) == col) ++spacing;
+			
+			// register glyph
+			//~ MainPrint(self.TAG,"glyph:"+c+":x="+x+",w="+w+",spacing="+spacing);
+			self.set_glyph(c, new GlyphInfo(c, w,w+spacing,x/imgw,(x+w)/imgw, self));
+			
+			//~ if (pLog != null) pLog.println("glyph="+c+" x="+x+" w="+w+" spacing="+spacing); // TODO: remove, DEBUG only
+			//~ MainPrint(self.TAG,"glyph="+c+" x="+x+" w="+w+" spacing="+spacing); // TODO: remove, DEBUG only
+			
+			if (self.w_space == 0) self.w_space = w;
+			x += w+spacing;
 		}
-		return x;
+		
+		var gi = self.get_glyph(' '); 
+		if (gi != null) self.w_space = gi.movex;
+	}
+
+    // UTIL ===================================================================
+
+    // Can't compute glyphs on the fly
+    self.compute_glyph = function () { return null }
+
+    self._move = function(x,y) {
+        self.buffer.move(x,y);
+    }
+    self._draw = function(x,y) {
+        self.buffer.draw(x,y);
+        self.buffer.clear();
+    }
+	
+	self.getGlyphMoveX = function (c) { 
+		if (c == ' ') return self.w_space;
+		if (c == '\t') return 4*self.w_space;
+		
+		var gi = self.get_glyph(c); 
+		if (gi != null) return gi.movex;
+		
+		return 0;
 	}
 	
-	this.constructor(caller_name,a,b);
+	
+	self.constructor(a,b);
 }
