@@ -15,7 +15,6 @@ function Love_Font_CreateTable () {
     Lua.inject(t, null, 'love.font');
 }
 
-
 // ***** ***** ***** ***** ***** cLoveFont
 
 var g_mVB_Pos_font;
@@ -26,6 +25,13 @@ var AlignMode = {};
 AlignMode.CENTER = "center";
 AlignMode.LEFT = "left";
 AlignMode.RIGHT = "right";
+
+function powerOfTwo(target) {
+    var position = 1;
+    while (position < target)
+        position *= 2;
+    return position;
+}
 
 function GlyphInfo (str, w,movex,u0,u1, tex) {
 	this.str = str;
@@ -120,9 +126,13 @@ function VertexBuffer (max_glyphs, max_vertices, font_height, texture) {
 		UpdateGlFloatBufferLen(gl,this.mVB_Pos,this.mVB_Pos2,this.num_vertices*2,gl.DYNAMIC_DRAW);
 		UpdateGlFloatBufferLen(gl,this.mVB_Tex,this.mVB_Tex2,this.num_vertices*2,gl.DYNAMIC_DRAW);
 
-        // Transform 
+        // Transform
         GLModelViewPush();
-        GLModelViewTranslate(draw_x*3, draw_y*3, 1); // TODO : Figure out why 3 is the magic number
+        var base = matrix4Clone(gGLMatrix_ModelView); // Existing transformations
+        resetTransformMatrix(); // Translate on base coordinates
+        GLModelViewTranslate(draw_x, draw_y, 1);
+        matrix4Mult(gGLMatrix_ModelView, base); // Apply existing transformation on top
+        setMatrixUniforms_MV();
 
         // Draw
 		setVertexBuffersToCustom(this.mVB_Pos,this.mVB_Tex);
@@ -132,17 +142,22 @@ function VertexBuffer (max_glyphs, max_vertices, font_height, texture) {
         // Reset transform
         GLModelViewPop();
 	}
+
+    this.clear = function () {
+        this.draw_x = this.draw_y = this.num_vertices = 0;
+    }
 }
 
 function cLoveFont () {
     // Required functions:
     //  * compute_glyph  : Turn a unicode glyph into a GlyphInfo object.
+    //  * _move          : Move all buffers
+    //  * _draw          : Draw all buffers
 
     this.font_h = 12;
     this.line_h = 1.0;
 
     this._glyph_cache = {};
-    this._texture_cache = {};
 }
 cLoveFont.prototype.__handle      = true;
 cLoveFont.prototype.getWidth      = function (self, text) { return [self.get_line_width(text)]; }
@@ -158,7 +173,7 @@ cLoveFont.prototype.set_glyph     = function (str, info) {
 }
 cLoveFont.prototype.get_glyph     = function (str) {
     if (!(str in this._glyph_cache)) {
-        this.set_glyph(this.compute_glyph(str));
+        this.set_glyph(str, this.compute_glyph(str));
     }
     return this._glyph_cache[str];
 }
@@ -212,25 +227,74 @@ cLoveFont.prototype.isWhiteSpace    = function (c) {
 }
 cLoveFont.prototype.make_context_2D = function (width, height) {
     var newCanvas = document.createElement('canvas');
-    newCanvas.width = width;
-    newCanvas.height = height;
+    newCanvas.width  = powerOfTwo(width);
+    newCanvas.height = powerOfTwo(height);
     return newCanvas.getContext('2d');
+}
+cLoveFont.prototype.print = function (text, param_x, param_y, r, sx, sy) {
+    if (r != 0) NotImplemented("love.graphics.print !rotation!");
+    if (this.bForceLowerCase) text = text.toLowerCase();
+    
+    var len = text.length;
+    for (var i=0;i<len;++i) {
+        var c  = text.charAt(i);
+        var gi = this.get_glyph(c);
+        if (!gi) break;
+        var buffer = gi.tex.buffer;
+
+        buffer.add_glyph(gi);
+        if (c != '\n') {
+            this._move(gi.movex, 0);
+        } else {
+            this._move(-buffer.draw_x, self.line_h*self.font_h);
+        }
+    }
+    this._draw(param_x, param_y);
+}
+// NOTE: not related to c printf, rather wordwrap etc
+cLoveFont.prototype.printf = function (text, param_x, param_y, limit, align) {
+    //~ MainPrint(self.TAG,"printf:"+param_x+","+param_y+","+limit+","+Align2Text(align)+" :"+text);
+    if (this.bForceLowerCase) text = text.toLowerCase();
+    var lines = this.split_lines(text, limit);
+
+    // Add a line at a time
+    for (var i=0;i<lines.length;++i) {
+
+        var line_data  = lines[i];
+        var line_extra = line_data[0];
+        var line_text  = line_data[1];
+
+        var line_leftspace = 0;
+        if (align == AlignMode.RIGHT) {
+            line_leftspace = line_extra;
+        } else if (align == AlignMode.CENTER) {
+            line_leftspace = line_extra * 0.5;
+        }
+        var buffer = this.buffer || this.textures[0].buffer;
+        this._move(-buffer.draw_x + line_leftspace, 0);
+
+        for (var ci in line_text) {
+            var c  = line_text.charAt(ci);
+            var gi = this.get_glyph(c);
+
+            gi.tex.buffer.add_glyph(gi);
+            this._move(gi.movex, 0);
+        }
+
+        this._move(0, this.line_h*this.font_h);
+    }
+    this._draw(param_x, param_y);
 }
 
 function makeDefaultFont() {
-    // TODO: Vera Sans 12pt TTF
-    if (!kDefaultImageFontURL) {
-        MainPrint("warning:kDefaultImageFontURL not set for self hostname/path (needed for cross-domain image-load), default font disabled");
-    } else {
-        var font = new cLoveImageFont(kDefaultImageFontURL," abcdefghijklmnopqrstuvwxyz0123456789.!'-:·");
-        font.bForceLowerCase = true;
-        return font;
-    }
+    return new cLoveWebFont("Vera Sans", 12);
 }
 
 function cLoveWebFont(a, b) {
     var fontface;
-    var size;
+    var self = this;
+    self.kMaxGlyphsPerString = 1024;
+    self.kMaxVerticesPerString = 1024;
 
     if (typeof a == "string") {
         fontface = a;
@@ -239,12 +303,83 @@ function cLoveWebFont(a, b) {
         size = a;
     }
 
+    self.Texture = function () {
+        this.padding_vertical = 2; // TODO: Figure out better way to calculate
+        this.ctx = self.make_context_2D(
+            self.texture_width,
+            self.line_h*self.font_h+this.padding_vertical
+        );
+        this.ctx.font    = self.font_h + "pt " + self.fontface;
+        this.ctx.textBaseline = "alphabetic";
+        this.height = this.ctx.canvas.height;
+
+        this.width_total = self.texture_width;
+        this.width_used  = 0;
+        this.image  = loadCanvasTexture(gl, this.ctx.canvas);
+        this.buffer = new VertexBuffer(
+            self.kMaxGlyphsPerString,
+            self.kMaxVerticesPerString,
+            this.height,
+            this.image
+        );
+
+        this.refresh_buffer_texture = function () {
+            this.image = loadCanvasTexture(gl, this.ctx.canvas);
+            this.buffer.texture = this.image;
+        }
+
+        this.make_glyph = function (str) {
+            var width = this.glyph_width(str);
+            var glyph = new GlyphInfo(str, width, width,
+                                      this.width_used/this.width_total,
+                                      (this.width_used+width)/this.width_total,
+                                      this);
+            this.ctx.fillText(str, this.width_used, self.font_h);
+            this.width_used += width;
+            this.refresh_buffer_texture(); // TODO: Call less frequently
+			return glyph;
+        }
+
+        this.glyph_width = function (str) {
+            return this.ctx.measureText(str).width;
+        }
+    }
+
     this.__proto__ = new cLoveFont();
     this.fontface = fontface || "Vera Sans";
-    this.size = size || 12;
+    this.font_h = size || 12;
+    this.texture_width = 1024;
+    this.textures = [];
+
     this.compute_glyph = function (str) {
-        return null;
+        var tex = null;
+        for (var texid in this.textures) {
+            var prospect = this.textures[texid];
+            if (prospect.glyph_width(str) + prospect.width_used <= prospect.width_total) {
+                tex = prospect;
+                break;
+            }
+        }
+        if (!tex) {
+            tex = new self.Texture();
+            this.textures.push(tex);
+        }
+        return tex.make_glyph(str);
     }
+
+    self._move = function (x, y) {
+        for (var texid in self.textures) {
+            self.textures[texid].buffer.move(x, y);
+        }
+    }
+    self._draw = function (x, y) {
+        for (var texid in self.textures) {
+            var buffer_n = self.textures[texid].buffer;
+            buffer_n.draw(x, y);
+            buffer_n.clear();
+        }
+    }
+
 }
 
 function cLoveImageFont (a,b) {
@@ -287,6 +422,7 @@ function cLoveImageFont (a,b) {
 	
 	self.init = function (img, glyphs) {
 		self.img = img;
+
 		// TODO
 		
 		/*
@@ -299,6 +435,12 @@ function cLoveImageFont (a,b) {
 		var imgw = img.getWidth();
 		self.font_h = img.getHeight();
 		self.w_space = 0;
+        self.buffer = new VertexBuffer(
+            self.kMaxGlyphsPerString,
+            self.kMaxVerticesPerString,
+            self.font_h,
+            self.img.GetTextureID()
+        );
 		while (x < imgw && self.getPixel(x,0) == col) ++x; // skip first separator column
 			
 		//~ if (pLog != null) pLog.println("FontConstr: img="+img.getDebugSource()+" col="+col+" w="+imgw+" h="+font_h+" x0="+x); // TODO: remove, DEBUG only
@@ -317,7 +459,7 @@ function cLoveImageFont (a,b) {
 			
 			// register glyph
 			//~ MainPrint(self.TAG,"glyph:"+c+":x="+x+",w="+w+",spacing="+spacing);
-			self.set_glyph(c, new GlyphInfo(c, w,w+spacing,x/imgw,(x+w)/imgw));
+			self.set_glyph(c, new GlyphInfo(c, w,w+spacing,x/imgw,(x+w)/imgw, self));
 			
 			//~ if (pLog != null) pLog.println("glyph="+c+" x="+x+" w="+w+" spacing="+spacing); // TODO: remove, DEBUG only
 			//~ MainPrint(self.TAG,"glyph="+c+" x="+x+" w="+w+" spacing="+spacing); // TODO: remove, DEBUG only
@@ -334,6 +476,14 @@ function cLoveImageFont (a,b) {
 
     // Can't compute glyphs on the fly
     self.compute_glyph = function () { return null }
+
+    self._move = function(x,y) {
+        self.buffer.move(x,y);
+    }
+    self._draw = function(x,y) {
+        self.buffer.draw(x,y);
+        self.buffer.clear();
+    }
 	
 	self.getGlyphMoveX = function (c) { 
 		if (c == ' ') return self.w_space;
@@ -344,73 +494,7 @@ function cLoveImageFont (a,b) {
 		
 		return 0;
 	}
-
-    // RENDERING ==============================================================
 	
-	self.print = function (text, param_x, param_y, r, sx, sy) {
-		if (r != 0) NotImplemented("love.graphics.print !rotation!");
-		if (self.bForceLowerCase) text = text.toLowerCase();
-		
-		var len = text.length;
-        var buffer = new VertexBuffer(
-            self.kMaxGlyphsPerString,
-            self.kMaxVerticesPerString,
-            self.font_h,
-            self.img.GetTextureID()
-        );
-		// TODO: rotate code here rather than in prepareBuffer? x,y
-		for (var i=0;i<len;++i) {
-			var c = text.charAt(i);
-			buffer.add_glyph(self.get_glyph(c));
-			if (c != '\n') {
-                buffer.move(self.getGlyphMoveX(c), 0);
-			} else {
-                buffer.move(-buffer.draw_x, self.line_h*self.font_h);
-			}
-		}
-		buffer.draw(param_x, param_y);
-	}
-	
-	/// NOTE: not related to c printf, rather wordwrap etc
-	self.printf = function (text, param_x, param_y, limit, align) {
-		//~ MainPrint(self.TAG,"printf:"+param_x+","+param_y+","+limit+","+Align2Text(align)+" :"+text);
-		if (self.bForceLowerCase) text = text.toLowerCase();
-        var lines = self.split_lines(text, limit);
-
-        var buffer = new VertexBuffer(
-            self.kMaxGlyphsPerString,
-            self.kMaxVerticesPerString,
-            self.font_h,
-            self.img.GetTextureID()
-        );
-
-        // Add a line at a time
-		for (var i=0;i<lines.length;++i) {
-
-            var line_data  = lines[i];
-            var line_extra = line_data[0];
-            var line_text  = line_data[1];
-
-            var line_leftspace = 0;
-            if (align == AlignMode.RIGHT) {
-                line_leftspace = line_extra;
-            } else if (align == AlignMode.CENTER) {
-                line_leftspace = line_extra * 0.5;
-            }
-            buffer.move(-buffer.draw_x + line_leftspace, 0);
-
-            for (var ci in line_text) {
-                var c = line_text[ci];
-
-                buffer.add_glyph(self.get_glyph(c));
-                buffer.move(self.getGlyphMoveX(c), 0);
-            }
-
-            buffer.move(0, self.line_h*self.font_h);
-		}
-		// TODO: center/right align line-wise : get_line_width(substr(... till next newline))
-		buffer.draw(param_x, param_y);
-	}
 	
 	self.constructor(a,b);
 }
