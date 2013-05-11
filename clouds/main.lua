@@ -54,9 +54,15 @@ function love.update(dt)
 	
 	nekochan:update(dt)
 	
-	-- Update clouds.
-	for k, c in ipairs(clouds) do
+    
+	-- Update clouds, iterating backwards for safe removal of off-screen ones.
+	local width = love.graphics.getWidth()
+	for k=#clouds,1,-1 do
+		local c = clouds[k]
 		c.x = c.x + c.s * dt
+		if c.x > width then
+			table.remove(clouds, k)
+		end
 	end
 	
 end
@@ -75,7 +81,7 @@ end
 
 function love.keypressed(k)
 	if k == "r" then
-		(love.filesystem.load("main.lua"))() -- webplayer parsing needs braces!
+		love.filesystem.load("main.lua")()
 	end
 end
 
@@ -120,9 +126,4 @@ end
 
 function spawn_cloud(xpos, ypos, speed)
 	table.insert(clouds, { x = xpos, y = ypos, s = speed } )
-end
-
-
-function love.keypressed(key, uni)
-	print(key, uni)
 end

@@ -1,13 +1,11 @@
 
 /// init lua api
-function Love_Joystick_CreateTable (G) {
-	var t = lua_newtable();
+function Love_Joystick_CreateTable () {
+	var t = {};
 	var pre = "love.joystick.";
 
-	G.str['love'].str['joystick'] = t;
-	
-	t.str['close'] = function (joystick) { return NotImplemented(pre+'close'); }
-	t.str['getAxes'] = function (joystick) {
+	t['close'] = function (joystick) { return NotImplemented(pre+'close'); }
+	t['getAxes'] = function (joystick) {
 		var gamepad;
 		if (GamepadState) gamepad = GamepadState[joystick - 1];
 		if (typeof gamepad == 'undefined') {
@@ -16,7 +14,7 @@ function Love_Joystick_CreateTable (G) {
 		return [gamepad.leftStickX, gamepad.leftStickY,
 				gamepad.rightStickX, gamepad.rightStickY];
 	}
-	t.str['getAxis'] = function (joystick, axis) {
+	t['getAxis'] = function (joystick, axis) {
 		var gamepad;
 		if (GamepadState) gamepad = GamepadState[joystick - 1];
 		if (typeof gamepad == 'undefined') {
@@ -34,9 +32,9 @@ function Love_Joystick_CreateTable (G) {
 		}
 		return [0];
 	}
-	t.str['getBall'] = function (joystick, ball) { return NotImplemented(pre+'getBall'); }
-	t.str['getHat'] = function (joystick, hat) { return NotImplemented(pre+'getHat'); }
-	t.str['getName'] = function (joystick) {
+	t['getBall'] = function (joystick, ball) { return NotImplemented(pre+'getBall'); }
+	t['getHat'] = function (joystick, hat) { return NotImplemented(pre+'getHat'); }
+	t['getName'] = function (joystick) {
 		var gamepad;
 		if (GamepadState) gamepad = GamepadState[joystick - 1];
 		if (typeof gamepad == 'undefined') {
@@ -44,11 +42,11 @@ function Love_Joystick_CreateTable (G) {
 		}
 		return [gamepad.name]
 	}
-	t.str['getNumAxes'] = function (joystick) { return NotImplemented(pre+'getNumAxes'); }
-	t.str['getNumBalls'] = function (joystick) { return NotImplemented(pre+'getNumBalls'); }
-	t.str['getNumButtons'] = function (joystick) { return NotImplemented(pre+'getNumButtons'); }
-	t.str['getNumHats'] = function (joystick) { return NotImplemented(pre+'getNumHats'); }
-	t.str['getNumJoysticks'] = function () {
+	t['getNumAxes'] = function (joystick) { return NotImplemented(pre+'getNumAxes'); }
+	t['getNumBalls'] = function (joystick) { return NotImplemented(pre+'getNumBalls'); }
+	t['getNumButtons'] = function (joystick) { return NotImplemented(pre+'getNumButtons'); }
+	t['getNumHats'] = function (joystick) { return NotImplemented(pre+'getNumHats'); }
+	t['getNumJoysticks'] = function () {
 		var count = 0;
 		if (GamepadState) for (var i in GamepadState) {
 			var gamepad = GamepadState[i];
@@ -58,7 +56,7 @@ function Love_Joystick_CreateTable (G) {
 		}
 		return [count];
 	}
-	t.str['isDown'] = function (joystick, button) {
+	t['isDown'] = function (joystick, button) {
 		var gamepad;
 		if (GamepadState) gamepad = GamepadState[joystick - 1];
 		if (typeof gamepad == 'undefined') {
@@ -76,7 +74,7 @@ function Love_Joystick_CreateTable (G) {
 		}
 		return [false];
 	}
-	t.str['isOpen'] = function (joystick) {
+	t['isOpen'] = function (joystick) {
 		var gamepad;
 		if (GamepadState) gamepad = GamepadState[joystick - 1];
 		if (typeof gamepad == 'undefined') {
@@ -84,5 +82,7 @@ function Love_Joystick_CreateTable (G) {
 		}
 		return [true];
 	}
-	t.str['open'] = function (joystick) { return NotImplemented(pre+'open'); }
+	t['open'] = function (joystick) { return NotImplemented(pre+'open'); }
+
+    Lua.inject(t, null, 'love.joystick');
 }

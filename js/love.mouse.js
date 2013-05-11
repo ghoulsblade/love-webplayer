@@ -41,25 +41,25 @@ function Love_Mouse_Init()
 }
 
 /// init lua api
-function Love_Mouse_CreateTable (G) {
-	var t = lua_newtable();
+function Love_Mouse_CreateTable () {
+	var t = {};
 	var pre = "love.mouse.";
 
-	G.str['love'].str['mouse'] = t;
-	
-	t.str['getPosition']	= function () { return [gMouseX, gMouseY]; }
-	t.str['getX']			= function () { return [gMouseX]; }
-	t.str['getY']			= function () { return [gMouseY]; }
-	t.str['isDown']			= function (btn)
+	t['getPosition']	= function () { return [gMouseX, gMouseY]; }
+	t['getX']			= function () { return [gMouseX]; }
+	t['getY']			= function () { return [gMouseY]; }
+	t['isDown']			= function (btn)
 	{
 		btn = gMouseButtonNames.indexOf(btn);
 		if (btn == -1)
 			return [false]; // Non-existing button
 		return [gMouseDown[btn]];
 	}
-	t.str['isGrabbed']		= function () { return [false];}
-	t.str['isVisible']		= function () { return [true]; }
-	t.str['setGrab']		= function () { return NotImplemented(pre+'setGrab'); }
-	t.str['setPosition']	= function () { return NotImplemented(pre+'setPosition'); }
-	t.str['setVisible']		= function () { return NotImplemented(pre+'setVisible'); }
+	t['isGrabbed']		= function () { return [false];}
+	t['isVisible']		= function () { return [true]; }
+	t['setGrab']		= function () { return NotImplemented(pre+'setGrab'); }
+	t['setPosition']	= function () { return NotImplemented(pre+'setPosition'); }
+	t['setVisible']		= function () { return NotImplemented(pre+'setVisible'); }
+
+    Lua.inject(t, null, 'love.mouse');
 }

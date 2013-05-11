@@ -36,33 +36,33 @@ function Love_Physics_SetMeter (m) {
 
 /// init lua api
 function Love_Physics_CreateTable (G) {
-	var t = lua_newtable();
+	var t = {};
 	var pre = "love.physics.";
 
-	G.str['love'].str['physics'] = t;
+	G['love']['physics'] = t;
 	
-	t.str['newWorld'			] = function (xg, yg, sleep							) { return [(new cLovePhysicsWorld(xg, yg, sleep)								).GetLuaHandle()]; } //	Creates a new World.
-	t.str['newBody'				] = function (world, x, y, type						) { return [(new cLovePhysicsBody(world, x, y, type)							).GetLuaHandle()]; } //	Creates a new body.
-	t.str['newFixture'			] = function (body, shape, density					) { return [(new cLovePhysicsFixture(body, shape, density)						).GetLuaHandle()]; } //	Creates and attaches a fixture.
-	t.str['newCircleShape'		] = function (a,b,c									) { return [(new cLovePhysicsCircleShape(a,b,c)									).GetLuaHandle()]; } //	Creates a circle shape.
-	t.str['newRectangleShape'	] = function (x, y, width, height, angle			) { return [(new cLovePhysicsRectangleShape(x, y, width, height, angle)			).GetLuaHandle()]; } //	Shorthand for creating rectangluar PolygonShapes.
-	t.str['newPolygonShape'		] = function (										) { return [(new cLovePhysicsPolygonShape(arguments)							).GetLuaHandle()]; } //	Creates a new PolygonShape.
-	t.str['newRevoluteJoint'	] = function (body1, body2, x, y, collideConnected	) { return [(new cLovePhysicsRevoluteJoint(body1, body2, x, y, collideConnected)).GetLuaHandle()]; } //	Creates a pivot joint between two bodies.
-	t.str['newWeldJoint'		] = function (body1, body2, x, y, collideConnected	) { return [(new cLovePhysicsWeldJoint(body1, body2, x, y, collideConnected)).GetLuaHandle()]; } //	A WeldJoint essentially glues two bodies together.
+	t['newWorld'			] = function (xg, yg, sleep							) { return [(new cLovePhysicsWorld(xg, yg, sleep)								).GetLuaHandle()]; } //	Creates a new World.
+	t['newBody'				] = function (world, x, y, type						) { return [(new cLovePhysicsBody(world, x, y, type)							).GetLuaHandle()]; } //	Creates a new body.
+	t['newFixture'			] = function (body, shape, density					) { return [(new cLovePhysicsFixture(body, shape, density)						).GetLuaHandle()]; } //	Creates and attaches a fixture.
+	t['newCircleShape'		] = function (a,b,c									) { return [(new cLovePhysicsCircleShape(a,b,c)									).GetLuaHandle()]; } //	Creates a circle shape.
+	t['newRectangleShape'	] = function (x, y, width, height, angle			) { return [(new cLovePhysicsRectangleShape(x, y, width, height, angle)			).GetLuaHandle()]; } //	Shorthand for creating rectangluar PolygonShapes.
+	t['newPolygonShape'		] = function (										) { return [(new cLovePhysicsPolygonShape(arguments)							).GetLuaHandle()]; } //	Creates a new PolygonShape.
+	t['newRevoluteJoint'	] = function (body1, body2, x, y, collideConnected	) { return [(new cLovePhysicsRevoluteJoint(body1, body2, x, y, collideConnected)).GetLuaHandle()]; } //	Creates a pivot joint between two bodies.
+	t['newWeldJoint'		] = function (body1, body2, x, y, collideConnected	) { return [(new cLovePhysicsWeldJoint(body1, body2, x, y, collideConnected)).GetLuaHandle()]; } //	A WeldJoint essentially glues two bodies together.
 	
-	t.str['getDistance'			] = function () { return NotImplemented(pre+'getDistance'		); } //	Returns the two closest points between two fixtures and their distance.
-	t.str['getMeter'			] = function () { return NotImplemented(pre+'getMeter'			); } //	Returns the meter scale factor.
-	t.str['newChainShape'		] = function () { return NotImplemented(pre+'newChainShape'		); } //	Creates a new ChainShape.
-	t.str['newDistanceJoint'	] = function () { return NotImplemented(pre+'newDistanceJoint'	); } //	Creates a distance joint between two bodies.
-	t.str['newEdgeShape'		] = function () { return NotImplemented(pre+'newEdgeShape'		); } //	Creates a new EdgeShape.
-	t.str['newFrictionJoint'	] = function () { return NotImplemented(pre+'newFrictionJoint'	); } //	A FrictionJoint applies friction to a body.
-	t.str['newGearJoint'		] = function () { return NotImplemented(pre+'newGearJoint'		); } //	Create a gear joint connecting two joints.
-	t.str['newMouseJoint'		] = function () { return NotImplemented(pre+'newMouseJoint'		); } //	Create a joint between a body and the mouse.
-	t.str['newPrismaticJoint'	] = function () { return NotImplemented(pre+'newPrismaticJoint'	); } //	Creates a prismatic joints between two bodies.
-	t.str['newPulleyJoint'		] = function () { return NotImplemented(pre+'newPulleyJoint'	); } //	Creates a pulley joint to join two bodies to each other and the ground.
-	t.str['newRopeJoint'		] = function () { return NotImplemented(pre+'newRopeJoint'		); } //	Creates a joint between two bodies that enforces a max distance between them.
-	t.str['newWheelJoint'		] = function () { return NotImplemented(pre+'newWheelJoint'		); } //	Creates a wheel joint.
-	t.str['setMeter'			] = function (m) { Love_Physics_SetMeter(m); return LuaNil; } //	Sets the meter scale factor.  (affects forces, coords, impulse, mass etc..)
+	t['getDistance'			] = function () { return NotImplemented(pre+'getDistance'		); } //	Returns the two closest points between two fixtures and their distance.
+	t['getMeter'			] = function () { return NotImplemented(pre+'getMeter'			); } //	Returns the meter scale factor.
+	t['newChainShape'		] = function () { return NotImplemented(pre+'newChainShape'		); } //	Creates a new ChainShape.
+	t['newDistanceJoint'	] = function () { return NotImplemented(pre+'newDistanceJoint'	); } //	Creates a distance joint between two bodies.
+	t['newEdgeShape'		] = function () { return NotImplemented(pre+'newEdgeShape'		); } //	Creates a new EdgeShape.
+	t['newFrictionJoint'	] = function () { return NotImplemented(pre+'newFrictionJoint'	); } //	A FrictionJoint applies friction to a body.
+	t['newGearJoint'		] = function () { return NotImplemented(pre+'newGearJoint'		); } //	Create a gear joint connecting two joints.
+	t['newMouseJoint'		] = function () { return NotImplemented(pre+'newMouseJoint'		); } //	Create a joint between a body and the mouse.
+	t['newPrismaticJoint'	] = function () { return NotImplemented(pre+'newPrismaticJoint'	); } //	Creates a prismatic joints between two bodies.
+	t['newPulleyJoint'		] = function () { return NotImplemented(pre+'newPulleyJoint'	); } //	Creates a pulley joint to join two bodies to each other and the ground.
+	t['newRopeJoint'		] = function () { return NotImplemented(pre+'newRopeJoint'		); } //	Creates a joint between two bodies that enforces a max distance between them.
+	t['newWheelJoint'		] = function () { return NotImplemented(pre+'newWheelJoint'		); } //	Creates a wheel joint.
+	t['setMeter'			] = function (m) { Love_Physics_SetMeter(m); return LuaNil; } //	Sets the meter scale factor.  (affects forces, coords, impulse, mass etc..)
 }
 
 // ***** ***** ***** ***** ***** cLovePhysicsFixture
@@ -90,44 +90,44 @@ cLovePhysicsFixture.prototype.constructor = function (body, shape, density) {
 }
 
 
-var t = lua_newtable();
-cLovePhysicsFixture.prototype.Metatable = lua_newtable();
-cLovePhysicsFixture.prototype.Metatable.str['__index'] = t;
-t.str['destroy']				= function (t) { return t._data.destroy(); }
-t.str['getBody']				= function (t) { return t._data.getBody(); }
-t.str['getBoundingBox']			= function (t) { return t._data.getBoundingBox(); }
-t.str['getCategory']			= function (t) { return t._data.getCategory(); }
-t.str['getDensity']				= function (t) { return t._data.getDensity(); }
-t.str['getFilterData']			= function (t) { return t._data.getFilterData(); }
-t.str['getFriction']			= function (t) { return t._data.getFriction(); }
-t.str['getGroupIndex']			= function (t) { return t._data.getGroupIndex(); }
-t.str['getMask']				= function (t) { return t._data.getMask(); }
-t.str['getMassData']			= function (t) { return t._data.getMassData(); }
-t.str['getRestitution']			= function (t) { return t._data.getRestitution(); }
-t.str['getShape']				= function (t) { return t._data.getShape(); }
-t.str['isSensor']				= function (t) { return t._data.isSensor(); }
-t.str['rayCast']				= function (t) { return t._data.rayCast(); }
-t.str['setDensity']				= function (t) { return t._data.setDensity(); }
-t.str['setFilterData']			= function (t) { return t._data.setFilterData(); }
-t.str['setFriction']			= function (t) { return t._data.setFriction(); }
-t.str['setGroupIndex']			= function (t) { return t._data.setGroupIndex(); }
-t.str['setRestitution']			= function (t) { return t._data.setRestitution(); }
-t.str['setSensor']				= function (t) { return t._data.setSensor(); }
-t.str['testPoint']				= function (t) { return t._data.testPoint(); }
+var t = {};
+// cLovePhysicsFixture.prototype.Metatable = {};
+// cLovePhysicsFixture.prototype.Metatable['__index'] = t;
+t['destroy']				= function (t) { return t._data.destroy(); }
+t['getBody']				= function (t) { return t._data.getBody(); }
+t['getBoundingBox']			= function (t) { return t._data.getBoundingBox(); }
+t['getCategory']			= function (t) { return t._data.getCategory(); }
+t['getDensity']				= function (t) { return t._data.getDensity(); }
+t['getFilterData']			= function (t) { return t._data.getFilterData(); }
+t['getFriction']			= function (t) { return t._data.getFriction(); }
+t['getGroupIndex']			= function (t) { return t._data.getGroupIndex(); }
+t['getMask']				= function (t) { return t._data.getMask(); }
+t['getMassData']			= function (t) { return t._data.getMassData(); }
+t['getRestitution']			= function (t) { return t._data.getRestitution(); }
+t['getShape']				= function (t) { return t._data.getShape(); }
+t['isSensor']				= function (t) { return t._data.isSensor(); }
+t['rayCast']				= function (t) { return t._data.rayCast(); }
+t['setDensity']				= function (t) { return t._data.setDensity(); }
+t['setFilterData']			= function (t) { return t._data.setFilterData(); }
+t['setFriction']			= function (t) { return t._data.setFriction(); }
+t['setGroupIndex']			= function (t) { return t._data.setGroupIndex(); }
+t['setRestitution']			= function (t) { return t._data.setRestitution(); }
+t['setSensor']				= function (t) { return t._data.setSensor(); }
+t['testPoint']				= function (t) { return t._data.testPoint(); }
 
 
-t.str['setMask']				= function (t,a,b,c,d,e,f,g) { t._data._fixture.m_filter.maskBits		= Lua2Box2DMask([a,b,c,d,e,f,g]); return LuaNil; }
-t.str['setCategory']			= function (t,a,b,c,d,e,f,g) { t._data._fixture.m_filter.categoryBits	= Lua2Box2DCategory([a,b,c,d,e,f,g]); return LuaNil; }
+t['setMask']				= function (t,a,b,c,d,e,f,g) { t._data._fixture.m_filter.maskBits		= Lua2Box2DMask([a,b,c,d,e,f,g]); return LuaNil; }
+t['setCategory']			= function (t,a,b,c,d,e,f,g) { t._data._fixture.m_filter.categoryBits	= Lua2Box2DCategory([a,b,c,d,e,f,g]); return LuaNil; }
 
 function Lua2Box2DMask		(arr) { var res = 0x0000; for (var i=0;i<arr.length;++i) res |= 2 << arr[i]; return res; } //~ this.filter.categoryBits = 0x0001;
 function Lua2Box2DCategory	(arr) { return 0xFFFF ^ Lua2Box2DMask(arr); } //~ this.filter.maskBits = 0xFFFF;
 
-t.str['getUserData']			= function (t) { return [t._data._loveUserData]; }
-t.str['setUserData']			= function (t,v) { t._data._loveUserData = v; return LuaNil; }
+t['getUserData']			= function (t) { return [t._data._loveUserData]; }
+t['setUserData']			= function (t,v) { t._data._loveUserData = v; return LuaNil; }
 
 
 cLovePhysicsFixture.prototype.GetLuaHandle = function () {
-	var t = lua_newtable();
+	var t = {};
 	t._data = this;
 	t.metatable = this.Metatable;
 	return t;
@@ -186,12 +186,12 @@ cLovePhysicsWorld.prototype.constructor = function (xg, yg, bsleep) {
 }
 
 cLovePhysicsWorld.prototype.GetLuaHandle = function () {
-	var t = lua_newtable();
+	var t = {};
 	t._data = this;
-	//~ t.str['somefun']				= function (t		) { return t._data.somefun			(); }
-	t.str['setGravity']				= function (t,x,y) { t._data._world.SetGravity(new b2Vec2(gPhysGravityScale*x,gPhysGravityScale*y)); return LuaNil; }		
-	t.str['setMeter']				= function (t) { Love_Physics_SetMeter(m); return LuaNil; }		
-	t.str['setCallbacks']			= function (t, beginContact, endContact, preSolve, postSolve) { // World:setCallbacks( beginContact, endContact, preSolve, postSolve )
+	//~ t['somefun']				= function (t		) { return t._data.somefun			(); }
+	t['setGravity']				= function (t,x,y) { t._data._world.SetGravity(new b2Vec2(gPhysGravityScale*x,gPhysGravityScale*y)); return LuaNil; }		
+	t['setMeter']				= function (t) { Love_Physics_SetMeter(m); return LuaNil; }		
+	t['setCallbacks']			= function (t, beginContact, endContact, preSolve, postSolve) { // World:setCallbacks( beginContact, endContact, preSolve, postSolve )
 		t._data.beginContact = beginContact;
 		//~ MainPrint("setCallbacks",beginContact);
 		// lua Phys_OnCollision (fixA,fixB,contact) fixA:getUserData()
@@ -204,8 +204,8 @@ cLovePhysicsWorld.prototype.GetLuaHandle = function () {
 		// Box2dWeb-2.1.a.3.js:5083: b2ContactListener.prototype.PostSolve = function (contact, impulse) {}
 		return NotImplemented(t._data.pre+'setCallbacks (only beginContact)'); 
 	}	
-	t.str['update']					= function (t,dt) { return t._data.update(dt); }
-	t.str['getBodyCount']			= function (t) { return [t._data._world.m_bodyCount]; }
+	t['update']					= function (t,dt) { return t._data.update(dt); }
+	t['getBodyCount']			= function (t) { return [t._data._world.m_bodyCount]; }
 	return t;
 }	
 
@@ -277,76 +277,76 @@ cLovePhysicsBody.prototype.Destroy = function () {
 	//~ delete this._body;
 }
 
-var t = lua_newtable();
-cLovePhysicsBody.prototype.Metatable = lua_newtable();
-cLovePhysicsBody.prototype.Metatable.str['__index'] = t;
+var t = {};
+cLovePhysicsBody.prototype.Metatable = {};
+cLovePhysicsBody.prototype.Metatable['__index'] = t;
 
-t.str['getX'							]		= function (t) { return t._data.getX									(); }
-t.str['getY'							]		= function (t) { return t._data.getY									(); }
-t.str['getAngle'						]		= function (t) { return t._data.getAngle								(); }
-t.str['getInertia'						]		= function (t) { return t._data.getInertia								(); }
-t.str['getLinearDamping'				]		= function (t) { return t._data.getLinearDamping						(); }
-t.str['getWorldPoint'					]		= function (t) { return t._data.getWorldPoint							(); }
-t.str['getLocalCenter'					]		= function (t) { return t._data.getLocalCenter							(); }
-t.str['getWorldCenter'					]		= function (t) { return t._data.getWorldCenter							(); }
-t.str['applyAngularImpulse'				]		= function (t) { return t._data.applyAngularImpulse					(); }
-t.str['applyTorque'						]		= function (t) { return t._data.applyTorque							(); }
-t.str['getAllowSleeping'				]		= function (t) { return t._data.getAllowSleeping						(); }
-t.str['getAngularDamping'				]		= function (t) { return t._data.getAngularDamping						(); }
-t.str['getAngularVelocity'				]		= function (t) { return t._data.getAngularVelocity						(); }
-t.str['getFixtureList'					]		= function (t) { return t._data.getFixtureList							(); }
-t.str['getGravityScale'					]		= function (t) { return t._data.getGravityScale						(); }
-t.str['getLinearVelocityFromLocalPoint'	]		= function (t) { return t._data.getLinearVelocityFromLocalPoint		(); }
-t.str['getLinearVelocityFromWorldPoint'	]		= function (t) { return t._data.getLinearVelocityFromWorldPoint		(); }
-t.str['getLocalPoint'					]		= function (t) { return t._data.getLocalPoint							(); }
-t.str['getLocalVector'					]		= function (t) { return t._data.getLocalVector							(); }
-t.str['getMassData'						]		= function (t) { return t._data.getMassData							(); }
-t.str['getPosition'						]		= function (t) { return t._data.getPosition							(); }
-t.str['getType'							]		= function (t) { return t._data.getType								(); }
-t.str['getWorldPoints'					]		= function (t) { return t._data.getWorldPoints							(); }
-t.str['getWorldVector'					]		= function (t) { return t._data.getWorldVector							(); }
-t.str['isActive'						]		= function (t) { return t._data.isActive								(); }
-t.str['isAwake'							]		= function (t) { return t._data.isAwake								(); }
-t.str['isBullet'						]		= function (t) { return t._data.isBullet								(); }
-t.str['isDynamic'						]		= function (t) { return t._data.isDynamic								(); }
-t.str['isFixedRotation'					]		= function (t) { return t._data.isFixedRotation						(); }
-t.str['isFrozen'						]		= function (t) { return t._data.isFrozen								(); }
-t.str['isSleeping'						]		= function (t) { return t._data.isSleeping								(); }
-t.str['isSleepingAllowed'				]		= function (t) { return t._data.isSleepingAllowed						(); }
-t.str['isStatic'						]		= function (t) { return t._data.isStatic								(); }
-t.str['putToSleep'						]		= function (t) { return t._data.putToSleep								(); }
-t.str['resetMassData'					]		= function (t) { return t._data.resetMassData							(); }
-t.str['setActive'						]		= function (t) { return t._data.setActive								(); }
-t.str['setAllowSleeping'				]		= function (t) { return t._data.setAllowSleeping						(); }
-t.str['setAngle'						]		= function (t) { return t._data.setAngle								(); }
-t.str['setAngularDamping'				]		= function (t) { return t._data.setAngularDamping						(); }
-t.str['setAngularVelocity'				]		= function (t) { return t._data.setAngularVelocity						(); }
-t.str['setAwake'						]		= function (t) { return t._data.setAwake								(); }
-t.str['setFixedRotation'				]		= function (t) { return t._data.setFixedRotation						(); }
-t.str['setGravityScale'					]		= function (t) { return t._data.setGravityScale						(); }
-t.str['setInertia'						]		= function (t) { return t._data.setInertia								(); }
-t.str['setLinearDamping'				]		= function (t) { return t._data.setLinearDamping						(); }
-t.str['setMass'							]		= function (t) { return t._data.setMass								(); }
-t.str['setMassData'						]		= function (t) { return t._data.setMassData							(); }
-t.str['setMassFromShapes'				]		= function (t) { return t._data.setMassFromShapes						(); }
-t.str['setSleepingAllowed'				]		= function (t) { return t._data.setSleepingAllowed						(); }
-t.str['setX'							]		= function (t) { return t._data.setX									(); }
-t.str['setY'							]		= function (t) { return t._data.setY									(); }
-t.str['wakeUp'							]		= function (t) { return t._data.wakeUp									(); }
-t.str['applyImpulse'					]		= function (t) { return t._data.applyImpulse							(); }
+t['getX'							]		= function (t) { return t._data.getX									(); }
+t['getY'							]		= function (t) { return t._data.getY									(); }
+t['getAngle'						]		= function (t) { return t._data.getAngle								(); }
+t['getInertia'						]		= function (t) { return t._data.getInertia								(); }
+t['getLinearDamping'				]		= function (t) { return t._data.getLinearDamping						(); }
+t['getWorldPoint'					]		= function (t) { return t._data.getWorldPoint							(); }
+t['getLocalCenter'					]		= function (t) { return t._data.getLocalCenter							(); }
+t['getWorldCenter'					]		= function (t) { return t._data.getWorldCenter							(); }
+t['applyAngularImpulse'				]		= function (t) { return t._data.applyAngularImpulse					(); }
+t['applyTorque'						]		= function (t) { return t._data.applyTorque							(); }
+t['getAllowSleeping'				]		= function (t) { return t._data.getAllowSleeping						(); }
+t['getAngularDamping'				]		= function (t) { return t._data.getAngularDamping						(); }
+t['getAngularVelocity'				]		= function (t) { return t._data.getAngularVelocity						(); }
+t['getFixtureList'					]		= function (t) { return t._data.getFixtureList							(); }
+t['getGravityScale'					]		= function (t) { return t._data.getGravityScale						(); }
+t['getLinearVelocityFromLocalPoint'	]		= function (t) { return t._data.getLinearVelocityFromLocalPoint		(); }
+t['getLinearVelocityFromWorldPoint'	]		= function (t) { return t._data.getLinearVelocityFromWorldPoint		(); }
+t['getLocalPoint'					]		= function (t) { return t._data.getLocalPoint							(); }
+t['getLocalVector'					]		= function (t) { return t._data.getLocalVector							(); }
+t['getMassData'						]		= function (t) { return t._data.getMassData							(); }
+t['getPosition'						]		= function (t) { return t._data.getPosition							(); }
+t['getType'							]		= function (t) { return t._data.getType								(); }
+t['getWorldPoints'					]		= function (t) { return t._data.getWorldPoints							(); }
+t['getWorldVector'					]		= function (t) { return t._data.getWorldVector							(); }
+t['isActive'						]		= function (t) { return t._data.isActive								(); }
+t['isAwake'							]		= function (t) { return t._data.isAwake								(); }
+t['isBullet'						]		= function (t) { return t._data.isBullet								(); }
+t['isDynamic'						]		= function (t) { return t._data.isDynamic								(); }
+t['isFixedRotation'					]		= function (t) { return t._data.isFixedRotation						(); }
+t['isFrozen'						]		= function (t) { return t._data.isFrozen								(); }
+t['isSleeping'						]		= function (t) { return t._data.isSleeping								(); }
+t['isSleepingAllowed'				]		= function (t) { return t._data.isSleepingAllowed						(); }
+t['isStatic'						]		= function (t) { return t._data.isStatic								(); }
+t['putToSleep'						]		= function (t) { return t._data.putToSleep								(); }
+t['resetMassData'					]		= function (t) { return t._data.resetMassData							(); }
+t['setActive'						]		= function (t) { return t._data.setActive								(); }
+t['setAllowSleeping'				]		= function (t) { return t._data.setAllowSleeping						(); }
+t['setAngle'						]		= function (t) { return t._data.setAngle								(); }
+t['setAngularDamping'				]		= function (t) { return t._data.setAngularDamping						(); }
+t['setAngularVelocity'				]		= function (t) { return t._data.setAngularVelocity						(); }
+t['setAwake'						]		= function (t) { return t._data.setAwake								(); }
+t['setFixedRotation'				]		= function (t) { return t._data.setFixedRotation						(); }
+t['setGravityScale'					]		= function (t) { return t._data.setGravityScale						(); }
+t['setInertia'						]		= function (t) { return t._data.setInertia								(); }
+t['setLinearDamping'				]		= function (t) { return t._data.setLinearDamping						(); }
+t['setMass'							]		= function (t) { return t._data.setMass								(); }
+t['setMassData'						]		= function (t) { return t._data.setMassData							(); }
+t['setMassFromShapes'				]		= function (t) { return t._data.setMassFromShapes						(); }
+t['setSleepingAllowed'				]		= function (t) { return t._data.setSleepingAllowed						(); }
+t['setX'							]		= function (t) { return t._data.setX									(); }
+t['setY'							]		= function (t) { return t._data.setY									(); }
+t['wakeUp'							]		= function (t) { return t._data.wakeUp									(); }
+t['applyImpulse'					]		= function (t) { return t._data.applyImpulse							(); }
 
-t.str['destroy'							]		= function (t			) { t._data.Destroy(); t.str = null; return LuaNil; }
-t.str['setPosition'						]		= function (t,x,y		) { return t._data._body.SetPosition(new b2Vec2(gPhysPosScaleI*x,gPhysPosScaleI*y)); return LuaNil; }
-t.str['getMass'							]		= function (t			) { return [t._data._body.GetMass()]; }
-t.str['setType'							]		= function (t,btype		) { return t._data._body.SetType(Love2BodyType(btype)); return LuaNil; }
-t.str['setLinearVelocity'				]		= function (t,x,y		) { return t._data._body.SetLinearVelocity(new b2Vec2(gPhysPosScaleI*x,gPhysPosScaleI*y)); return LuaNil; }
-t.str['applyForce'						]		= function (t,fx,fy,x,y	) { var o = t._data._body; return o.ApplyForce(new b2Vec2(gPhysForceScale*fx,gPhysForceScale*fy),(x != null) ? (new b2Vec2(gPhysPosScaleI*x,gPhysPosScaleI*y)) : (o.GetWorldCenter())); }
-t.str['applyLinearImpulse'				]		= function (t,ix,iy,x,y	) { var o = t._data._body; return o.ApplyImpulse(new b2Vec2(gPhysImpulseScale*ix,gPhysImpulseScale*iy),(x != null) ? (new b2Vec2(gPhysPosScaleI*x,gPhysPosScaleI*y)) : (o.GetWorldCenter())); }
-t.str['getLinearVelocity'				]		= function (t			) { var v = t._data._body.GetLinearVelocity(); return [v.x,v.y]; }
-t.str['setBullet'						]		= function (t,v			) { return t._data._body.SetBullet(v); }
+t['destroy'							]		= function (t			) { t._data.Destroy(); t = null; return LuaNil; }
+t['setPosition'						]		= function (t,x,y		) { return t._data._body.SetPosition(new b2Vec2(gPhysPosScaleI*x,gPhysPosScaleI*y)); return LuaNil; }
+t['getMass'							]		= function (t			) { return [t._data._body.GetMass()]; }
+t['setType'							]		= function (t,btype		) { return t._data._body.SetType(Love2BodyType(btype)); return LuaNil; }
+t['setLinearVelocity'				]		= function (t,x,y		) { return t._data._body.SetLinearVelocity(new b2Vec2(gPhysPosScaleI*x,gPhysPosScaleI*y)); return LuaNil; }
+t['applyForce'						]		= function (t,fx,fy,x,y	) { var o = t._data._body; return o.ApplyForce(new b2Vec2(gPhysForceScale*fx,gPhysForceScale*fy),(x != null) ? (new b2Vec2(gPhysPosScaleI*x,gPhysPosScaleI*y)) : (o.GetWorldCenter())); }
+t['applyLinearImpulse'				]		= function (t,ix,iy,x,y	) { var o = t._data._body; return o.ApplyImpulse(new b2Vec2(gPhysImpulseScale*ix,gPhysImpulseScale*iy),(x != null) ? (new b2Vec2(gPhysPosScaleI*x,gPhysPosScaleI*y)) : (o.GetWorldCenter())); }
+t['getLinearVelocity'				]		= function (t			) { var v = t._data._body.GetLinearVelocity(); return [v.x,v.y]; }
+t['setBullet'						]		= function (t,v			) { return t._data._body.SetBullet(v); }
 
 
-//~ t.str['applyLinearImpulse'				]		= function (t) { return t._data.applyLinearImpulse						(); }
+//~ t['applyLinearImpulse'				]		= function (t) { return t._data.applyLinearImpulse						(); }
 // TODO: applyForce/applyLinearImpulse : which is right :  GetWorldCenter, not GetLocalCenter : http://lib.ivank.net/?p=demos&d=box2D
 /*
 [21:35:24.649] NotImplemented:love.physics.Body.resetMassData @ http://localhost/love-webplayer/js/main.js:61
@@ -356,7 +356,7 @@ t.str['setBullet'						]		= function (t,v			) { return t._data._body.SetBullet(v
 */
 
 cLovePhysicsBody.prototype.GetLuaHandle = function () {
-	var t = lua_newtable();
+	var t = {};
 	t._data = this;
 	t.metatable = this.Metatable;
 	return t;
@@ -494,33 +494,33 @@ cShapeBase.prototype.testPoint			= function () { return NotImplemented(this.pre+
 cShapeBase.prototype.testSegment		= function () { return NotImplemented(this.pre+'testSegment'			); }
 
 function Shape_LuaMethods (t) {
-	t.str['computeAABB'		] = function (t) { return t._data.computeAABB		(); }
-	t.str['computeMass'		] = function (t) { return t._data.computeMass		(); }
-	t.str['destroy'			] = function (t) { return t._data.destroy			(); }
-	t.str['getBody'			] = function (t) { return t._data.getBody			(); }
-	t.str['getBoundingBox'	] = function (t) { return t._data.getBoundingBox	(); }
-	t.str['getCategory'		] = function (t) { return t._data.getCategory		(); }
-	t.str['getCategoryBits'	] = function (t) { return t._data.getCategoryBits	(); }
-	t.str['getChildCount'	] = function (t) { return t._data.getChildCount		(); }
-	t.str['getData'			] = function (t) { return t._data.getData			(); }
-	t.str['getDensity'		] = function (t) { return t._data.getDensity		(); }
-	t.str['getFilterData'	] = function (t) { return t._data.getFilterData		(); }
-	t.str['getFriction'		] = function (t) { return t._data.getFriction		(); }
-	t.str['getMask'			] = function (t) { return t._data.getMask			(); }
-	t.str['getRestitution'	] = function (t) { return t._data.getRestitution	(); }
-	t.str['getType'			] = function (t) { return t._data.getType			(); }
-	t.str['isSensor'		] = function (t) { return t._data.isSensor			(); }
-	t.str['rayCast'			] = function (t) { return t._data.rayCast			(); }
-	t.str['setCategory'		] = function (t) { return t._data.setCategory		(); }
-	t.str['setData'			] = function (t) { return t._data.setData			(); }
-	t.str['setDensity'		] = function (t) { return t._data.setDensity		(); }
-	t.str['setFilterData'	] = function (t) { return t._data.setFilterData		(); }
-	t.str['setFriction'		] = function (t) { return t._data.setFriction		(); }
-	t.str['setMask'			] = function (t) { return t._data.setMask			(); }
-	t.str['setRestitution'	] = function (t) { return t._data.setRestitution	(); }
-	t.str['setSensor'		] = function (t) { return t._data.setSensor			(); }
-	t.str['testPoint'		] = function (t) { return t._data.testPoint			(); }
-	t.str['testSegment'		] = function (t) { return t._data.testSegment		(); }
+	t['computeAABB'		] = function (t) { return t._data.computeAABB		(); }
+	t['computeMass'		] = function (t) { return t._data.computeMass		(); }
+	t['destroy'			] = function (t) { return t._data.destroy			(); }
+	t['getBody'			] = function (t) { return t._data.getBody			(); }
+	t['getBoundingBox'	] = function (t) { return t._data.getBoundingBox	(); }
+	t['getCategory'		] = function (t) { return t._data.getCategory		(); }
+	t['getCategoryBits'	] = function (t) { return t._data.getCategoryBits	(); }
+	t['getChildCount'	] = function (t) { return t._data.getChildCount		(); }
+	t['getData'			] = function (t) { return t._data.getData			(); }
+	t['getDensity'		] = function (t) { return t._data.getDensity		(); }
+	t['getFilterData'	] = function (t) { return t._data.getFilterData		(); }
+	t['getFriction'		] = function (t) { return t._data.getFriction		(); }
+	t['getMask'			] = function (t) { return t._data.getMask			(); }
+	t['getRestitution'	] = function (t) { return t._data.getRestitution	(); }
+	t['getType'			] = function (t) { return t._data.getType			(); }
+	t['isSensor'		] = function (t) { return t._data.isSensor			(); }
+	t['rayCast'			] = function (t) { return t._data.rayCast			(); }
+	t['setCategory'		] = function (t) { return t._data.setCategory		(); }
+	t['setData'			] = function (t) { return t._data.setData			(); }
+	t['setDensity'		] = function (t) { return t._data.setDensity		(); }
+	t['setFilterData'	] = function (t) { return t._data.setFilterData		(); }
+	t['setFriction'		] = function (t) { return t._data.setFriction		(); }
+	t['setMask'			] = function (t) { return t._data.setMask			(); }
+	t['setRestitution'	] = function (t) { return t._data.setRestitution	(); }
+	t['setSensor'		] = function (t) { return t._data.setSensor			(); }
+	t['testPoint'		] = function (t) { return t._data.testPoint			(); }
+	t['testSegment'		] = function (t) { return t._data.testSegment		(); }
 }
 
 
@@ -534,14 +534,14 @@ function cLovePhysicsCircleShape (a,b,c) {
 }
 	
 	
-var t = lua_newtable();
-cLovePhysicsCircleShape.prototype.Metatable = lua_newtable();
-cLovePhysicsCircleShape.prototype.Metatable.str['__index'] = t;
+var t = {};
+cLovePhysicsCircleShape.prototype.Metatable = {};
+cLovePhysicsCircleShape.prototype.Metatable['__index'] = t;
 Shape_LuaMethods(t);
-t.str['getLocalCenter'	] = function (t) { return t._data.getLocalCenter	(); }
-t.str['getRadius'		] = function (t) { return t._data.getRadius			(); }
-t.str['getWorldCenter'	] = function (t) { return t._data.getWorldCenter	(); }
-t.str['setRadius'		] = function (t) { return t._data.setRadius			(); }
+t['getLocalCenter'	] = function (t) { return t._data.getLocalCenter	(); }
+t['getRadius'		] = function (t) { return t._data.getRadius			(); }
+t['getWorldCenter'	] = function (t) { return t._data.getWorldCenter	(); }
+t['setRadius'		] = function (t) { return t._data.setRadius			(); }
 	
 
 /// (x,y,radius)  or  (radius)
@@ -554,7 +554,7 @@ cLovePhysicsCircleShape.prototype.constructor = function (a,b,c) {
 }
 
 cLovePhysicsCircleShape.prototype.GetLuaHandle = function () {
-	var t = lua_newtable();
+	var t = {};
 	t._data = this;
 	t.metatable = this.Metatable;
 	return t;
@@ -578,11 +578,11 @@ function cLovePhysicsRectangleShape (x, y, width, height, angle) {
 
 
 	
-var t = lua_newtable();
-cLovePhysicsRectangleShape.prototype.Metatable = lua_newtable();
-cLovePhysicsRectangleShape.prototype.Metatable.str['__index'] = t;
+var t = {};
+cLovePhysicsRectangleShape.prototype.Metatable = {};
+cLovePhysicsRectangleShape.prototype.Metatable['__index'] = t;
 Shape_LuaMethods(t);
-t.str['getPoints'] = function (t) { var o = t._data._shape; return Box2D_VertexList_ToLua(o.GetVertices(),o.GetVertexCount()); }
+t['getPoints'] = function (t) { var o = t._data._shape; return Box2D_VertexList_ToLua(o.GetVertices(),o.GetVertexCount()); }
 
 /// (width, height) or (x, y, width, height, angle)
 cLovePhysicsRectangleShape.prototype.constructor = function (x, y, width, height, angle) {
@@ -599,7 +599,7 @@ cLovePhysicsRectangleShape.prototype.constructor = function (x, y, width, height
 }
 
 cLovePhysicsRectangleShape.prototype.GetLuaHandle = function () {
-	var t = lua_newtable();
+	var t = {};
 	t._data = this;
 	t.metatable = this.Metatable;
 	return t;
@@ -622,11 +622,11 @@ function cLovePhysicsPolygonShape (arr) {
 	this.constructor(arr);
 }
 
-var t = lua_newtable();
-cLovePhysicsPolygonShape.prototype.Metatable = lua_newtable();
-cLovePhysicsPolygonShape.prototype.Metatable.str['__index'] = t;
+var t = {};
+cLovePhysicsPolygonShape.prototype.Metatable = {};
+cLovePhysicsPolygonShape.prototype.Metatable['__index'] = t;
 Shape_LuaMethods(t);
-t.str['getPoints'] = function (t) { var o = t._data._shape; return Box2D_VertexList_ToLua(o.GetVertices(),o.GetVertexCount()); }
+t['getPoints'] = function (t) { var o = t._data._shape; return Box2D_VertexList_ToLua(o.GetVertices(),o.GetVertexCount()); }
 
 /// ( x1, y1, x2, y2, x3, y3, ... )
 cLovePhysicsPolygonShape.prototype.constructor = function (myfloats) {
@@ -640,7 +640,7 @@ cLovePhysicsPolygonShape.prototype.constructor = function (myfloats) {
 }
 
 cLovePhysicsPolygonShape.prototype.GetLuaHandle = function () {
-	var t = lua_newtable();
+	var t = {};
 	t._data = this;
 	t.metatable = this.Metatable;
 	return t;
@@ -659,7 +659,7 @@ cShapeBase.prototype.destroy			= function () {
 }
 
 function Joint_LuaMethods (t) {
-	t.str['destroy'			] = function (t) { return t._data.destroy			(); }
+	t['destroy'			] = function (t) { return t._data.destroy			(); }
 }
 
 
@@ -672,9 +672,9 @@ function cLovePhysicsRevoluteJoint (body1, body2, x, y, collideConnected) {
 	this.constructor(body1, body2, x, y, collideConnected);
 }
 
-var t = lua_newtable();
-cLovePhysicsRevoluteJoint.prototype.Metatable = lua_newtable();
-cLovePhysicsRevoluteJoint.prototype.Metatable.str['__index'] = t;
+var t = {};
+cLovePhysicsRevoluteJoint.prototype.Metatable = {};
+cLovePhysicsRevoluteJoint.prototype.Metatable['__index'] = t;
 Joint_LuaMethods(t);
 
 
@@ -687,7 +687,7 @@ cLovePhysicsRevoluteJoint.prototype.constructor = function (body1, body2, x, y, 
 }
 
 cLovePhysicsRevoluteJoint.prototype.GetLuaHandle = function () {
-	var t = lua_newtable();
+	var t = {};
 	t._data = this;
 	t.metatable = this.Metatable;
 	return t;
@@ -704,9 +704,9 @@ function cLovePhysicsWeldJoint (body1, body2, x, y, collideConnected) {
 	this.constructor(body1, body2, x, y, collideConnected);
 }
 
-var t = lua_newtable();
-cLovePhysicsWeldJoint.prototype.Metatable = lua_newtable();
-cLovePhysicsWeldJoint.prototype.Metatable.str['__index'] = t;
+var t = {};
+cLovePhysicsWeldJoint.prototype.Metatable = {};
+cLovePhysicsWeldJoint.prototype.Metatable['__index'] = t;
 Joint_LuaMethods(t);
 
 
@@ -719,7 +719,7 @@ cLovePhysicsWeldJoint.prototype.constructor = function (body1, body2, x, y, coll
 }
 
 cLovePhysicsWeldJoint.prototype.GetLuaHandle = function () {
-	var t = lua_newtable();
+	var t = {};
 	t._data = this;
 	t.metatable = this.Metatable;
 	return t;

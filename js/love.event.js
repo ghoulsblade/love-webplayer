@@ -3,7 +3,7 @@ function Love_Event_PollIterator()
 {
 	var ev = gEvents[0];
 	gEvents.shift();
-	return ev;
+	return ev ? ev : LuaNil;
 }
 
 $(window).focus(function()
@@ -17,19 +17,19 @@ $(window).blur(function()
 });
 
 window.onbeforeunload = function() {
-	call_lua_function_safe("love.quit", []);
+	Lua.call("love.quit", []);
 };
 
 /// init lua api
 function Love_Event_CreateTable (G) {
-	var t = lua_newtable();
+	var t = {};
 	var pre = "love.event.";
 
-	G.str['love'].str['event'] = t;
-		
-	t.str['clear']			= function () { gEvents = []; }
-	t.str['poll']			= function () { return [Love_Event_PollIterator]; }
-	t.str['pump']			= function () { } // If you ever need other events coming in
-	t.str['push']			= function (e, a, b, c, d) { gEvents[gEvents.length] = [e, a, b, c, d]; }
-	t.str['wait']			= function () { } // Makes no sense, there is nothing else that can push stuff.. yet
+	t['clear']			= function () { gEvents = []; return LuaNil; }
+	t['poll']			= function () { return [Love_Event_PollIterator]; }
+	t['pump']			= function () { return LuaNil; } // If you ever need other events coming in
+	t['push']			= function (e, a, b, c, d) { gEvents[gEvents.length] = [e, a, b, c, d]; return LuaNil; }
+	t['wait']			= function () { return LuaNil; } // Makes no sense, there is nothing else that can push stuff.. yet
+
+    Lua.inject(t, null, "love.event");
 }
