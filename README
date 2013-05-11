@@ -5,6 +5,12 @@ github: https://github.com/ghoulsblade/love-webplayer
 infos: http://ghoulsblade.schattenkind.net/wiki/index.php/Love-WebPlayer
 love-forum: https://love2d.org/forums/viewtopic.php?f=5&t=8487
 
+NEWS:
+* 2013-05 for 100% c-lua compatibility (fully working lua string patterns etc) check out 
+** campadrenalin's work on "weblua" : https://github.com/campadrenalin/weblua
+** and his porting of love-webplayer to it in the weblua branch : https://github.com/ghoulsblade/love-webplayer/tree/weblua
+
+
 goal : play games made for love2d inside the browser without plugins (webgl+javascript capable browser required)
 usage: unpack .love file (rename to .zip), add the .js files and the index.html from love-webplayer, upload the whole folder to webserver, open in browser, play
 tech : webgl for display, github.com/mherkender/lua.js to run lua code in javascript
