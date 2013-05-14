@@ -314,6 +314,13 @@ function matrix4GetIdentity() { return [ 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 ]; }
 /// returns a 4x4 matrix with scale & translate
 function matrix4GetTranslateScale(tx,ty,tz, sx,sy,sz) { return [ sx,0,0,0, 0,sy,0,0, 0,0,sz,0, tx,ty,tz,1 ]; }
 
+function matrix4GetRotate(radians) {
+    /// returns a 4x4 matrix with 2D rotation around (0,0,0)
+    var sin = Math.sin(radians);
+    var cos = Math.cos(radians);
+    return [ cos,sin,0,0, -sin,cos,0,0, 0,0,0,0, 0,0,0,1];
+}
+
 /// modifies m  (m x n 4x4 matrix mult)
 function matrix4Mult(m,n) {
 	var o = matrix4Clone(m); // copy of old state
@@ -353,6 +360,9 @@ function matrix4Translate(m,tx,ty,tz) {
 	m[3*4+2] += m[3*4+3] * tz;
 }
 
+function matrix4Rotate(m,radians) {
+    matrix4Mult(m,matrix4GetRotate(radians));
+}
 
 var matrixPrintOptimizeMult_AlreadyPrinted = false; 
 function matrixPrintOptimizeMult (n) {
