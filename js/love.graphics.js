@@ -129,7 +129,7 @@ function Love_Graphics_CreateTable () {
 	}
 	t['scale']				= function (sx,sy) { GLModelViewScale(sx || 1,sy || 1,1); return LuaNil; }
 	t['translate']			= function (tx,ty) { GLModelViewTranslate(tx || 0,ty || 0,0); return LuaNil; }
-	t['rotate']				= function () { return NotImplemented(pre+'rotate'); }
+	t['rotate']				= function (r) { GLModelViewRotate(r); return LuaNil; }
 	t['push']				= function () { GLModelViewPush(); }
 	t['pop']				= function () { GLModelViewPop(); }
 	
@@ -546,6 +546,11 @@ function GLModelViewScale (sx,sy,sz) {
 
 function GLModelViewTranslate (tx,ty,tz) {
 	matrix4Translate(gGLMatrix_ModelView,tx,ty,tz);
+	setMatrixUniforms_MV();
+}
+
+function GLModelViewRotate (radians) {
+	matrix4Rotate(gGLMatrix_ModelView,radians);
 	setMatrixUniforms_MV();
 }
 
