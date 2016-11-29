@@ -1,11 +1,11 @@
-Love2D WebPlayer
+# Love2D WebPlayer
 started 2012-03 ghoulsblade@schattenkind.net
 demos: http://ghoulsblade.schattenkind.net/love-webplayer/
 github: https://github.com/ghoulsblade/love-webplayer
 infos: http://ghoulsblade.schattenkind.net/wiki/index.php/Love-WebPlayer
 love-forum: https://love2d.org/forums/viewtopic.php?f=5&t=8487
 
-NEWS:
+## NEWS:
 * 2013-05 for 100% c-lua compatibility (fully working lua string patterns etc) check out 
 ** campadrenalin's work on "weblua" : https://github.com/campadrenalin/weblua
 ** and his porting of love-webplayer to it in the weblua branch : https://github.com/ghoulsblade/love-webplayer/tree/weblua
@@ -19,7 +19,7 @@ love2d is a lua based 2d game engine : http://love2d.org/
 lua-parser.js is a lua interpreter/converter in javascript from https://github.com/mherkender/lua.js (added LuaBootStrap call)
 Box2dWeb-2.1.a.3.min.js is a javascript port of the Box2D engine from http://code.google.com/p/box2dweb/
 
-not-yet-implemented (incomplete list) 
+### Not-Yet-Implemented (incomplete list) 
 * love 0.8 api (currently webplayer is mostly for 0.7, to test some 0.8 stuff add to index.html : <body onload="Love_Enable_Experimental_080(); ...>
 * spritebatch,framebuf
 * love.physics/box2d  (started usign Box2dWeb)
@@ -35,10 +35,10 @@ not-yet-implemented (incomplete list)
 * screensize wrong (-1,-1) during love.load : love.graphics.getWidth()/getHeight()
 * raw sound/audio editing : love.sound.newSoundData etc
 
-known issues : 
+### Known Issues : 
 * audio : music formats .xm and .mod not supported by browsers usually
 * 404 warning in webconsole when using "require somemodule", you can safely ignore this, this is just the only way javascript can do a file-exists check for the module loading behavior of require
-* (TODO) workaround for 404 : call LoveFileList('filelist.txt') in index.html body onload to enable love.filesystem.enumerate
+* __(TODO)__ workaround for 404 : call LoveFileList('filelist.txt') in index.html body onload to enable love.filesystem.enumerate
 * images have to be listed in index.html onLoad call for preloading, otherwise .width/.height access can return 0, and it's not possible in chrome+firefox to pause running code without changing code-structure to callback
 * ticket/issue at lua.js github : https://github.com/mherkender/lua.js/issues/5
 * parser bug : clouds demo : parse error in keypressed :  >> love.filesystem.load("main.lua")() << (already fixed for some generic cases) workaround : >> (love.filesystem.load("main.lua"))() <<
@@ -51,7 +51,7 @@ known issues :
 * functions not allowed as table key
 * table with key-type=obj tends to slow down if inserted/deleted a lot every frame, usage of js:splice in lua-parser might be bad? further testing needed, example devmania2012veh pre 2012-10-12
 
-web api available:
+### Web api available:
 * if (love.web) then ... end
 * love.web.javascript("jsfun()")
 * if (string.find(love.web.getAgent(),"MSIE")) then ...mp3... else ...ogg... end
